@@ -27,6 +27,7 @@ function LoginPage({navigation}) {
         try {
             await signInWithEmailAndPassword(auth, email, password);
             setErrorMessage('login Sucessful');
+            navigation.navigate('HomeCalendar'); // Add this line to navigate to the HomeCalendar screen
         } catch (error) {
             const errorCode = error.code;
             let errorMessage = '';
