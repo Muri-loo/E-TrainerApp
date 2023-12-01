@@ -5,6 +5,7 @@ import { Calendar } from 'react-native-calendars';
 const CalendarPage = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
+
       <Calendar
         // Initially visible month. Default = now
         current={'2022-01-01'}
@@ -12,6 +13,7 @@ const CalendarPage = ({ navigation }) => {
         onDayPress={(day) => { console.log('selected day', day); }}
         // ...other props
       />
+
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate('SomeOtherPage')}
@@ -43,7 +45,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
   },
-  // ... other styles
 });
 
 export default CalendarPage;
