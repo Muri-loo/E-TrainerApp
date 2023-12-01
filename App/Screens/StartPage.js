@@ -22,7 +22,7 @@ function StartPage({navigation} ) {
             />   
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => Alert.alert('Button Pressed')}
+                onPress={() => navigation.navigate('LoginPage')}
                 accessibilityLabel="Learn more about this purple button"
                 >
                 <Text style={styles.buttonText}>Login</Text>
