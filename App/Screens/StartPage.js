@@ -1,4 +1,7 @@
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import {
     StyleSheet,
     Button,
@@ -10,7 +13,7 @@ import {
     TouchableOpacity,
   } from 'react-native';
 
-function StartPage(props) {
+function StartPage({navigation} ) {
     return (
         <SafeAreaView style={styles.container}>
             <Image
@@ -28,7 +31,7 @@ function StartPage(props) {
                 
             <TouchableOpacity
                 style={styles.button}
-                onPress={() => Alert.alert('Button Pressed')}
+                onPress={() => navigation.navigate('SingUp')}
                 accessibilityLabel="Learn more about this purple button"
                 >
                 <Text style={styles.buttonText}>Signup</Text>
