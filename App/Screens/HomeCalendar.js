@@ -1,31 +1,27 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { StyleSheet, SafeAreaView, TouchableOpacity, Text } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 
 const CalendarPage = ({ navigation }) => {
+  // Define the theme for the calendar
+  const [selected, setSelected] = useState('');
+
+
   return (
     <SafeAreaView style={styles.container}>
 
-      <Calendar
-        // Initially visible month. Default = now
-        current={'2022-01-01'}
-        // Callback that gets called on day press
-        onDayPress={(day) => { console.log('selected day', day); }}
-        // ...other props
-      />
+<Calendar onDayPress={day => {setSelected(day.dateString);}}
+          markedDates={{[selected]: {selected: true, disableTouchEvent: true, selectedColor: '#D72E02', selectedDotColor: "#000"}}}
+    />
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('SomeOtherPage')}
-      >
+      <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Agendar</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('SomeOtherPage')}
-      >
+      
+      <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Start</Text>
       </TouchableOpacity>
+      
     </SafeAreaView>
   );
 };
@@ -33,17 +29,22 @@ const CalendarPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', // Set the background color of the container to black
   },
   button: {
     borderRadius: 20,
     backgroundColor: '#D72E02',
     padding: 10,
     margin: 20,
-    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
+  },
+  calendar: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    margin: 40, // Adjust the margin as needed
+    marginTop: '20%',
   },
 });
 

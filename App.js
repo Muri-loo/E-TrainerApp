@@ -9,6 +9,7 @@ import UserProfileForm from './App/Screens/UserProfileForm';
 import LoginPage from './App/Screens/LoginPage';
 import HomePage from './App/Screens/HomeCalendar';
 import CalendarPage from './App/Screens/HomeCalendar';
+import Navbar from './App/Navigation/Navbar';
 
 
 
