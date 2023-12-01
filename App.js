@@ -17,8 +17,8 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
         <Stack.Screen name="HomePage" component={HomePage}  options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
         <Stack.Screen name="SingUp" component={UserProfileForm}  options={{ headerShown: false }} />
         <Stack.Screen name="LoginPage" component={LoginPage}  options={{ headerShown: false }} />
       </Stack.Navigator>
