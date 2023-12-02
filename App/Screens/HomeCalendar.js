@@ -1,27 +1,49 @@
-import React, {useState} from 'react';
-import { StyleSheet, SafeAreaView, TouchableOpacity, Text } from 'react-native';
+import React, { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
+import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Fundo from '../Navigation/fundo';
 
-const CalendarPage = ({ navigation }) => {
-  // Define the theme for the calendar
-  const [selected, setSelected] = useState('');
+const CalendarPage = () => {
+  const [selectedDate, setSelectedDate] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const tasks = {
+    '2023-04-01': [{ name: 'Abs' }, { name: 'Push up' }],
+    '2023-04-02': [{ name: 'Doctor Appointment' }],
+    // ... other tasks
+  };
 
+  const handleDayPress = (day) => {
+    setSelectedDate(day.dateString);
+    setShowModal(true);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
+      <Calendar onDayPress={handleDayPress} />
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View style={styles.modalView}>
+          <Text>Exercices for today {selectedDate}:</Text>
+          {tasks[selectedDate]?.map((task, index) => (
+            <Text key={index}>{task.name}</Text>
+          ))}
 
-<Calendar onDayPress={day => {setSelected(day.dateString);}}
-          markedDates={{[selected]: {selected: true, disableTouchEvent: true, selectedColor: '#D72E02', selectedDotColor: "#000"}}}
-    />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setShowModal(false)}
+          >
+            <Text>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Agendar</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Start</Text>
-      </TouchableOpacity>
-      
+        <Fundo />
+        
     </SafeAreaView>
   );
 };
@@ -29,22 +51,28 @@ const CalendarPage = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', // Set the background color of the container to black
+    paddingTop: 50,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   button: {
     borderRadius: 20,
-    backgroundColor: '#D72E02',
     padding: 10,
-    margin: 20,
-  },
-  buttonText: {
-    color: '#fff',
-  },
-  calendar: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    margin: 40, // Adjust the margin as needed
-    marginTop: '20%',
+    elevation: 2,
+    marginTop: 15,
   },
 });
 

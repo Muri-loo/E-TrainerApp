@@ -24,6 +24,7 @@
     "react-native-navigation": "^7.37.2",
     "react-native-safe-area-context": "4.6.3",
     "react-native-screens": "~3.22.0",
+    "react-router-dom": "^6.20.1",
     "yarn": "^1.22.21"
   },
   "devDependencies": {

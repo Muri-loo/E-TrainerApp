@@ -14,6 +14,7 @@ import {
   } from 'react-native';
 
 function StartPage({navigation} ) {
+    
     return (
         <SafeAreaView style={styles.container}>
             <Image

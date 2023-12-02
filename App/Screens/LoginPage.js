@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {auth} from '../../Config/firebase'; 
-import {signInWithEmailAndPassword} from 'firebase/auth';
+import {signInWithEmailAndPassword, onAuthStateChanged} from 'firebase/auth';
+import { StackActions } from '@react-navigation/native';
 
 
 import {
@@ -19,6 +20,21 @@ import {
  
 
 function LoginPage({navigation}) {
+    
+    //IF LOGGED GO STRAIGTH TO HOMEPAGE
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) =>{
+          if (user){
+            // Reset navigation stack
+            navigation.dispatch(
+              StackActions.replace('HomeCalendar')
+            );
+          }
+        });
+        return unsubscribe;
+      }, []);
+      
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [Errormessage, setErrorMessage] = useState('');
@@ -26,8 +42,9 @@ function LoginPage({navigation}) {
     const handleLogIn = async () => {
         try {
             await signInWithEmailAndPassword(auth, email, password);
-            setErrorMessage('login Sucessful');
-            navigation.navigate('HomeCalendar'); // Add this line to navigate to the HomeCalendar screen
+            navigation.dispatch(
+                StackActions.replace('HomeCalendar')
+              );
         } catch (error) {
             const errorCode = error.code;
             let errorMessage = '';
@@ -54,6 +71,9 @@ function LoginPage({navigation}) {
       useEffect(() => {
         setErrorMessage('');
       }, [email, password]);
+
+  
+
 
     return (
 
