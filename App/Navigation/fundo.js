@@ -1,12 +1,14 @@
 import React from 'react';
-import { Text, View, TouchableOpacity, Image} from 'react-native';
+import {StyleSheet,SafeAreaView,Text,View, TouchableOpacity, Image} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
+function Fundo() {
+  const navigation = useNavigation(); 
 
-const Fundo  = () => {
   // Function to handle press events
   const handlePress = (routeName) => {
     console.log(`Navigating to ${routeName}`);
-    // Here you would add your navigation logic, possibly using React Navigation or another routing library
+    navigation.navigate(routeName); // Use the navigate function from the navigation object
   };
 
   return (
@@ -17,7 +19,7 @@ const Fundo  = () => {
         padding: 10,
         backgroundColor: '#fff',
       }}>
-        <TouchableOpacity onPress={() => handlePress('Home')}>
+        <TouchableOpacity onPress={() => handlePress('HomeCalendar')}>
           <Image style = {styles.tinyLogo} source={{uri: 'https://drive.google.com/uc?export=view&id=1-uX01VLE9efglYXBE62UBAdCTiTsuISG',}}/>  
         </TouchableOpacity>
 

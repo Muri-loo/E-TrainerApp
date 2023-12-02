@@ -7,6 +7,8 @@ import StartPage from './App/Screens/StartPage';
 import UserProfileForm from './App/Screens/UserProfileForm';
 import LoginPage from './App/Screens/LoginPage';
 import CalendarPage from './App/Screens/HomeCalendar';
+import Profile from './App/Screens/Profile';
+import Fundo from './App/Navigation/fundo';
 
 
 
@@ -20,6 +22,9 @@ function App() {
         <Stack.Screen name="HomeCalendar" component={CalendarPage}  options={{ headerShown: false }} />
         <Stack.Screen name="SingUp" component={UserProfileForm}  options={{ headerShown: false }} />
         <Stack.Screen name="LoginPage" component={LoginPage}  options={{ headerShown: false }} />
+        <Stack.Screen name="Profile" component={Profile}  options={{ headerShown: false }} />
+        <Stack.Screen name="navBottom" component={Fundo}  options={{ headerShown: false }} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -6,16 +6,7 @@ import {signInWithEmailAndPassword, onAuthStateChanged} from 'firebase/auth';
 import { StackActions } from '@react-navigation/native';
 
 
-import {
-    StyleSheet,
-    Button,
-    View,
-    SafeAreaView,
-    Text,
-    TextInput,
-    Image,
-    TouchableOpacity,
-  } from 'react-native';
+import {StyleSheet,SafeAreaView,Text,TextInput,Image,TouchableOpacity,} from 'react-native';
 
  
 

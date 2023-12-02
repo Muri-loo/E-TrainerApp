@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Fundo from '../Navigation/fundo';
 
-const CalendarPage = () => {
+const CalendarPage = ({navigation}) => {
   const [selectedDate, setSelectedDate] = useState('');
   const [showModal, setShowModal] = useState(false);
   const tasks = {
@@ -40,10 +40,9 @@ const CalendarPage = () => {
             <Text>Close</Text>
           </TouchableOpacity>
         </View>
-      </Modal>
+      </Modal>        
+      <Fundo navigation={navigation} />  
 
-        <Fundo />
-        
     </SafeAreaView>
   );
 };
