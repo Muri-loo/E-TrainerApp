@@ -16,7 +16,7 @@ const CalendarPage = ({navigation}) => {
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
     setShowModal(true);
-  };
+  }; 
 
   return (
     <SafeAreaView style={styles.container}>

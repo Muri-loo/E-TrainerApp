@@ -31,7 +31,7 @@ function StartPage({navigation} ) {
         </SafeAreaView>
     );
 }
-const scaleFactor = 0.8; // Scale down by 50%
+const scaleFactor = 0.6; // Scale down by 50%
 
 const styles = StyleSheet.create({
     container: {

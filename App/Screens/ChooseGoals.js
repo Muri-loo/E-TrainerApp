@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db } from "../../Config/firebase";
 import { collection, getDocs } from 'firebase/firestore';
-import { SafeAreaView, Text, StyleSheet} from 'react-native';
+import { SafeAreaView, Text, StyleSheet, ScrollView} from 'react-native';
 
 function ChooseGoals(props) {
     const [GoalsList, setGoalsList] = useState([]);
@@ -26,11 +26,13 @@ function ChooseGoals(props) {
 
     return (
         <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.scrollView}>
           {GoalsList.map((Goal) => (                        //FOREACH
             <Text key={Goal.id} style={styles.textStyle}> 
               {Goal.Goal_name}
             </Text>
           ))}
+          </ScrollView>
         </SafeAreaView>
     );
 }
@@ -42,10 +44,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textStyle: {
+        marginTop: '50%',
         color: 'black',
         textAlign: 'center',
+        fontSize: 50    ,
         // Add other styles if needed
     },
+    scrollView: {
+        marginHorizontal: 20,
+      },
 });
 
 export default ChooseGoals;
