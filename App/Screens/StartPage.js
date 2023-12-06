@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet,SafeAreaView,Text,Image,TouchableOpacity,} from 'react-native';
 
 function StartPage({navigation} ) {
-    
+    console.log("Foda-se ne");
     return (
         <SafeAreaView style={styles.container}>
             <Image
@@ -22,7 +22,7 @@ function StartPage({navigation} ) {
                 style={styles.button}
                 onPress={() => navigation.navigate('SingUp')}
                 accessibilityLabel="Learn more about this purple button"
-                >
+                > 
                 <Text style={styles.buttonText}>Signup</Text>
             </TouchableOpacity>
 
