@@ -10,6 +10,7 @@ import CalendarPage from './App/Screens/HomeCalendar';
 import Profile from './App/Screens/Profile';
 import Fundo from './App/Navigation/fundo';
 import ChooseGoals from './App/Screens/ChooseGoals';
+import FormRegisterPhysic from './App/Screens/FormRegisterPhysic';
 
 
 
@@ -19,8 +20,8 @@ function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-      <Stack.Screen name="ChooseGoals" component={ChooseGoals}  options={{ headerShown: false }} />
-
+        <Stack.Screen name="FormRegisterPhysic" component={FormRegisterPhysic}  options={{ headerShown: false }} />
+        <Stack.Screen name="ChooseGoals" component={ChooseGoals}  options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
         <Stack.Screen name="HomeCalendar" component={CalendarPage}  options={{ headerShown: false }} />
         <Stack.Screen name="SingUp" component={UserProfileForm}  options={{ headerShown: false }} />

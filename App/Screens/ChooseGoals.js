@@ -3,7 +3,7 @@ import { db } from "../../Config/firebase";
 import { collection, getDocs } from 'firebase/firestore';
 import { SafeAreaView, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
-function ChooseGoals(props) {
+function ChooseGoals({navigation}) {
 
     //Declare var;
     const [GoalsList, setGoalsList] = useState([]); // State to store the list of goals
