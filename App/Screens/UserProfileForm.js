@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 
-const UserProfileForm = () => {
+const UserProfileForm = ({navigation}) => {
   const [profile, setProfile] = useState({
     fullName: '',
     email: '',
@@ -63,7 +63,7 @@ const UserProfileForm = () => {
         />
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+      <TouchableOpacity style={styles.button}onPress={() => navigation.navigate('FormRegisterPhysic')}>
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
     </View>
