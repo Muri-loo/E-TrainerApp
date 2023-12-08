@@ -1,6 +1,7 @@
 import React from 'react';
 import {SafeAreaView,Text,StyleSheet} from 'react-native';
 import Fundo from '../Navigation/fundo';
+import Navbar from '../Navigation/navbar';
 import { getAuth, signOut } from "firebase/auth";
 
 
@@ -18,6 +19,7 @@ function Profile({navigation}) {
 
     return (
         <SafeAreaView style={styles.container}>
+            <Navbar navigation={navigation} />  
             <Text style={{color: '#000',fontSize: 50,  fontWeight: 'bold', marginTop:150, width:'80%'}}>
                 PERFIL TREINADOR          
             </Text>
