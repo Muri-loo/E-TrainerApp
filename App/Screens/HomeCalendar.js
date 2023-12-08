@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
@@ -31,10 +31,10 @@ const CalendarPage = ({navigation}) => {
         onRequestClose={() => setShowModal(false)}
       >
         <View style={styles.modalView}>
-          <Text>Exercices for today {selectedDate}:</Text>
-          {tasks[selectedDate]?.map((task, index) => (
-            <Text key={index}>{task.name}</Text>
-          ))}
+        <Text >Insira codigo de Treinador:</Text>
+        <TextInput style= {{ borderWidth:1, borderColor:'#000'}}
+          placeholder="Codigo Treinador"
+        />
 
           <TouchableOpacity
             style={styles.button}
