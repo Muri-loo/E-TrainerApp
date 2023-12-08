@@ -2,15 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Button,Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-
-
-
-
-
-
-
 const FormRegisterPhysic = ({navigation, route}) => {
-    const [date, setDate] = useState(new Date(1598051730000));
+    const [date, setDate] = useState(new Date());
     const [show, setShow] = useState(false);
 
     const onChange = (event, selectedDate) => {
@@ -41,7 +34,7 @@ const FormRegisterPhysic = ({navigation, route}) => {
 
     const handleContinue = () => {
         // Check if all required fields are filled
-        if (profile.genero && profile.Altura && profile.Peso && profile.dataNascimento) {
+        if (profile.genero && profile.altura && profile.peso && profile.dataNascimento) {
             const today = new Date();
             if (date>today){
                 alert("A Data selecionada é no future. Escolhe uma data valida.");
@@ -55,15 +48,20 @@ const FormRegisterPhysic = ({navigation, route}) => {
       };
 
 
-    const [profile, setProfile] = useState({
-        fullName: '',
+      const [profile, setProfile] = useState({
+        nome: '',
         email: '',
         password: '',
-        phoneNumber: '',
-        Altura:'',
-        Peso:'',
+        telemovel: '',
+        altura:'',
+        peso:'',
         genero:'',
         dataNascimento:'',
+        fotoAtleta:'',
+        nomeFotoAtleta:'',
+        idAtleta:'',
+        idTreinador:'',
+        nivelFisico:'',
       });
 
       useEffect(() => {
@@ -94,9 +92,6 @@ const FormRegisterPhysic = ({navigation, route}) => {
         weights.push(i);
     }
 
-
-
-    
     return (
         
         <View style={styles.container}>
@@ -105,8 +100,6 @@ const FormRegisterPhysic = ({navigation, route}) => {
             <Text style={styles.subHeader}>
                 To give you an experience adapted to you we need to know your gender
             </Text>
-
-
 
             <Text style={styles.label}>Gender:</Text>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
@@ -131,13 +124,15 @@ const FormRegisterPhysic = ({navigation, route}) => {
                             onChange={onChange}
                         />
                 )}
+                <Text style={styles.label}>Selected date: <Text style={{ color: '#CC2C02' }}>{profile.dataNascimento}</Text></Text>
+
             
             <Text style={styles.label}>Height(Cm):</Text>
 
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}            >
                 {heights.map((height, index) => (
-                    <Text style={profile.Altura === height ? [styles.numberText,styles.selectedText] : [styles.numberText]}
-                     key={index} onPress={() => handleProfileChange('Altura',height)}>
+                    <Text style={profile.altura === height ? [styles.numberText,styles.selectedText] : [styles.numberText]}
+                     key={index} onPress={() => handleProfileChange('altura',height)}>
                      {height}
                     </Text>
                 ))}
@@ -146,8 +141,8 @@ const FormRegisterPhysic = ({navigation, route}) => {
             <Text style={styles.label}>Weight(Kg):</Text>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
                 {weights.map((weight, index) => (
-                        <Text style={profile.Peso === weight ? [styles.numberText,styles.selectedText] : [styles.numberText]}
-                        key={index} onPress={() => handleProfileChange('Peso',weight)}>
+                        <Text style={profile.peso === weight ? [styles.numberText,styles.selectedText] : [styles.numberText]}
+                        key={index} onPress={() => handleProfileChange('peso',weight)}>
                             {weight}
                         </Text>
                 ))}
@@ -237,7 +232,6 @@ const styles = StyleSheet.create({
 
         
     },
-    // ... any other styles you may have ...
 });
 
 

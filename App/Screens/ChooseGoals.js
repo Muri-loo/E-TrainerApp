@@ -1,13 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import { db } from "../../Config/firebase";
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc,updateDoc, doc} from 'firebase/firestore';
 import { SafeAreaView, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {auth} from '../../Config/firebase'; 
+import {createUserWithEmailAndPassword} from 'firebase/auth';
 
-function ChooseGoals({navigation}) {
 
+function ChooseGoals({navigation,route}) {
     //Declare var;
     const [GoalsList, setGoalsList] = useState([]); // State to store the list of goals
+    const [SelectedGoalList, setSelectedGoalList] = useState([]); // State to store the list of goals
+
     const GoalsCollectionRef = collection(db, "Goals"); // Reference to the Firestore collection
+    const AtletaCollectionRef = collection(db, "Atleta"); // Reference to the Firestore collection
+    const AtletaGoalsCollectionRef = collection(db, "Atleta_Goals"); // Reference to the Firestore collection
+
+
+    
+    const submitForm = async () => {
+            try {
+                await createUserWithEmailAndPassword(auth,route.params.profile.email,route.params.profile.password);
+                const docRef = await addDoc(AtletaCollectionRef, route.params.profile);
+            
+                const newDocId = docRef.id;
+            
+                await updateDoc(doc(AtletaCollectionRef, newDocId), {
+                  idAtleta: newDocId,
+                });
+
+                for (const goal of GoalsList) {
+                    try {
+                        if(goal.selected){
+                            await addDoc(AtletaGoalsCollectionRef, {
+                                idAtleta: docRef.id,
+                                idGoal: goal.id,
+                              });
+                        }
+                       
+                     
+                    } catch (error) {
+                        console.error('Error writing goal document to Firestore: ', error);
+                    }
+                }
+
+                
+                console.log('Document successfully written to Firestore with ID: ', newDocId);
+                navigation.navigate('Home');
+        } catch (error) {
+          console.error('Error writing document to Firestore: ', error);
+        }
+      };
+
+ 
 
     //Functions
     useEffect(() => {
@@ -25,9 +69,12 @@ function ChooseGoals({navigation}) {
 
     //Function 2
     const toggleGoalSelection = (id) => {
+        
         setGoalsList(GoalsList.map(goal => {
             if (goal.id === id) {
+                
                 return { ...goal, selected: !goal.selected }; // Toggle the 'selected' state
+                
             }
             return goal; // Return the goal unchanged if it's not the one being toggled
         }));
@@ -45,7 +92,8 @@ function ChooseGoals({navigation}) {
                         <Text style={styles.buttonText}>{Goal.Goal_name}</Text>
                     </TouchableOpacity>
                 ))}
-                <TouchableOpacity style={[styles.button, { marginTop: '20%', borderRadius:30, padding:10 }]}>
+                <TouchableOpacity style={[styles.button, { marginTop: '20%', borderRadius:30, padding:10, backgroundColor:'#D72E02' }]}
+                onPress={submitForm}>
                         <Text style={styles.buttonText}>Finish</Text>
                     </TouchableOpacity>
             </ScrollView>
@@ -80,13 +128,13 @@ const styles = StyleSheet.create({
     button: {
         borderRadius: 10,
         width: '90%', // Set button width
-        backgroundColor: "#D72E02", // Red background color for buttons
+        backgroundColor: "gray", // Red background color for buttons
         padding:20,
         marginTop: 22,
         alignSelf: 'center', // Center button within ScrollView
     },
     buttonSelected: {
-        backgroundColor: "gray", // Color when a button is selected
+        backgroundColor: "#D72E02", // Color when a button is selected
     },
     buttonText: {
         color: 'white', // White text color for the buttons

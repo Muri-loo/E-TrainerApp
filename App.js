@@ -21,8 +21,8 @@ function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
-        <Stack.Screen name="FormRegisterPhysic" component={FormRegisterPhysic}  options={{ headerShown: false }} />
         <Stack.Screen name="ChooseGoals" component={ChooseGoals}  options={{ headerShown: false }} />
+        <Stack.Screen name="FormRegisterPhysic" component={FormRegisterPhysic}  options={{ headerShown: false }} />
         <Stack.Screen name="HomeCalendar" component={CalendarPage}  options={{ headerShown: false }} />
         <Stack.Screen name="SingUp" component={UserProfileForm}  options={{ headerShown: false }} />
         <Stack.Screen name="LoginPage" component={LoginPage}  options={{ headerShown: false }} />

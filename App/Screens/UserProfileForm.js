@@ -9,14 +9,19 @@ const UserProfileForm = ({navigation}) => {
   const [errors, setErrors] = useState({}); 
   const [isFormValid, setIsFormValid] = useState(false); 
   const [profile, setProfile] = useState({
-    fullName: '',
+    nome: '',
     email: '',
     password: '',
-    phoneNumber: '',
-    Altura:'',
-    Peso:'',
+    telemovel: '',
+    altura:'',
+    peso:'',
     genero:'',
     dataNascimento:'',
+    fotoAtleta:'',
+    nomeFotoAtleta:'',
+    idAtleta:'',
+    idTreinador:'',
+    nivelFisico:'',
   });
 
 
@@ -52,9 +57,9 @@ const validateForm = () => {
   let errors = {}; 
 
   // Validar campo do nome 
-  if (!profile.fullName) { 
+  if (!profile.nome) { 
     errors.name = 'Nome é necessário.'; 
-  } else if (!/^[A-Za-z ]+$/.test(profile.fullName)) {
+  } else if (!/^[A-Za-z ]+$/.test(profile.nome)) {
     errors.name = 'O nome não pode conter caracteres especiais ou números.'; 
   }
 
@@ -73,10 +78,10 @@ const validateForm = () => {
   } 
 
   // Validar campo do número de telefone 
-  if (!profile.phoneNumber) { 
-    errors.phoneNumber = 'Número de telemóvel é necessário.'; 
-  } else if (profile.phoneNumber.length != 9) { 
-    errors.phoneNumber = 'Número Português inválido.'; 
+  if (!profile.telemovel) { 
+    errors.telemovel = 'Número de telemóvel é necessário.'; 
+  } else if (profile.telemovel.length != 9) { 
+    errors.telemovel = 'Número Português inválido.'; 
   } 
 
   // Definir os erros e atualizar a validade do formulário 
@@ -98,8 +103,8 @@ const validateForm = () => {
           style={styles.input}
           placeholder="Full Name"
           placeholderTextColor="#666"
-          value={profile.fullName}
-          onChangeText={(value) => handleChange('fullName', value)}
+          value={profile.nome}
+          onChangeText={(value) => handleChange('nome', value)}
         />
         <TextInput
           style={styles.input}
@@ -122,8 +127,8 @@ const validateForm = () => {
           placeholder="Phone Number"
           placeholderTextColor="#666"
           keyboardType="phone-pad"
-          value={profile.phoneNumber}
-          onChangeText={(value) => handleChange('phoneNumber', value)}
+          value={profile.telemovel}
+          onChangeText={(value) => handleChange('telemovel', value)}
         />
 
       </View>
