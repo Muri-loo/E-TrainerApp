@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Button,Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 
@@ -111,7 +111,7 @@ const FormRegisterPhysic = ({navigation, route}) => {
             <Text style={styles.label}>Gender:</Text>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
             {genders.map((gender, index) => (
-                    <Text style={profile.genero === gender ? [styles.selectedText,styles.numberText] : [styles.numberText]}
+                    <Text style={profile.genero === gender ? [styles.numberText,styles.selectedText] : [styles.numberText]}
                     key={index} onPress={() => handleProfileChange('genero',gender)}>
                             {gender}
                         </Text>
@@ -119,23 +119,24 @@ const FormRegisterPhysic = ({navigation, route}) => {
             </ScrollView>
 
             <Text style={styles.label}>Birth date:</Text>
-            <Button onPress={showDatepicker} title="Show date picker!" />
-            {show && (
-                <DateTimePicker
-                    testID="dateTimePicker"
-                    value={date}
-                    mode="date"
-                    display="default"
-                    onChange={onChange}
-                />
-            )}
 
-
+            <TouchableOpacity onPress={showDatepicker}>
+                <Image style={{width: 50, height: 50}} source={{uri: 'https://drive.google.com/uc?export=view&id=1ALnSAMWcnXD6LthpeSyCGoLApn4dhO9m'}}/>
+            </TouchableOpacity>
+                {show && (<DateTimePicker
+                            testID="dateTimePicker"
+                            value={date}
+                            mode="date"
+                            display="default"
+                            onChange={onChange}
+                        />
+                )}
+            
             <Text style={styles.label}>Height(Cm):</Text>
 
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}            >
                 {heights.map((height, index) => (
-                    <Text style={profile.Altura === height ? [styles.selectedText,styles.numberText] : [styles.numberText]}
+                    <Text style={profile.Altura === height ? [styles.numberText,styles.selectedText] : [styles.numberText]}
                      key={index} onPress={() => handleProfileChange('Altura',height)}>
                      {height}
                     </Text>
@@ -145,7 +146,7 @@ const FormRegisterPhysic = ({navigation, route}) => {
             <Text style={styles.label}>Weight(Kg):</Text>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
                 {weights.map((weight, index) => (
-                        <Text style={profile.Peso === weight ? [styles.selectedText,styles.numberText] : [styles.numberText]}
+                        <Text style={profile.Peso === weight ? [styles.numberText,styles.selectedText] : [styles.numberText]}
                         key={index} onPress={() => handleProfileChange('Peso',weight)}>
                             {weight}
                         </Text>
@@ -195,29 +196,27 @@ const styles = StyleSheet.create({
     },
     scrollViewContainer: {
         // Remove justifyContent if you don't want any space between the items
-        flex:1,
         flexDirection: 'row',
         maxHeight:100,
 
     },
     numberText: {
-        fontSize: 20,
-        fontWeight: '600',
         color: '#fff',
-        textAlign: 'center', 
-        borderWidth: 1,
-        borderColor: 'white',
-        paddingHorizontal: 0, // No horizontal padding
-        paddingVertical: 0, // No vertical padding
+        textAlign: 'center',
+        textShadowOffset: { width: 0, height: 4 },
+        textShadowRadius: 4,
+        textShadowColor: 'rgba(0, 0, 0, 0.25)',
+        fontSize: 24,
+        fontWeight: '600',
+        lineHeight: 28, 
+        paddingHorizontal: 4, // No horizontal padding
+        paddingVertical: 2, // No vertical padding
 
         
     },
     selectedText: {
-        backgroundColor: '#CC2C02',
-        fontWeight: '600',
+        color: '#CC2C02',
         // Ensure other styles are consistent with numberText
-        paddingHorizontal: 0, // No horizontal padding
-        paddingVertical: 0, // No vertical padding
 
     },
     button: {
