@@ -32,9 +32,15 @@ const CalendarPage = ({navigation}) => {
       >
         <View style={styles.modalView}>
         <Text >Insira codigo de Treinador:</Text>
-        <TextInput style= {{ borderWidth:1, borderColor:'#000'}}
+        <TextInput style= {{ borderWidth:1, borderColor:'#000', padding:10}}
           placeholder="Codigo Treinador"
         />
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setShowModal(false)}
+          >
+            <Text>Add coach</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.button}
