@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {SafeAreaView,Text,StyleSheet} from 'react-native';
+import {SafeAreaView,Text,StyleSheet, Touchable, TouchableOpacity} from 'react-native';
 import Fundo from '../Navigation/fundo';
 import Navbar from '../Navigation/navbar';
 import { db } from "../../Config/firebase";
@@ -46,6 +46,9 @@ function Profile({navigation}) {
         return (
           <>
             <Navbar navigation={navigation} />
+            <Text onPress={logout} style={{color: '#000',fontSize: 50,  fontWeight: 'bold', marginTop:150, width:'80%'}}>
+               LOGOUT        
+            </Text>
             <Text style={styles.loading}>Loading...</Text>
             <Fundo navigation={navigation} />
           </>
@@ -54,12 +57,16 @@ function Profile({navigation}) {
     
       return (
         <SafeAreaView style={styles.container}>
+        
             <Navbar navigation={navigation} />
             <ScrollView style={styles.container}>
+
+
             {/* ... */}
             {/* Trainer and students information rendering goes here */}
             {/* ... */}
             </ScrollView>
+            <TouchableOpacity onPress={logout}>LOGOUT</TouchableOpacity>
             <Fundo navigation={navigation} />
         </SafeAreaView>
       );
