@@ -1,15 +1,87 @@
-import React, { useState } from 'react';
-import { ScrollView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
-// Add this import to your file
-import { InteractionManager } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Button } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 
-const FormRegisterPhysic = ({navigation}) => {
-    const [selectedHeight, setSelectedHeight] = useState(null);
-    const [selectedWeight, setSelectedWeight] = useState(null);
-    const [selectedGender, setSelectedGender] = useState(null);
 
 
+
+
+
+
+const FormRegisterPhysic = ({navigation, route}) => {
+    const [date, setDate] = useState(new Date(1598051730000));
+    const [show, setShow] = useState(false);
+
+    const onChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setShow(false);
+        setDate(currentDate);
+
+        // Format the date as YYYY-MM-DD
+        const formattedDate = 
+        ('0' + currentDate.getDate()).slice(-2) + '/' +
+        ('0' + (currentDate.getMonth() + 1)).slice(-2) + '/' +
+        currentDate.getFullYear();
+    
+
+        // Update the profile state with the formatted date
+        setProfile(prevProfile => ({
+          ...prevProfile,
+          dataNascimento: formattedDate
+        }));
+    };
+
+    const showDatepicker = () => {
+        setShow(true);
+    };
+    
+    const genders=['Male','Female'];
+ 
+
+    const handleContinue = () => {
+        // Check if all required fields are filled
+        if (profile.genero && profile.Altura && profile.Peso && profile.dataNascimento) {
+            const today = new Date();
+            if (date>today){
+                alert("A Data selecionada é no future. Escolhe uma data valida.");
+            }else{
+                navigation.navigate('ChooseGoals', { profile });
+            }
+        } else {
+          // Not all fields are filled, show an alert or message
+          alert('Por favor, preencha todos os campos antes de continuar.');
+        }
+      };
+
+
+    const [profile, setProfile] = useState({
+        fullName: '',
+        email: '',
+        password: '',
+        phoneNumber: '',
+        Altura:'',
+        Peso:'',
+        genero:'',
+        dataNascimento:'',
+      });
+
+      useEffect(() => {
+        if (route.params) {
+          setProfile(route.params.profile);
+        }
+      }, []); 
+
+      const handleProfileChange = (name, value) => {
+        setProfile(prevProfile => ({
+          ...prevProfile,
+          [name]: value
+        }));
+      };
+      
+      
+
+    console.log(profile);
     // Generate heights array
     const heights = [];
     for (let i = 140; i <= 210; i++) {
@@ -22,57 +94,67 @@ const FormRegisterPhysic = ({navigation}) => {
         weights.push(i);
     }
 
-     // Generate weights array
-    const genders = [];
-    genders.push('male');
-    genders.push('female');
+
 
     
     return (
         
         <View style={styles.container}>
+
             <Text style={styles.header}>Tell Us About Yourself</Text>
             <Text style={styles.subHeader}>
                 To give you an experience adapted to you we need to know your gender
             </Text>
 
+
+
             <Text style={styles.label}>Gender:</Text>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
             {genders.map((gender, index) => (
-                    <TouchableOpacity key={index} onPress={() => setSelectedGender(gender)}>
-                    <Text style={selectedGender === gender ? [styles.selectedText,styles.numberText] : [styles.numberText]}>
+                    <Text style={profile.genero === gender ? [styles.selectedText,styles.numberText] : [styles.numberText]}
+                    key={index} onPress={() => handleProfileChange('genero',gender)}>
                             {gender}
                         </Text>
-                    </TouchableOpacity>
                 ))}
             </ScrollView>
 
+            <Text style={styles.label}>Birth date:</Text>
+            <Button onPress={showDatepicker} title="Show date picker!" />
+            {show && (
+                <DateTimePicker
+                    testID="dateTimePicker"
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={onChange}
+                />
+            )}
+
 
             <Text style={styles.label}>Height(Cm):</Text>
-            <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
+
+            <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}            >
                 {heights.map((height, index) => (
-                    <TouchableOpacity key={index} onPress={() => setSelectedHeight(height)}>
-                    <Text style={selectedHeight === height ? [styles.selectedText,styles.numberText] : [styles.numberText]}>
-                            {height}
-                        </Text>
-                    </TouchableOpacity>
+                    <Text style={profile.Altura === height ? [styles.selectedText,styles.numberText] : [styles.numberText]}
+                     key={index} onPress={() => handleProfileChange('Altura',height)}>
+                     {height}
+                    </Text>
                 ))}
             </ScrollView>
 
             <Text style={styles.label}>Weight(Kg):</Text>
             <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
                 {weights.map((weight, index) => (
-                    <TouchableOpacity key={index} onPress={() => setSelectedWeight(weight)}>
-                        <Text style={selectedWeight === weight ? [styles.selectedText,styles.numberText] : [styles.numberText]}>
+                        <Text style={profile.Peso === weight ? [styles.selectedText,styles.numberText] : [styles.numberText]}
+                        key={index} onPress={() => handleProfileChange('Peso',weight)}>
                             {weight}
                         </Text>
-                    </TouchableOpacity>
                 ))}
             </ScrollView>
 
             {/* Add Physical Activity Level Picker Here */}
 
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Goals')}>
+            <TouchableOpacity style={styles.button} onPress={handleContinue}>
                 <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
         </View>
@@ -81,67 +163,85 @@ const FormRegisterPhysic = ({navigation}) => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#000',
-        paddingHorizontal: 10,
+        flex: 1, // Ensures that container takes up all available space
+        backgroundColor: '#000', // Dark background
+        paddingHorizontal: 10, // Padding on the sides
+        position:'relative',
         
     },
     header: {
-        marginTop:'25%',
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: 'white',
-        textAlign: 'center',
-        marginBottom: 10,
+        fontSize: 24, // Set the size of your header text
+        fontWeight: '600', // Set the weight of your header text
+        color: '#fff', // White text color
+        textAlign: 'center', // Center align text
+        marginTop: '25%', // Space from the top
+        marginBottom: 10, // Space below the header
     },
     subHeader: {
-        fontSize: 16,
-        color: 'white',
-        textAlign: 'center',
-        marginBottom: 20,
+        fontSize: 16, // Set the size of your subHeader text
+        fontWeight: '600', // Set the weight of your subHeader text
+        color: '#fff', // White text color
+        textAlign: 'center', // Center align text
+        marginBottom: 20, // Space below the subHeader
+
+        
     },
     label: {
-        color: 'white',
-        fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 8,
+        fontSize: 18, // Set the size of your label text
+        fontWeight: '600', // Set the weight of your label text
+        color: '#fff', // White text color
+        marginBottom: 8, // Space below the label
+        marginTop:0,
     },
     scrollViewContainer: {
-        flexGrow: 0,
+        // Remove justifyContent if you don't want any space between the items
+        flex:1,
         flexDirection: 'row',
-        marginBottom: 0,
-    },
-    numberText: {
-        color: '#fff',
-        fontSize: 20,
-        marginHorizontal: 8,
-        paddingVertical: 2,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: 'white',
-        textAlign: 'center',
-        minWidth: 40,
-    },
-    selectedText: {
-        color: '#000',
-        backgroundColor: 'red',
-    },
-    button: {
-        backgroundColor: 'red',
-        paddingVertical: 12,
-        paddingHorizontal: 20,
-        borderRadius: 20,
-        alignSelf: 'center',
-        marginTop: 20, // Adjust this to reduce the gap
-        marginBottom: 20, // Adjust the bottom margin as necessary
-    },
-    buttonText: {
-        color: '#fff',
-        fontSize: 20,
-        textAlign: 'center',
+        maxHeight:100,
 
     },
-    // Add styles for gender icons, picker, and other elements as necessary
+    numberText: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#fff',
+        textAlign: 'center', 
+        borderWidth: 1,
+        borderColor: 'white',
+        paddingHorizontal: 0, // No horizontal padding
+        paddingVertical: 0, // No vertical padding
+
+        
+    },
+    selectedText: {
+        backgroundColor: '#CC2C02',
+        fontWeight: '600',
+        // Ensure other styles are consistent with numberText
+        paddingHorizontal: 0, // No horizontal padding
+        paddingVertical: 0, // No vertical padding
+
+    },
+    button: {
+        backgroundColor: '#CC2C02', // Red background color for the button
+        paddingVertical: 12, // Vertical padding
+        paddingHorizontal: 20, // Horizontal padding
+        borderRadius: 20, // Rounded corners
+        alignSelf: 'center', // Center the button
+        marginTop: 20, // Space from the top
+        marginBottom: 20, // Space from the bottom
+
+    },
+    buttonText: {
+        fontSize: 20, // Set the size of your button text
+        fontWeight: '600', // Set the weight of your button text
+        color: '#fff', // White text color
+        textAlign: 'center', // Center align text
+
+        
+    },
+    // ... any other styles you may have ...
 });
+
+
+
 
 export default FormRegisterPhysic;
