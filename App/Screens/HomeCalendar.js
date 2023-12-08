@@ -3,6 +3,8 @@ import { Calendar } from 'react-native-calendars';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Fundo from '../Navigation/fundo';
+import Navbarlight from '../Navigation/navbarlight';
+
 
 const CalendarPage = ({navigation}) => {
   const [selectedDate, setSelectedDate] = useState('');
@@ -20,6 +22,7 @@ const CalendarPage = ({navigation}) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Navbarlight navigation={navigation} />  
       <Calendar onDayPress={handleDayPress} />
       <Modal
         animationType="slide"
@@ -50,7 +53,6 @@ const CalendarPage = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
   },
   modalView: {
     margin: 20,
