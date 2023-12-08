@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, SafeAreaView, Text, View, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-function Navbar() {
+function Navbarlight() {
   const navigation = useNavigation(); 
 
   const handlePress = (routeName) => {
@@ -15,20 +15,20 @@ function Navbar() {
       <TouchableOpacity onPress={() => handlePress('Menu') } style={styles.firstIcon}>
         <Image 
           style={styles.icon}
-          source={require('../assets/3bars.png')} // Replace with your menu icon asset
+          source={require('../assets/3barslight.png')} // Replace with your menu icon asset
         />  
       </TouchableOpacity>
       <TouchableOpacity onPress={() => handlePress('HomeCalendar')}>
       <Image
         style={styles.logo}
-        source={require('../assets/E-TrainerWhiteLogo.png')} // Replace with your logo asset
+        source={require('../assets/etrainerlogolight.png')} // Replace with your logo asset
       />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.lastIcon}>
         <Image 
           style={styles.icon}
-          source={require('../assets/help.png')} // Replace with your profile icon asset
+          source={require('../assets/helplight.png')} // Replace with your profile icon asset
         />
       </TouchableOpacity>
     </View> 
@@ -37,12 +37,11 @@ function Navbar() {
 const scaleFactor=0.5;
 const styles = StyleSheet.create({
   navbarContainer: {
-    marginTop: 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding : 5,
     alignItems: 'center',
-    backgroundColor: '#000', // Match the color to the screenshot
+    backgroundColor: 'fff', // Match the color to the screenshot
   },
   icon: {
     width: 30, // Adjust the size as needed
@@ -60,4 +59,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Navbar;
+export default Navbarlight;
