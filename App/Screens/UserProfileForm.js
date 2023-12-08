@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar} from 'react-native';
+import { collection, getDocs, addDoc,query, doc,where} from 'firebase/firestore';
+import { db } from "../../Config/firebase";
+
 
 
 
@@ -53,9 +56,27 @@ const UserProfileForm = ({navigation}) => {
 }; 
 
 
-const validateForm = () => { 
-  let errors = {}; 
+const validateForm = async () => {
+  let errors = {};
 
+  try {
+    const emailQuery = await getDocs(query(collection(db, 'Atleta'), where('email', '==', profile.email)));
+    if (emailQuery.size > 0) {
+      errors.email = 'Este email já tem uma conta.';
+    }
+
+    // Check if phone number is unique
+    const phoneQuery = await getDocs(query(collection(db, 'Atleta'), where('telemovel', '==', profile.telemovel)));
+    
+
+    if (phoneQuery.size > 0) {
+      errors.telemovel = 'Este número telemóvel já tem uma conta.';
+    }
+  } catch (error) {
+    console.error(error); // Handle any errors
+  }
+
+  // Remaining validation code...
   // Validar campo do nome 
   if (!profile.nome) { 
     errors.name = 'Nome é necessário.'; 
@@ -88,6 +109,7 @@ const validateForm = () => {
   setErrors(errors); 
   setIsFormValid(Object.keys(errors).length === 0); 
 }; 
+
 
 
   return (
