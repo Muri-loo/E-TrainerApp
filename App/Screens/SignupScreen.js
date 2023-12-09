@@ -8,7 +8,7 @@ const SignupScreen = (navigation) => {
 
   const handleSignup = async () => {
     try {
-      await createUserWithEmailAndPassword(auth,email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       console.log('User signed up successfully');
       console.log(auth);
     } catch (error) {

@@ -1,75 +1,134 @@
 import React, { useEffect, useState } from 'react';
-import {SafeAreaView,Text,StyleSheet, Touchable, TouchableOpacity} from 'react-native';
+import {
+  SafeAreaView,
+  ScrollView,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import Fundo from '../Navigation/fundo';
 import Navbar from '../Navigation/navbar';
 import { db } from "../../Config/firebase";
-import { collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { getAuth, signOut } from "firebase/auth";
 
+function Profile({ navigation }) {
+  
+  const [athlete, setAthlete] = useState(null);
+  const [userType, setUserType] = useState(null);
+  const [students, setStudents] = useState([]); 
+  const [isLoading, setIsLoading] = useState(true);
 
+  const logout = () => {
+    const auth = getAuth();
+    signOut(auth).then(() => {
+      navigation.navigate("Home");
+    }).catch((error) => {
+      console.log("Error on signout", error);
+    });
+  };
 
-function Profile({navigation}) {
-    const logout = () => {
-        const auth = getAuth();
-        try{
-        signOut(auth);
-        navigation.navigate("Home");
-        }catch(error){
-        console.log("Error on singout");
+  useEffect(() => {
+
+    const auth = getAuth();
+    const userId = auth.currentUser.uid;
+    
+    const checkUserType = async () => {
+      try {
+        // Attempt to fetch from the Atleta collectio
+        let userRef = doc(db, 'Atleta', userId);
+        let userSnapshot = await getDoc(userRef);
+
+        if (userSnapshot.exists()) {
+          setAthlete(userSnapshot.data());
+          setUserType('Atleta');
+        } else {
+          // If not found in Atleta, attempt to fetch from the Treinador collection
+          userRef = doc(db, 'Treinador', userId);
+          userSnapshot = await getDoc(userRef);
+
+          if (userSnapshot.exists()) {
+            setUserType('Treinador');
+            const studentsQuery = query(collection(db, 'Atleta'), where('idTreinador', '==', userId));
+            const studentsSnapshot = await getDocs(studentsQuery);
+            setStudents(studentsSnapshot.docs.map(doc => doc.data()));
+          } else {
+            console.log("No user found with the given ID in either Atleta or Treinador collections.");
+          }
         }
-      };
-
-      const [trainer, setTrainer] = useState(null);
-      const [students, setStudents] = useState([]);
-    
-      useEffect(() => {
-        //Buscar treinador respetivo
-        const fetchTrainer = async () => {
-          const trainerDoc = await db.collection('Treinador').doc('codigoTreinador').get();
-          setTrainer(trainerDoc.data());
-        };
-    
-        //Buscar estudantes do treinador
-        //Atleta n tem id de treinador
-        const fetchStudents = async () => {
-          const studentsSnapshot = await db.collection('Atleta').where('trainerId', '==', 'yourTrainerId').get();
-          const studentsList = studentsSnapshot.docs.map(doc => doc.data());
-          setStudents(studentsList);
-        }; 
-    
-        fetchTrainer();
-        fetchStudents();
-      }, []);
-    
-      // Check if trainer data is still loading
-      if (!trainer) {
-        return (
-          <>
-            <Navbar navigation={navigation} />
-            <Text onPress={logout} style={{color: '#000',fontSize: 50,  fontWeight: 'bold', marginTop:150, width:'80%'}}>
-               LOGOUT        
-            </Text>
-            <Text style={styles.loading}>Loading...</Text>
-            <Fundo navigation={navigation} />
-          </>
-        );
+      } catch (error) {
+        console.error("Error checking user type:", error);
+        setIsLoading(false);
       }
-    
-      return (
-        <SafeAreaView style={styles.container}>
-        
-            <Navbar navigation={navigation} />
-            <ScrollView style={styles.container}>
+    };
+
+    checkUserType();
+  }, []);
+
+  const getAge = (dobString) => {
+    const dob = new Date(dobString);
+    const diff_ms = Date.now() - dob.getTime();
+    const age_dt = new Date(diff_ms);
+    return Math.abs(age_dt.getUTCFullYear() - 1970);
+  };
 
 
-            {/* ... */}
-            {/* Trainer and students information rendering goes here */}
-            {/* ... */}
-            </ScrollView>
-            <TouchableOpacity onPress={logout}>LOGOUT</TouchableOpacity>
-            <Fundo navigation={navigation} />
-        </SafeAreaView>
-      );
+  if (userType === 'Atleta') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Navbar navigation={navigation} />
+        <ScrollView style={styles.contentContainer}>
+          <Text style={styles.name}>{athlete.nome}</Text>
+          <Text>Gender: {athlete.genero}</Text>
+          <Text>Age: {getAge(athlete.dataNascimento)}</Text>
+          <Text>Atleta</Text>
+          <Text>Height: {athlete.altura} cm</Text>
+          <Text>Weight: {athlete.peso} kg</Text>
+          <Text>Email: {athlete.email}</Text>
+          {/* Add your profile picture and other details here */}
+          {/* ... Other athlete-specific UI components ... */}
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+          <Text style={styles.logoutButtonText}>LOGOUT</Text>
+          </TouchableOpacity>
+        </ScrollView>
+        <Fundo navigation={navigation} />
+      </SafeAreaView>
+    );
+  }
+
+  if (userType === 'Treinador') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Navbar navigation={navigation} />
+        <ScrollView style={styles.container}>
+          <Text style={styles.title}>Treinador</Text>
+          {/* Render the list of students here */}
+          <TouchableOpacity onPress={logout}>
+            <Text>LOGOUT</Text>
+          </TouchableOpacity>
+        </ScrollView>
+        <Fundo navigation={navigation} />
+      </SafeAreaView>
+    );
+  }
+
+  // Default return if userType is neither 'Atleta' nor 'Treinador'
+  return (
+    <SafeAreaView style={styles.container}>
+    <Navbar navigation={navigation} />
+    <ScrollView style={styles.container}>
+    <Text style={styles.loading}>No profile found</Text>
+      {/* You can add more athlete-specific UI components here */}
+    </ScrollView>
+    <TouchableOpacity onPress={logout}>
+      <Text>LOGOUT</Text>
+    </TouchableOpacity>
+    <Fundo navigation={navigation} />
+  </SafeAreaView>
+  );
+
+  
 }
 
 const styles=StyleSheet.create({
