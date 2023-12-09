@@ -16,6 +16,7 @@ import { getAuth, signOut } from "firebase/auth";
 function Profile({ navigation }) {
   
   const [athlete, setAthlete] = useState(null);
+  const [trainer, setTrainer] = useState(null);
   const [userType, setUserType] = useState(null);
   const [students, setStudents] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
@@ -35,28 +36,22 @@ function Profile({ navigation }) {
   const checkUserType = async () => {
     try {
       // Attempt to fetch from the Atleta collectio
-      console.log(userId);
       const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', userId)));
       const atleta = AthletQueryResult.docs[0];
-      console.log(atleta.data());
 
       if (AthletQueryResult.size>0) {
         setAthlete(atleta.data());
         setUserType('Atleta');
-      } else {
-        // If not found in Atleta, attempt to fetch from the Treinador collection
-    //    userRef = doc(db, 'Treinador', userId);
-      //  userSnapshot = await getDoc(userRef);
-
-        //if (userSnapshot.exists()) {
-          //setUserType('Treinador');
-          //const studentsQuery = query(collection(db, 'Atleta'), where('idTreinador', '==', userId));
-          //const studentsSnapshot = await getDocs(studentsQuery);
-          //setStudents(studentsSnapshot.docs.map(doc => doc.data()));
-        //} else {
-         // console.log("No user found with the given ID in either Atleta or Treinador collections.");
-      //  }
+      }else{
+          console.log("tasd");
+          const mail = auth.currentUser.email;
+          const TrainerQueryResult = await getDocs(query(collection(db, 'Treinador'), where('email', '==', mail)));
+          const trainer = TrainerQueryResult.docs[0];
+          console.log(trainer.data());
+          setTrainer(trainer.data());
+          setUserType('Treinador');
       }
+
     } catch (error) {
       console.error("Error checking user type:", error);
       setIsLoading(false);
@@ -70,13 +65,12 @@ function Profile({ navigation }) {
     checkUserType();
   }, []);
 
-  const getAge = (dobString) => {
-    const dob = new Date(dobString);
-    const diff_ms = Date.now() - dob.getTime();
-    const age_dt = new Date(diff_ms);
-    return Math.abs(age_dt.getUTCFullYear() - 1970);
-  };
-
+  const getGender = (value) => {
+    if(value == "0")
+      return "Male";
+    else
+      return "Female";
+  }
 
   if (userType === 'Atleta') {
     return (
@@ -105,11 +99,16 @@ function Profile({ navigation }) {
     return (
       <SafeAreaView style={styles.container}>
         <Navbar navigation={navigation} />
-        <ScrollView style={styles.container}>
-          <Text style={styles.title}>Treinador</Text>
-          {/* Render the list of students here */}
-          <TouchableOpacity onPress={logout}>
-            <Text>LOGOUT</Text>
+        <ScrollView style={styles.contentContainer}>
+          <Text style={styles.info}>{trainer.nome}</Text>
+          <Text style={styles.info}>Gender: {getGender(trainer.genero)}</Text>
+          <Text style={styles.info}>Age: {trainer.dataNascimento}</Text>
+          <Text style={styles.info}>Codigo: {trainer.codigoTreinador}</Text>
+          <Text style={styles.info}>Email: {trainer.email}</Text>
+          {/* Add your profile picture and other details here */}
+          {/* ... Other athlete-specific UI components ... */}
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+          <Text style={styles.info}>LOGOUT</Text>
           </TouchableOpacity>
         </ScrollView>
         <Fundo navigation={navigation} />
