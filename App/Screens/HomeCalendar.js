@@ -24,32 +24,8 @@ const CalendarPage = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />  
       <Calendar onDayPress={handleDayPress} />
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showModal}
-        onRequestClose={() => setShowModal(false)}
-      >
-        <View style={styles.modalView}>
-        <Text >Insira codigo de Treinador:</Text>
-        <TextInput style= {{ borderWidth:1, borderColor:'#000', padding:10}}
-          placeholder="Codigo Treinador"
-        />
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setShowModal(false)}
-          >
-            <Text>Add coach</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => setShowModal(false)}
-          >
-            <Text>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>        
+    
+    
       <Fundo navigation={navigation} />  
 
     </SafeAreaView>

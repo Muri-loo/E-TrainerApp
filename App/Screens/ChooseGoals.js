@@ -9,7 +9,6 @@ import {createUserWithEmailAndPassword} from 'firebase/auth';
 function ChooseGoals({navigation,route}) {
     //Declare var;
     const [GoalsList, setGoalsList] = useState([]); // State to store the list of goals
-    const [SelectedGoalList, setSelectedGoalList] = useState([]); // State to store the list of goals
 
     const GoalsCollectionRef = collection(db, "Goals"); // Reference to the Firestore collection
     const AtletaCollectionRef = collection(db, "Atleta"); // Reference to the Firestore collection
@@ -19,20 +18,22 @@ function ChooseGoals({navigation,route}) {
     
     const submitForm = async () => {
             try {
-                await createUserWithEmailAndPassword(auth,route.params.profile.email,route.params.profile.password);
-                const docRef = await addDoc(AtletaCollectionRef, route.params.profile);
+                const userCredential = await createUserWithEmailAndPassword(auth,route.params.profile.email,route.params.profile.password);
+                const uid = userCredential.user.uid;
+
+                const docRef = await addDoc(AtletaCollectionRef, {
+                                ...route.params.profile,
+                                idAtleta: uid,
+                });
             
                 const newDocId = docRef.id;
             
-                await updateDoc(doc(AtletaCollectionRef, newDocId), {
-                  idAtleta: newDocId,
-                });
 
                 for (const goal of GoalsList) {
                     try {
                         if(goal.selected){
                             await addDoc(AtletaGoalsCollectionRef, {
-                                idAtleta: docRef.id,
+                                idAtleta: uid,
                                 idGoal: goal.id,
                               });
                         }
