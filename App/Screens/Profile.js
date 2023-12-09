@@ -29,40 +29,39 @@ function Profile({ navigation }) {
     });
   };
 
-  useEffect(() => {
+  const checkUserType = async () => {
+    try {
+      // Attempt to fetch from the Atleta collectio
+      let userRef = query(collection(db, 'Atleta'), where('idAtleta', '==', userId));
+      let userSnapshot = studentsQuery.docs[0].data();
 
+      if (userSnapshot.exists()) {
+        setAthlete(userSnapshot);
+        setUserType('Atleta');
+      } else {
+        // If not found in Atleta, attempt to fetch from the Treinador collection
+        userRef = doc(db, 'Treinador', userId);
+        userSnapshot = await getDoc(userRef);
+
+        if (userSnapshot.exists()) {
+          setUserType('Treinador');
+          const studentsQuery = query(collection(db, 'Atleta'), where('idTreinador', '==', userId));
+          const studentsSnapshot = await getDocs(studentsQuery);
+          setStudents(studentsSnapshot.docs.map(doc => doc.data()));
+        } else {
+          console.log("No user found with the given ID in either Atleta or Treinador collections.");
+        }
+      }
+    } catch (error) {
+      console.error("Error checking user type:", error);
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     const auth = getAuth();
     const userId = auth.currentUser.uid;
     
-    const checkUserType = async () => {
-      try {
-        // Attempt to fetch from the Atleta collectio
-        let userRef = doc(db, 'Atleta', userId);
-        let userSnapshot = await getDoc(userRef);
-
-        if (userSnapshot.exists()) {
-          setAthlete(userSnapshot.data());
-          setUserType('Atleta');
-        } else {
-          // If not found in Atleta, attempt to fetch from the Treinador collection
-          userRef = doc(db, 'Treinador', userId);
-          userSnapshot = await getDoc(userRef);
-
-          if (userSnapshot.exists()) {
-            setUserType('Treinador');
-            const studentsQuery = query(collection(db, 'Atleta'), where('idTreinador', '==', userId));
-            const studentsSnapshot = await getDocs(studentsQuery);
-            setStudents(studentsSnapshot.docs.map(doc => doc.data()));
-          } else {
-            console.log("No user found with the given ID in either Atleta or Treinador collections.");
-          }
-        }
-      } catch (error) {
-        console.error("Error checking user type:", error);
-        setIsLoading(false);
-      }
-    };
-
     checkUserType();
   }, []);
 
