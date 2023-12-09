@@ -29,6 +29,9 @@ function Profile({ navigation }) {
     });
   };
 
+  const auth = getAuth();
+  const userId = auth.currentUser.uid;
+
   const checkUserType = async () => {
     try {
       // Attempt to fetch from the Atleta collectio
