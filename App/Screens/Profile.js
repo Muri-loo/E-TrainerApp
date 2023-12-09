@@ -35,25 +35,27 @@ function Profile({ navigation }) {
   const checkUserType = async () => {
     try {
       // Attempt to fetch from the Atleta collectio
-      let userRef = query(collection(db, 'Atleta'), where('idAtleta', '==', userId));
-      let userSnapshot = studentsQuery.docs[0].data();
+      console.log(userId);
+      const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', userId)));
+      const atleta = AthletQueryResult.docs[0];
+      console.log(atleta.data());
 
-      if (userSnapshot.exists()) {
-        setAthlete(userSnapshot);
+      if (AthletQueryResult.size>0) {
+        setAthlete(atleta.data());
         setUserType('Atleta');
       } else {
         // If not found in Atleta, attempt to fetch from the Treinador collection
-        userRef = doc(db, 'Treinador', userId);
-        userSnapshot = await getDoc(userRef);
+    //    userRef = doc(db, 'Treinador', userId);
+      //  userSnapshot = await getDoc(userRef);
 
-        if (userSnapshot.exists()) {
-          setUserType('Treinador');
-          const studentsQuery = query(collection(db, 'Atleta'), where('idTreinador', '==', userId));
-          const studentsSnapshot = await getDocs(studentsQuery);
-          setStudents(studentsSnapshot.docs.map(doc => doc.data()));
-        } else {
-          console.log("No user found with the given ID in either Atleta or Treinador collections.");
-        }
+        //if (userSnapshot.exists()) {
+          //setUserType('Treinador');
+          //const studentsQuery = query(collection(db, 'Atleta'), where('idTreinador', '==', userId));
+          //const studentsSnapshot = await getDocs(studentsQuery);
+          //setStudents(studentsSnapshot.docs.map(doc => doc.data()));
+        //} else {
+         // console.log("No user found with the given ID in either Atleta or Treinador collections.");
+      //  }
       }
     } catch (error) {
       console.error("Error checking user type:", error);
@@ -81,17 +83,17 @@ function Profile({ navigation }) {
       <SafeAreaView style={styles.container}>
         <Navbar navigation={navigation} />
         <ScrollView style={styles.contentContainer}>
-          <Text style={styles.name}>{athlete.nome}</Text>
-          <Text>Gender: {athlete.genero}</Text>
-          <Text>Age: {getAge(athlete.dataNascimento)}</Text>
-          <Text>Atleta</Text>
-          <Text>Height: {athlete.altura} cm</Text>
-          <Text>Weight: {athlete.peso} kg</Text>
-          <Text>Email: {athlete.email}</Text>
+          <Text style={styles.info}>{athlete.nome}</Text>
+          <Text style={styles.info}>Gender: {athlete.genero}</Text>
+          <Text style={styles.info}>Age: {athlete.dataNascimento}</Text>
+          <Text style={styles.info}>Atleta</Text>
+          <Text style={styles.info}>Height: {athlete.altura} cm</Text>
+          <Text style={styles.info}>Weight: {athlete.peso} kg</Text>
+          <Text style={styles.info}>Email: {athlete.email}</Text>
           {/* Add your profile picture and other details here */}
           {/* ... Other athlete-specific UI components ... */}
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.logoutButtonText}>LOGOUT</Text>
+          <Text style={styles.info}>LOGOUT</Text>
           </TouchableOpacity>
         </ScrollView>
         <Fundo navigation={navigation} />
@@ -137,6 +139,9 @@ const styles=StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#000',
+      },
+      info:{
+        color:'#fff',
       },
       title: {
         color: '#fff',
