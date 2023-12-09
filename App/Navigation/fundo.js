@@ -53,9 +53,16 @@ function Fundo() {
   // Function to handle "Add" button press
   const handleAddPress = async () => {
     try{
-      const hasCoachAlready = (await getDocs(query(collection(db, 'Atleta'), where('idTreinador', '!=', '')))).size > 0;
-      if(hasCoachAlready)
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const athlet = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', user.uid)));
+      
+      const coachID = athlet.docs[0].data().idTreinador;
+    
+      if(coachID)
         setWarning('Já tens um treinador, ao repetir o processo será ser efetuada uma troca!')
+      else
+        setWarning('');
     }catch(error){
       console.log(error);
     }
