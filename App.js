@@ -36,6 +36,4 @@ function App() {
   );
 }
 
-//guga
-//bernado vai a merda
 export default App;
