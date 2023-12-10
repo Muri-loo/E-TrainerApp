@@ -4,6 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { auth, db } from '../../Config/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, updateDoc, query, doc, where } from 'firebase/firestore';
+import { Shadow } from 'react-native-shadow-2';
+
 
 function Fundo() {
   const navigation = useNavigation();
@@ -68,8 +70,17 @@ function Fundo() {
 
   return (
     <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+    <Shadow
+    style={{
+          flexDirection: 'row',
+          justifyContent: 'space-around',
+          padding: 10,
+          backgroundColor: '#fff',
+        }}
+    >
       <View
         style={{
+          flex:1,
           flexDirection: 'row',
           justifyContent: 'space-around',
           padding: 10,
@@ -112,7 +123,7 @@ function Fundo() {
           />
         </TouchableOpacity>
       </View>
-
+</Shadow>
       <Modal
         animationType="slide"
         transparent={true}

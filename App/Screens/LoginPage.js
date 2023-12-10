@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {auth} from '../../Config/firebase'; 
-import {signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail} from 'firebase/auth';
+import {signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, fetchSignInMethodsForEmail} from 'firebase/auth';
 import { StackActions } from '@react-navigation/native';
 import { db } from '../../Config/firebase';
+import { getDocs, collection, query, where } from 'firebase/firestore';
+
 
 
 import {StyleSheet,SafeAreaView,Text,TextInput,Image,TouchableOpacity, Modal,View} from 'react-native';
@@ -24,17 +26,23 @@ function LoginPage({navigation}) {
   };
 
   const handleSendResetEmail = async () => {
-    console.log('Sending reset email to:', forgotPasswordEmail);
+    console.log('A enviar email de recuperação para:', forgotPasswordEmail);
+    admin.auth().getUserByEmail(forgotPasswordEmail);
     try {
-      await sendPasswordResetEmail(auth, forgotPasswordEmail);
-      alert('Foi enviado um email para repor a password, verifica o teu email.');
-      handleCloseModal();
+        await sendPasswordResetEmail(auth, forgotPasswordEmail);
+        alert('Foi enviado um email para repor a palavra-passe. Por favor, verifique o seu email.');
+        handleCloseModal();
+      
     } catch (error) {
-      alert(error.code);
-    }finally{
-        setForgotPasswordEmail('');
+      console.error('Erro ao verificar o email:', error);
+      alert('Ocorreu um erro. Por favor, tente novamente mais tarde.');
+    } finally {
+      setForgotPasswordEmail('');
     }
   };
+  
+  
+  
   
     
     //IF LOGGED GO STRAIGTH TO HOMEPAGE
