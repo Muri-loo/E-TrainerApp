@@ -15,7 +15,7 @@ function Navbar() {
       <TouchableOpacity onPress={() => handlePress('Menu') } style={styles.firstIcon}>
         <Image 
           style={styles.icon}
-          source={require('../assets/3bars.png')} // Replace with your menu icon asset
+          source={{uri: 'https://drive.google.com/uc?export=view&id=1wnM712eVagAiWOEZ-XqD0ub-J8l164aa'}} // Replace with your menu icon asset
         />  
       </TouchableOpacity>
       <TouchableOpacity onPress={() => handlePress('HomeCalendar')}>
@@ -28,7 +28,7 @@ function Navbar() {
       <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.lastIcon}>
         <Image 
           style={styles.icon}
-          source={require('../assets/help.png')} // Replace with your profile icon asset
+          source={{uri: 'https://drive.google.com/uc?export=view&id=180C9fXZ_YFycuUgDFaHNF4rQgHoQ-iXM'}} // Replace with your menu icon asset
         />
       </TouchableOpacity>
     </View> 
