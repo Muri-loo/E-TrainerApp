@@ -6,6 +6,7 @@ import {auth} from '../../Config/firebase';
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 
 
+
 function ChooseGoals({navigation,route}) {
     //Declare var;
     const [GoalsList, setGoalsList] = useState([]); // State to store the list of goals

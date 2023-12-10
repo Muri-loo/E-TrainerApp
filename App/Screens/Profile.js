@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import {
-  SafeAreaView,
   ScrollView,
   Text,
   View,
@@ -121,7 +122,9 @@ function Profile({ navigation }) {
                source={require('../assets/image.png')}
               style={styles.estatistica}
             />
-          <View style={styles.bottomButtons}>
+        
+        </ScrollView>
+        <View style={styles.bottomButtons}>
           <TouchableOpacity style={styles.editButton}>
           <Image
                source={require('../assets/removeatleta.png')}
@@ -137,7 +140,6 @@ function Profile({ navigation }) {
             <Text style={styles.logoutText}>LOGOUT</Text>
           </TouchableOpacity>
           </View>
-        </ScrollView>
         <Fundo navigation={navigation} />
       </SafeAreaView>
     );
@@ -158,8 +160,7 @@ function Profile({ navigation }) {
     return (
       <SafeAreaView style={styles.container}>
         <Navbar navigation={navigation} />
-        <View style={styles.contentContainer}>
-            <Text style={styles.title}>{trainer.nome}</Text>
+        <Text style={styles.title}>{trainer.nome}</Text>
             <Image
               style={styles.profilePic}
               source={{ uri: trainer.fotoTreinador }} // Replace with trainer's profile picture URL
@@ -170,7 +171,8 @@ function Profile({ navigation }) {
             <Text style={styles.info}>Codigo: {trainer.codigoTreinador}</Text>
             <Text style={styles.info}>Email: {trainer.email}</Text>
             <Text style={styles.info}>Descricao: {trainer.descricao}</Text>
-          <FlatList
+            
+          <FlatList 
             data={students}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
@@ -180,7 +182,6 @@ function Profile({ navigation }) {
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
             <Text style={styles.logoutText}>LOGOUT</Text>
           </TouchableOpacity>
-        </View>
         <Fundo navigation={navigation} />
       </SafeAreaView>
     );
@@ -290,7 +291,6 @@ const styles = StyleSheet.create({
   studentItem: {
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
     margin: 5,
     width: 120, // Adjust the size as needed
     height: 120, // Adjust the size as needed
