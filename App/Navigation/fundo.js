@@ -69,7 +69,7 @@ function Fundo() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+    <View style={{ justifyContent: 'flex-end' }}>
     <Shadow
     style={{
           flexDirection: 'row',

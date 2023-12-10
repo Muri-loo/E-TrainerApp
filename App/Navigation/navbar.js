@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, SafeAreaView, Text, View, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, SafeAreaView, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 function Navbar() {
@@ -11,7 +11,7 @@ function Navbar() {
   };
 
   return (
-    <View style={styles.navbarContainer}>
+    <SafeAreaView style={styles.navbarContainer}>
       <TouchableOpacity onPress={() => handlePress('Menu') } style={styles.firstIcon}>
         <Image 
           style={styles.icon}
@@ -31,13 +31,12 @@ function Navbar() {
           source={{uri: 'https://drive.google.com/uc?export=view&id=180C9fXZ_YFycuUgDFaHNF4rQgHoQ-iXM'}} // Replace with your menu icon asset
         />
       </TouchableOpacity>
-    </View> 
+    </SafeAreaView> 
   );
 };
-const scaleFactor=0.5;
+
 const styles = StyleSheet.create({
   navbarContainer: {
-    marginTop: 40,
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding : 5,
