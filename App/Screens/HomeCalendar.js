@@ -15,7 +15,7 @@ const CalendarPage = ({ navigation }) => {
   const handleTrainingDay = () =>{
     if(selectedDate){
       
-      navigation.navigate('DisplayTraining',selectedDate);
+      navigation.navigate('DisplayTraining',formatDate(selectedDate));
     }else{
       alert('Escolha um dia para prosseguir');
     }
@@ -39,6 +39,8 @@ const CalendarPage = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
+      <View style={{ flex: 1 }}> 
+
       <Calendar
         style={{ marginTop: 50, backgroundColor: '#FFFFF' }}
         onDayPress={handleDayPress}
@@ -47,9 +49,10 @@ const CalendarPage = ({ navigation }) => {
         theme={{
           calendarBackground: '#FFFFF',
           selectedDayBackgroundColor: '#D72E02',
-          selectedDayTextColor: '#ffffff',
+          selectedDayTextColor: '#FFFFFF',
         }}
       />
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleTrainingDay}>
         <Text style={styles.texto}>{formatDate(selectedDate)}</Text>
@@ -65,6 +68,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFF', // Pure white background
+    justifyContent: 'space-between',
   },
 
   button: {
@@ -73,8 +77,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#D72E02',
     padding: 10,
     margin: 50,
-    marginTop: 150,
+    marginTop: 100,
     alignItems: 'center',
+    alignSelf:'center',
   },
   texto: {
     alignItems: 'center',
