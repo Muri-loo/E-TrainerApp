@@ -38,10 +38,16 @@ function Navbar() {
 const styles = StyleSheet.create({
   navbarContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding : 5,
+    justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#000', // Match the color to the screenshot
+    paddingVertical: 10,
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    shadowColor: '#CC2C02',
+    elevation: 15,
+    backgroundColor: '#000',
+    borderBottomLeftRadius: 20, // Border radius for the bottom-left corner
+    borderBottomRightRadius: 20, // Border radius for the bottom-right corner
   },
   icon: {
     width: 30, // Adjust the size as needed
