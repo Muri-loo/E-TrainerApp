@@ -93,29 +93,50 @@ function Profile({ navigation }) {
       <SafeAreaView style={styles.container}>
         <Navbar navigation={navigation} />
         <ScrollView style={styles.contentContainer}>
-          <Text style={styles.title}>{athlete.nome}</Text>
-          <Image
-          source={{uri: athlete.fotoAtleta}}
-          style={styles.profilePic}
-          />
-          <Text style={styles.info}>Email: {athlete.email}</Text>
-          <Text style={styles.info}>Phone: {athlete.telemovel}</Text>
-          <Text style={styles.info}>About me: {athlete.descricao}</Text>
-          <Text style={styles.info}>Gender: {athlete.genero}</Text>
-          <Text style={styles.info}>Age: {athlete.dataNascimento}</Text>
-          <Text style={styles.info}>Height: {athlete.altura} cm</Text>
-          <Text style={styles.info}>Weight: {athlete.peso} kg</Text>
-
-          <TouchableOpacity>
-            <Text style={styles.info}>EDIT</Text>
+          <View style={styles.profileHeader}>
+            <Text style={styles.title}>{athlete.nome}</Text>
+          </View>
+          <View style={styles.profileSection}>
             <Image
-              source={{uri: 'https://drive.google.com/uc?export=view&id=1yBtDO3nUsGbx7FZgBTzjZeRFNWa-c4aI'}}
+              source={{ uri: athlete.fotoAtleta }}
+              style={styles.profilePic}
             />
+            <View style={styles.detailsContainer}>
+              <Text style={styles.detailText}>Gender: {athlete.genero}</Text>
+              <Text style={styles.detailText}>Age: {athlete.dataNascimento}</Text>
+              <Text style={styles.detailText}>Height: {athlete.altura} cm</Text>
+              <Text style={styles.detailText}>Weight: {athlete.peso} kg</Text>
+            </View>
+          </View>
+          
+          <View style={styles.additionalInfo}>
+          <Text style={styles.email}>Phone: {athlete.telemovel}</Text>
+            <Text style={styles.email}>Email: {athlete.email}</Text>
+           
+            <Text style={styles.desc}>Description</Text>
+            <Text style={styles.info}>{athlete.descricao}</Text>
+          </View>
+
+          <Image
+               source={require('../assets/image.png')}
+              style={styles.estatistica}
+            />
+          <View style={styles.bottomButtons}>
+          <TouchableOpacity style={styles.editButton}>
+          <Image
+               source={require('../assets/removeatleta.png')}
+              style={styles.estatistica}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+            <Text style={styles.logoutText}>Manage Workouts</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
             <Text style={styles.logoutText}>LOGOUT</Text>
           </TouchableOpacity>
+          </View>
         </ScrollView>
         <Fundo navigation={navigation} />
       </SafeAreaView>
@@ -191,6 +212,67 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor:'#000',
   },
+  profileHeader: {
+    // Style for profile header if needed
+  },
+  profileSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#000',
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    marginLeft: 55,
+    marginBottom : 30,
+  },
+  bottomButtons: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    backgroundColor: '#000',
+  },
+  
+  // Ensure the details container takes up the remaining space and aligns its children to start
+  detailsContainer: {
+    flex: 1,
+    justifyContent: 'flex-start', // Align items to the start of the container
+    marginLeft: 30, // Add some space between the profile image and the details
+  },
+  
+  // Ensure the image and details don't exceed the screen width
+  profilePic: {
+    width: 100,
+    height: 100,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#000',
+    backgroundColor: '#fff'
+  },
+  detailText: {
+    color: '#fff',
+    marginBottom: 5,
+    fontSize: 15,
+    // Add other styling as needed
+  },
+  email: {
+    color: '#fff',
+    marginTop: 5,
+    marginBottom: 5,
+    // Add other styling as needed
+    alignSelf: 'center',
+    fontSize: 18,
+  },
+  detailColumn: {
+    flex: 1, // Take up remaining space
+    justifyContent: 'space-around', // Space out the details evenly
+  },
+  desc: {
+    marginTop: 10,
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  estatistica: {
+    alignSelf: 'center',
+  },
   content: {
     backgroundColor:'#D72E02F2',
     width: '100%',
@@ -200,14 +282,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
     padding: 20,
     backgroundColor: '#000',
-  },
-  profilePic: {
-    marginTop: 30,
-    width: 100,
-    height: 100,
-    borderRadius: 10, // Make it round
-    alignSelf: 'center',
-    backgroundColor: '#fff',
   },
   studentGrid: {
     alignSelf: 'center',
@@ -240,12 +314,10 @@ const styles = StyleSheet.create({
     color: '#666'            // Set the text color for the student information
   },
   editButton: {
-    width: 100,
-    height: 100,
+    width: 50,
+    height: 50,
     backgroundColor: '#CC2C02',
     borderRadius: 50,
-    marginTop: 100,
-    marginLeft: 135,
     alignItems: 'center',
   },
   info: {
@@ -257,7 +329,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
-    marginTop: 20,
     marginBottom: 10,
     alignSelf: 'center',
   },
