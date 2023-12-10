@@ -3,11 +3,15 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
+  View,
+  ImageBackground,
   Image,
+  FlatList,
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
 import Fundo from '../Navigation/fundo';
+import Navbarlight from '../Navigation/navbarlight';
 import Navbar from '../Navigation/navbar';
 import { db } from '../../Config/firebase';
 import {
@@ -53,12 +57,15 @@ function Profile({ navigation }) {
       }else{
           const mail = auth.currentUser.email;
           const TrainerQueryResult = await getDocs(query(collection(db, 'Treinador'), where('email', '==', mail)));
-          const trainer = TrainerQueryResult.docs[0];
-          const AthletsQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idTreinador', '==', trainer.data().idTreinador)));
-          setStudents(AthletsQueryResult.docs);
-          console.log("Atletas " + AthletsQueryResult.docs);
-          setTrainer(trainer.data());
+          const trainerData = TrainerQueryResult.docs[0].data(); // Get the trainer data
+          setTrainer(trainerData);
           setUserType('Treinador');
+        
+          // Fetch athletes associated with this trainer
+          const AthletsQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idTreinador', '==', trainerData.idTreinador)));
+          // Convert the query snapshot to a usable array of athlete data
+          const studentData = AthletsQueryResult.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          setStudents(studentData); // Set the students in the state
       }
 
     } catch (error) {
@@ -86,17 +93,28 @@ function Profile({ navigation }) {
       <SafeAreaView style={styles.container}>
         <Navbar navigation={navigation} />
         <ScrollView style={styles.contentContainer}>
-          <Text style={styles.info}>{athlete.nome}</Text>
+          <Text style={styles.title}>{athlete.nome}</Text>
+          <Image
+          source={{uri: athlete.fotoAtleta}}
+          style={styles.profilePic}
+          />
+          <Text style={styles.info}>Email: {athlete.email}</Text>
+          <Text style={styles.info}>Phone: {athlete.telemovel}</Text>
+          <Text style={styles.info}>About me: {athlete.descricao}</Text>
           <Text style={styles.info}>Gender: {athlete.genero}</Text>
           <Text style={styles.info}>Age: {athlete.dataNascimento}</Text>
-          <Text style={styles.info}>Atleta</Text>
           <Text style={styles.info}>Height: {athlete.altura} cm</Text>
           <Text style={styles.info}>Weight: {athlete.peso} kg</Text>
-          <Text style={styles.info}>Email: {athlete.email}</Text>
-          {/* Add your profile picture and other details here */}
-          {/* ... Other athlete-specific UI components ... */}
+
+          <TouchableOpacity>
+            <Text style={styles.info}>EDIT</Text>
+            <Image
+              source={{uri: 'https://drive.google.com/uc?export=view&id=1yBtDO3nUsGbx7FZgBTzjZeRFNWa-c4aI'}}
+            />
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.info}>LOGOUT</Text>
+            <Text style={styles.logoutText}>LOGOUT</Text>
           </TouchableOpacity>
         </ScrollView>
         <Fundo navigation={navigation} />
@@ -105,27 +123,43 @@ function Profile({ navigation }) {
   }
 
   if (userType === 'Treinador') {
+
+    const renderItem = ({ item }) => (
+      <TouchableOpacity style={styles.studentItem} onPress={() => handleStudentPress(item)}>
+        <Image
+          source={{ uri: item.fotoAtleta }}
+          style={styles.fotoAtleta}
+        />
+        <Text style={styles.studentName}>{item.nome}</Text>
+      </TouchableOpacity>
+    );
+  
     return (
       <SafeAreaView style={styles.container}>
         <Navbar navigation={navigation} />
-        <ScrollView style={styles.contentContainer}>
-          <Text style={styles.info}>{trainer.nome}</Text>
-          <Text style={styles.info}>Gender: {getGender(trainer.genero)}</Text>
-          <Text style={styles.info}>Age: {trainer.dataNascimento}</Text>
-          <Text style={styles.info}>Codigo: {trainer.codigoTreinador}</Text>
-          <Text style={styles.info}>Email: {trainer.email}</Text>
-          <Text style={styles.info}>Descricao: {trainer.descricao}</Text>
-          {/* Add your profile picture and other details here */}
-          {/* ... Other athlete-specific UI components ... */}
-          {students.map((Atleta) => (
-          <TouchableOpacity key={Atleta.idAtleta} style={styles.info}>
-          <Text style={styles.info}>{Atleta.nome}</Text>
-          </TouchableOpacity>
-          ))}
+        <View style={styles.contentContainer}>
+            <Text style={styles.title}>{trainer.nome}</Text>
+            <Image
+              style={styles.profilePic}
+              source={{ uri: trainer.fotoTreinador }} // Replace with trainer's profile picture URL
+            />
+            
+            <Text style={styles.info}>Gender: {getGender(trainer.genero)}</Text>
+            <Text style={styles.info}>Age: {trainer.dataNascimento}</Text>
+            <Text style={styles.info}>Codigo: {trainer.codigoTreinador}</Text>
+            <Text style={styles.info}>Email: {trainer.email}</Text>
+            <Text style={styles.info}>Descricao: {trainer.descricao}</Text>
+          <FlatList
+            data={students}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            numColumns={3}
+            style={styles.studentGrid}
+          />
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.info}>LOGOUT</Text>
+            <Text style={styles.logoutText}>LOGOUT</Text>
           </TouchableOpacity>
-        </ScrollView>
+        </View>
         <Fundo navigation={navigation} />
       </SafeAreaView>
     );
@@ -133,9 +167,10 @@ function Profile({ navigation }) {
 
   const renderDefaultProfile = () => (
     <ScrollView style={styles.container}>
-      <Text style={styles.loading}>No profile found</Text>
+      <Text style={styles.loading}>Loading...</Text>
       {/* You can add more athlete-specific UI components here */}
       <TouchableOpacity onPress={logout}>
+        
         <Text style={styles.logoutText}>LOGOUT</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -143,12 +178,10 @@ function Profile({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Navbar navigation={navigation} />
       {userType === 'Atleta' && renderAtletaProfile()}
       {userType === 'Treinador' && renderTreinadorProfile()}
       {(!userType || (userType !== 'Atleta' && userType !== 'Treinador')) &&
         renderDefaultProfile()}
-      <Fundo navigation={navigation} />
     </SafeAreaView>
   );
 }
@@ -156,23 +189,64 @@ function Profile({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor:'#000',
+  },
+  content: {
+    backgroundColor:'#D72E02F2',
+    width: '100%',
+    height: '100%',
   },
   contentContainer: {
+    marginTop: 5,
     padding: 20,
+    backgroundColor: '#000',
   },
-  header: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  profilePic: {
+    marginTop: 30,
+    width: 100,
+    height: 100,
+    borderRadius: 10, // Make it round
+    alignSelf: 'center',
+    backgroundColor: '#fff',
   },
-  subHeader: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  studentGrid: {
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  studentItem: {
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 5,
+    width: 120, // Adjust the size as needed
+    height: 120, // Adjust the size as needed
+    borderRadius: 20, // Make it round
+  },
+  fotoAtleta: {
     marginTop: 10,
-    marginBottom: 10,
+    width: '40%',
+    height: '60%',
+    backgroundColor: '#fff',
+  },
+  studentName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#CC2C02',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+  studentInfo: {
+    fontSize: 16,            // Font size for other student information
+    color: '#666'            // Set the text color for the student information
+  },
+  editButton: {
+    width: 100,
+    height: 100,
+    backgroundColor: '#CC2C02',
+    borderRadius: 50,
+    marginTop: 100,
+    marginLeft: 135,
+    alignItems: 'center',
   },
   info: {
     color: '#fff',
@@ -190,17 +264,14 @@ const styles = StyleSheet.create({
   loading: {
     marginTop: 300,
     alignSelf: 'center',
-    color: '#fff',
+    color: '#000',
     fontSize: 18,
   },
-  logoutButton: {
-    backgroundColor: '#3498db',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 20,
-    alignItems: 'center',
-  },
   logoutText: {
+    backgroundColor: '#D72E02F2',
+    padding: 10,
+    borderRadius: 25,
+    alignSelf: 'center',
     color: '#fff',
     fontSize: 16,
   },
