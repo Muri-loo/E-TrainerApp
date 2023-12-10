@@ -43,11 +43,12 @@ function Profile({ navigation }) {
         setAthlete(atleta.data());
         setUserType('Atleta');
       }else{
-          console.log("tasd");
           const mail = auth.currentUser.email;
           const TrainerQueryResult = await getDocs(query(collection(db, 'Treinador'), where('email', '==', mail)));
           const trainer = TrainerQueryResult.docs[0];
-          console.log(trainer.data());
+          const AthletsQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idTreinador', '==', trainer.data().idTreinador)));
+          setStudents(AthletsQueryResult.docs);
+          console.log("Atletas " + AthletsQueryResult.docs);
           setTrainer(trainer.data());
           setUserType('Treinador');
       }
@@ -105,8 +106,14 @@ function Profile({ navigation }) {
           <Text style={styles.info}>Age: {trainer.dataNascimento}</Text>
           <Text style={styles.info}>Codigo: {trainer.codigoTreinador}</Text>
           <Text style={styles.info}>Email: {trainer.email}</Text>
+          <Text style={styles.info}>Descricao: {trainer.descricao}</Text>
           {/* Add your profile picture and other details here */}
           {/* ... Other athlete-specific UI components ... */}
+          {students.map((Atleta) => (
+          <TouchableOpacity key={Atleta.idAtleta} style={styles.info}>
+          <Text style={styles.info}>{Atleta.nome}</Text>
+          </TouchableOpacity>
+          ))}
           <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Text style={styles.info}>LOGOUT</Text>
           </TouchableOpacity>
