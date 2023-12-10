@@ -134,7 +134,7 @@ const validateForm = async () => {
           placeholderTextColor="#666"
           keyboardType="email-address"
           value={profile.email}
-          onChangeText={(value) => handleChange('email', value)}
+          onChangeText={(value) => handleChange('email', value.toLocaleLowerCase())}
         />
         <TextInput
           style={styles.input}
