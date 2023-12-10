@@ -2,15 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {auth} from '../../Config/firebase'; 
-import {signInWithEmailAndPassword, onAuthStateChanged} from 'firebase/auth';
+import {signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, fetchSignInMethodsForEmail} from 'firebase/auth';
 import { StackActions } from '@react-navigation/native';
+import { db } from '../../Config/firebase';
+import { getDocs, collection, query, where, admin } from 'firebase/firestore';
 
 
-import {StyleSheet,SafeAreaView,Text,TextInput,Image,TouchableOpacity,} from 'react-native';
+
+import {StyleSheet,SafeAreaView,Text,TextInput,Image,TouchableOpacity, Modal,View} from 'react-native';
 
  
 
 function LoginPage({navigation}) {
+  const [showModal, setShowModal] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+
+  const handleCloseModal = () => {
+    setForgotPasswordEmail('');
+    setShowModal(false);
+  };
+  const handleForgotPassword = () => {
+    setShowModal(true);
+  };
+
+  const handleSendResetEmail = async () => {
+    console.log('A enviar email de recuperação para:', forgotPasswordEmail);
+    try {
+        const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('email', '==', forgotPasswordEmail.trim())));
+        if(AthletQueryResult.size>0){
+            await sendPasswordResetEmail(auth, forgotPasswordEmail);
+            alert('Foi enviado um email para repor a palavra-passe. Por favor, verifique o seu email.');
+            handleCloseModal();
+        }else{
+            alert('Email não encontrado nos nossos registos. Verifique o endereço de email e tente novamente.');
+        }
+    
+    } catch (error) {
+      console.error('Erro ao verificar o email:', error);
+      alert('Ocorreu um erro. Por favor, tente novamente mais tarde.');
+    } finally {
+      setForgotPasswordEmail('');
+    }
+  };
+  
+  
+  
+  
     
     //IF LOGGED GO STRAIGTH TO HOMEPAGE
     useEffect(() => {
@@ -97,7 +134,7 @@ function LoginPage({navigation}) {
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
 
-            <Text style={{color: '#CC2C02'}}>
+            <Text style={{color: '#CC2C02'}} onPress={handleForgotPassword}>
                 Forgot the password?
             </Text>
 
@@ -105,6 +142,37 @@ function LoginPage({navigation}) {
                 style={styles.tinyLogo}
                 source={require('../assets/E-TrainerWhiteLogo.png')}
             />   
+
+<Modal
+        animationType="slide"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={handleCloseModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={{color:'#FFF',fontWeight:'600',margin:4,alignSelf:'center'}}>Enter your email to reset password:</Text>
+
+            <TextInput
+              style={[styles.input,{margin:4,alignSelf:'center'}]}
+              onChangeText={setForgotPasswordEmail}
+              placeholderTextColor="#FFF"
+              placeholder="Email"
+              value={forgotPasswordEmail}
+            />
+
+            <TouchableOpacity style={[styles.button,{margin:10,alignSelf:'center'}]} onPress={handleSendResetEmail}>
+              <Text style={styles.buttonText}>Send Reset Email</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.button,{margin:10,alignSelf:'center'}]} onPress={handleCloseModal}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+            
         </SafeAreaView>
     );
 }
@@ -147,8 +215,21 @@ const styles = StyleSheet.create({
         backgroundColor: "#3F3F3C",
         color: "#fff",
         paddingLeft: 10, 
+        
 
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(52, 52, 52, 0.8)',
+      },
+      modalContent: {
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        backgroundColor: '#000',
+      },
 });
 
 

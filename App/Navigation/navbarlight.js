@@ -1,9 +1,9 @@
 import React from 'react';
-import { StyleSheet, SafeAreaView, Text, View, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 function Navbarlight() {
-  const navigation = useNavigation(); 
+  const navigation = useNavigation();
 
   const handlePress = (routeName) => {
     console.log(`Navigating to ${routeName}`);
@@ -12,51 +12,55 @@ function Navbarlight() {
 
   return (
     <View style={styles.navbarContainer}>
-      <TouchableOpacity onPress={() => handlePress('Menu') } style={styles.firstIcon}>
-        <Image 
+      <TouchableOpacity onPress={() => handlePress('Menu')} style={styles.iconContainer}>
+        <Image
           style={styles.icon}
-          source={{uri: 'https://drive.google.com/uc?export=view&id=1BiX48q5QbgZnsbks84y2O2fzYXhizoOx'}} // Replace with your menu icon asset
-        />  
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => handlePress('HomeCalendar')}>
-      <Image
-        style={styles.logo}
-        source={require('../assets/etrainerlogolight.png')} // Replace with your logo asset
-      />
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.lastIcon}>
-        <Image 
-          style={styles.icon}
-          source={{uri: 'https://drive.google.com/uc?export=view&id=1x7avbZIKjVoTMm5KgKgftXDq_ggPBfsf'}} 
+          source={{ uri: 'https://drive.google.com/uc?export=view&id=1BiX48q5QbgZnsbks84y2O2fzYXhizoOx' }}
         />
       </TouchableOpacity>
-    </View> 
+      <TouchableOpacity onPress={() => handlePress('HomeCalendar')}>
+        <Image
+          style={styles.logo}
+          source={require('../assets/etrainerlogolight.png')}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.iconContainer}>
+        <Image
+          style={styles.icon}
+          source={{ uri: 'https://drive.google.com/uc?export=view&id=1x7avbZIKjVoTMm5KgKgftXDq_ggPBfsf' }}
+        />
+      </TouchableOpacity>
+    </View>
   );
-};
-const scaleFactor=0.5;
+}
+
 const styles = StyleSheet.create({
   navbarContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding : 5,
+    justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'fff', // Match the color to the screenshot
+    paddingVertical: 10,
+    backgroundColor: '#FFFFF',
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 4,
+    borderBottomLeftRadius: 20, // Border radius for the bottom-left corner
+    borderBottomRightRadius: 20, // Border radius for the bottom-right corner
+  },
+  
+  iconContainer: {
+    marginLeft: 20,
+    marginRight: 20,
   },
   icon: {
-    width: 30, // Adjust the size as needed
-    height: 35, // Adjust the size as needed
+    width: 30,
+    height: 35,
   },
   logo: {
-    width: 150, // Adjust the size as needed
-    height: 70, // Adjust the size as needed
-  }, 
-  firstIcon: {
-    marginLeft: 20, // Adjust the value as needed to create space
+    width: 150,
+    height: 70,
   },
-  lastIcon: {
-    marginRight: 20, // Adjust the value as needed to create space
-  }
 });
 
 export default Navbarlight;

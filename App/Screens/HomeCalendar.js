@@ -1,33 +1,62 @@
 import React, { useState } from 'react';
 import { Calendar } from 'react-native-calendars';
-import { View, Text, StyleSheet, Modal, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
 
-
-const CalendarPage = ({navigation}) => {
+const CalendarPage = ({ navigation }) => {
   const [selectedDate, setSelectedDate] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const tasks = {
-    '2023-04-01': [{ name: 'Abs' }, { name: 'Push up' }],
-    '2023-04-02': [{ name: 'Doctor Appointment' }],
-    // ... other tasks
-  };
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
-    setShowModal(true);
-  }; 
+  };
+
+  const handleTrainingDay = () =>{
+    if(selectedDate){
+      
+      navigation.navigate('DisplayTraining',selectedDate);
+    }else{
+      alert('Escolha um dia para prosseguir');
+    }
+
+  }
+
+  function formatDate(dateString) {
+    const parts = dateString.split('-');
+    if (parts.length === 3) {
+      const [year, month, day] = parts;
+      return `${day}/${month}/${year}`;
+    }
+    return dateString; // Return the original string if the format is unexpected
+  }
+
+  const customMarkedDates = {};
+  if (selectedDate) {
+    customMarkedDates[selectedDate] = { selected: true, marked: true, selectedColor: '#D72E02' };
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Navbarlight navigation={navigation} />  
-      <Calendar onDayPress={handleDayPress} />
-    
-    
-      <Fundo navigation={navigation} />  
+      <Navbarlight navigation={navigation} />
+      <Calendar
+        style={{ marginTop: 50, backgroundColor: '#FFFFF' }}
+        onDayPress={handleDayPress}
+        markedDates={customMarkedDates}
+        for
+        theme={{
+          calendarBackground: '#FFFFF',
+          selectedDayBackgroundColor: '#D72E02',
+          selectedDayTextColor: '#ffffff',
+        }}
+      />
 
+      <TouchableOpacity style={styles.button} onPress={handleTrainingDay}>
+        <Text style={styles.texto}>{formatDate(selectedDate)}</Text>
+        <Text style={styles.verText}>Ver treinos para este dia  ➡️</Text>
+        
+      </TouchableOpacity>
+      <Fundo navigation={navigation} />
     </SafeAreaView>
   );
 };
@@ -35,27 +64,28 @@ const CalendarPage = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFF', // Pure white background
   },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
+
   button: {
     borderRadius: 20,
+    width: '80%',
+    backgroundColor: '#D72E02',
     padding: 10,
-    elevation: 2,
-    marginTop: 15,
+    margin: 50,
+    marginTop: 150,
+    alignItems: 'center',
+  },
+  texto: {
+    alignItems: 'center',
+    color: '#FFF',
+    fontWeight: '600',
+    marginHorizontal: 30, // Adjust this value as needed
+  },
+  verText: {
+    alignItems: 'center',
+    color: '#FFF',
+    fontWeight: '600',
   },
 });
 

@@ -11,7 +11,7 @@ import Profile from './App/Screens/Profile';
 import Fundo from './App/Navigation/fundo';
 import ChooseGoals from './App/Screens/ChooseGoals';
 import FormRegisterPhysic from './App/Screens/FormRegisterPhysic';
-
+import DisplayTraining from './App/Screens/DisplayTraining';
 
 
 const Stack = createNativeStackNavigator();
@@ -21,6 +21,7 @@ function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
+        <Stack.Screen name="DisplayTraining" component={DisplayTraining}  options={{ headerShown: false }} />
         <Stack.Screen name="ChooseGoals" component={ChooseGoals}  options={{ headerShown: false }} />
         <Stack.Screen name="FormRegisterPhysic" component={FormRegisterPhysic}  options={{ headerShown: false }} />
         <Stack.Screen name="HomeCalendar" component={CalendarPage}  options={{ headerShown: false }} />
@@ -35,6 +36,4 @@ function App() {
   );
 }
 
-//guga
-//bernado vai a merda
 export default App;
