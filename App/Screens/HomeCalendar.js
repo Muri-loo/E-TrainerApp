@@ -15,7 +15,7 @@ const CalendarPage = ({ navigation }) => {
   const handleTrainingDay = () =>{
     if(selectedDate){
       
-      navigation.navigate('DisplayTrain',selectedDate);
+      navigation.navigate('DisplayTraining',selectedDate);
     }else{
       alert('Escolha um dia para prosseguir');
     }

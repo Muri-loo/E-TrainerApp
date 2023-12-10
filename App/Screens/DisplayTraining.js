@@ -4,7 +4,7 @@ import { collection, getDocs, addDoc,updateDoc, doc} from 'firebase/firestore';
 import { SafeAreaView, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
 
-function DisplayTrain({navigation,route}) {
+function DisplayTraining({navigation,route}) {
     return (
         <SafeAreaView>
             <Text style={{color:'#000',fontSize:50,marginTop:400}}>TREINOS DO VAGABUNDO no dia {route.params}</Text>
@@ -12,4 +12,4 @@ function DisplayTrain({navigation,route}) {
     );
 }
 
-export default DisplayTrain;
+export default DisplayTraining;

@@ -5,7 +5,7 @@ import {auth} from '../../Config/firebase';
 import {signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, fetchSignInMethodsForEmail} from 'firebase/auth';
 import { StackActions } from '@react-navigation/native';
 import { db } from '../../Config/firebase';
-import { getDocs, collection, query, where } from 'firebase/firestore';
+import { getDocs, collection, query, where, admin } from 'firebase/firestore';
 
 
 
@@ -27,12 +27,16 @@ function LoginPage({navigation}) {
 
   const handleSendResetEmail = async () => {
     console.log('A enviar email de recuperação para:', forgotPasswordEmail);
-    admin.auth().getUserByEmail(forgotPasswordEmail);
     try {
-        await sendPasswordResetEmail(auth, forgotPasswordEmail);
-        alert('Foi enviado um email para repor a palavra-passe. Por favor, verifique o seu email.');
-        handleCloseModal();
-      
+        const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('email', '==', forgotPasswordEmail.trim())));
+        if(AthletQueryResult.size>0){
+            await sendPasswordResetEmail(auth, forgotPasswordEmail);
+            alert('Foi enviado um email para repor a palavra-passe. Por favor, verifique o seu email.');
+            handleCloseModal();
+        }else{
+            alert('Email não encontrado nos nossos registos. Verifique o endereço de email e tente novamente.');
+        }
+    
     } catch (error) {
       console.error('Erro ao verificar o email:', error);
       alert('Ocorreu um erro. Por favor, tente novamente mais tarde.');
