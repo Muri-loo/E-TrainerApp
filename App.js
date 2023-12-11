@@ -19,9 +19,9 @@ const Stack = createNativeStackNavigator();
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-
+      <Stack.Navigator>        
         <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
+
         <Stack.Screen name="DisplayTraining" component={DisplayTraining}  options={{ headerShown: false }} />
 
         <Stack.Screen name="ChooseGoals" component={ChooseGoals}  options={{ headerShown: false }} />

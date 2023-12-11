@@ -2,33 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-
-import {
-  ScrollView,
-  Text,
-  View,
-  ImageBackground,
-  Image,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Input,
-} from 'react-native';
-
-
+import {  ScrollView,  Text,  View, Image,FlatList,  StyleSheet,  TouchableOpacity,Button} from 'react-native';
 import Fundo from '../Navigation/fundo';
-import Navbarlight from '../Navigation/navbarlight';
 import Navbar from '../Navigation/navbar';
 import { db } from '../../Config/firebase';
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from 'firebase/firestore';
+import {  collection,  query,  where,  getDocs,} from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
 
 function Profile({ navigation }) {
@@ -49,9 +27,25 @@ function Profile({ navigation }) {
       });
   };
 
-  const uploadPicture = () =>{
-    
-  }
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+  
+    console.log(result);
+  
+    if (!result.canceled) {
+      // Assuming you have a state variable called 'image' to store the URI
+      setImage(result.assets[0].uri);
+      console.log(result.assets[0].uri);
+    }
+  };
+  
+  
 
   const handleStudentPress = () =>{
 
@@ -116,11 +110,13 @@ function Profile({ navigation }) {
             {athlete?.fotoAtleta ? (
               <Image source={{ uri: athlete.fotoAtleta }} style={styles.profilePic} />
             ) : (
-              <Input
-              ty
-         
-        
-        />
+              <TouchableOpacity onPress={pickImage}>
+
+              <Image source={{ uri: 'https://drive.google.com/uc?export=view&id=1_5Ci8Q7WubLNto-M2AEMXouw3r2kcjA0' }} 
+              style={{  width: 100, height: 100, borderRadius: 25,    borderWidth: 5,    borderColor: '#fff',}} />
+
+              
+              </TouchableOpacity>
             )}
             <View style={styles.detailsContainer}>
               <Text style={styles.detailText}>Gender: {athlete.genero}</Text>
@@ -186,7 +182,6 @@ function Profile({ navigation }) {
               style={styles.profilePic}
               source={{ uri: trainer.fotoTreinador }} // Replace with trainer's profile picture URL
             />
-            
             <Text style={styles.info}>Gender: {getGender(trainer.genero)}</Text>
             <Text style={styles.info}>Age: {trainer.dataNascimento}</Text>
             <Text style={styles.info}>Codigo: {trainer.codigoTreinador}</Text>
