@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 import {
   ScrollView,
@@ -10,7 +12,11 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  TextInput,
+  Input,
 } from 'react-native';
+
+
 import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
 import Navbar from '../Navigation/navbar';
@@ -43,12 +49,21 @@ function Profile({ navigation }) {
       });
   };
 
-  const auth = getAuth();
-  const userId = auth.currentUser.uid;
+  const uploadPicture = () =>{
+    
+  }
+
+  const handleStudentPress = () =>{
+
+  }
+
+  
 
   const checkUserType = async () => {
     try {
-      // Attempt to fetch from the Atleta collectio
+      const auth = getAuth();
+      const userId = auth.currentUser.uid;
+
       const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', userId)));
       const atleta = AthletQueryResult.docs[0];
 
@@ -56,17 +71,18 @@ function Profile({ navigation }) {
         setAthlete(atleta.data());
         setUserType('Atleta');
       }else{
+
           const mail = auth.currentUser.email;
           const TrainerQueryResult = await getDocs(query(collection(db, 'Treinador'), where('email', '==', mail)));
-          const trainerData = TrainerQueryResult.docs[0].data(); // Get the trainer data
+          const trainerData = TrainerQueryResult.docs[0].data(); 
+
           setTrainer(trainerData);
           setUserType('Treinador');
         
-          // Fetch athletes associated with this trainer
           const AthletsQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idTreinador', '==', trainerData.idTreinador)));
-          // Convert the query snapshot to a usable array of athlete data
+
           const studentData = AthletsQueryResult.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-          setStudents(studentData); // Set the students in the state
+          setStudents(studentData); 
       }
 
     } catch (error) {
@@ -76,9 +92,6 @@ function Profile({ navigation }) {
   };
 
   useEffect(() => {
-    const auth = getAuth();
-    const userId = auth.currentUser.uid;
-
     checkUserType();
   }, []);
 
@@ -89,6 +102,7 @@ function Profile({ navigation }) {
       return "Female";
   }
 
+
   if (userType === 'Atleta') {
     return (
       <SafeAreaView style={styles.container}>
@@ -97,11 +111,17 @@ function Profile({ navigation }) {
           <View style={styles.profileHeader}>
             <Text style={styles.title}>{athlete.nome}</Text>
           </View>
+          
           <View style={styles.profileSection}>
-            <Image
-              source={{ uri: athlete.fotoAtleta }}
-              style={styles.profilePic}
-            />
+            {athlete?.fotoAtleta ? (
+              <Image source={{ uri: athlete.fotoAtleta }} style={styles.profilePic} />
+            ) : (
+              <Input
+              ty
+         
+        
+        />
+            )}
             <View style={styles.detailsContainer}>
               <Text style={styles.detailText}>Gender: {athlete.genero}</Text>
               <Text style={styles.detailText}>Age: {athlete.dataNascimento}</Text>
@@ -145,6 +165,7 @@ function Profile({ navigation }) {
     );
   }
 
+
   if (userType === 'Treinador') {
 
     const renderItem = ({ item }) => (
@@ -187,25 +208,7 @@ function Profile({ navigation }) {
     );
   }
 
-  const renderDefaultProfile = () => (
-    <ScrollView style={styles.container}>
-      <Text style={styles.loading}>Loading...</Text>
-      {/* You can add more athlete-specific UI components here */}
-      <TouchableOpacity onPress={logout}>
-        
-        <Text style={styles.logoutText}>LOGOUT</Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
 
-  return (
-    <SafeAreaView style={styles.container}>
-      {userType === 'Atleta' && renderAtletaProfile()}
-      {userType === 'Treinador' && renderTreinadorProfile()}
-      {(!userType || (userType !== 'Atleta' && userType !== 'Treinador')) &&
-        renderDefaultProfile()}
-    </SafeAreaView>
-  );
 }
 
 const styles = StyleSheet.create({
