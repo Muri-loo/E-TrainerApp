@@ -22,9 +22,9 @@ const auth = initializeAuth(app, {
 });
 //const auth = getAuth(app);
 console.log("app");
+
+export {app};
 export const db = getFirestore(app);
-
-
 export  {auth}; 
 
 

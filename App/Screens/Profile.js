@@ -5,8 +5,9 @@ import * as FileSystem from 'expo-file-system';
 import {  ScrollView,  Text,  View, Image,FlatList,  StyleSheet,  TouchableOpacity,Button} from 'react-native';
 import Fundo from '../Navigation/fundo';
 import Navbar from '../Navigation/navbar';
-import { db } from '../../Config/firebase';
-import {  collection,  query,  where,  getDocs,} from 'firebase/firestore';
+import { db, app } from '../../Config/firebase';
+import {  collection,  query,  where,  getDocs, updateDoc} from 'firebase/firestore';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth, signOut } from 'firebase/auth';
 
 function Profile({ navigation }) {
@@ -14,7 +15,11 @@ function Profile({ navigation }) {
   const [trainer, setTrainer] = useState(null);
   const [userType, setUserType] = useState(null);
   const [students, setStudents] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+
+  //IMAGE
+  const [image, setImage] = useState(null);
+  const [uploading, setUploding] = useState(false);
 
   const logout = () => {
     const auth = getAuth();
@@ -27,6 +32,8 @@ function Profile({ navigation }) {
       });
   };
 
+
+//IMAGE
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -35,22 +42,54 @@ function Profile({ navigation }) {
       aspect: [4, 3],
       quality: 1,
     });
-  
+
     console.log(result);
-  
+
     if (!result.canceled) {
-      // Assuming you have a state variable called 'image' to store the URI
       setImage(result.assets[0].uri);
-      console.log(result.assets[0].uri);
     }
+  };
+
+  const uploadFile = async () => {
+    setUploding(true); // Consider changing to setUploading for correct spelling
+    try {
+      const { uri } = await FileSystem.getInfoAsync(image);
+      console.log(uri);
+
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      const storage = getStorage(app); // Get the storage instance
+      const filename = image.substring(image.lastIndexOf('/') + 1);
+      const storageReference = storageRef(storage, `FotosExercicios/${filename}`); // Adjust the path as necessary
+
+      const snapshot = await uploadBytes(storageReference, blob);
+
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+         // Update the athlete's 'fotoAtleta' field in Firestore
+    if (athlete && athlete.idAtleta) {
+      const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', athlete.idAtleta)));
+      const atleta = AthletQueryResult.docs[0].ref;
+      await updateDoc(atleta, {
+        fotoAtleta: downloadURL
+      });
+      console.log('Athlete photo updated in Firestore');
+    }
+      
+
+      setUploding(false); // Consider changing to setUploading for correct spelling
+      alert('Photo uploaded');
+      setImage(null);
+
+    } catch (error) {
+      console.error(error);
+      setUploding(false); // Consider changing to setUploading for correct spelling
+    }
+
   };
   
   
-
-  const handleStudentPress = () =>{
-
-  }
-
   
 
   const checkUserType = async () => {
@@ -105,12 +144,19 @@ function Profile({ navigation }) {
           <View style={styles.profileHeader}>
             <Text style={styles.title}>{athlete.nome}</Text>
           </View>
-          
+          <Button onPress={uploadFile} title='Upload media'></Button>
+          {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+
           <View style={styles.profileSection}>
             {athlete?.fotoAtleta ? (
+              <TouchableOpacity onPress={pickImage}>
+
               <Image source={{ uri: athlete.fotoAtleta }} style={styles.profilePic} />
+              </TouchableOpacity>
+
             ) : (
               <TouchableOpacity onPress={pickImage}>
+              
 
               <Image source={{ uri: 'https://drive.google.com/uc?export=view&id=1_5Ci8Q7WubLNto-M2AEMXouw3r2kcjA0' }} 
               style={{  width: 100, height: 100, borderRadius: 25,    borderWidth: 5,    borderColor: '#fff',}} />
