@@ -4,6 +4,10 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObjec
 import { db, app } from '../../Config/firebase'; // Adjust this path to your Firebase config
 import { collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 
+
+
+
+
 export const pickImage = async () => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -21,11 +25,35 @@ export const pickImage = async () => {
   return null;
 };
 
+const typeConfig = {
+  Atleta: {
+    collectionName: 'Atleta',
+    docField: 'idAtleta',
+    photoField: 'fotoAtleta',
+    storagePath: 'FotosPerfil/',
+  },
+  Treinador: {
+    collectionName: 'Treinador',
+    docField: 'idTreinador',
+    photoField: 'fotoTreinador',
+    storagePath: 'FotosPerfil/',
+  },
+  Exercicio: {
+    collectionName: 'Exercicio',
+    docField: 'idExercicio',
+    photoField: 'fotoExercicio',
+    storagePath: 'FotosExercicios/',
+  },
+  PlanoTreino:{
+    collectionName: 'PlanoTreino',
+    docField: 'idPlanoTreino',
+    photoField: 'fotoPlanoTreino',
+    storagePath: 'FotosPlanoTreino/',
+  },
+};
 
-
-export const uploadFile = async (uriPhoto, objeto,tipo) => {
+export const uploadFile = async (uriPhoto, objeto, tipo) => {
   try {
-
     const { uri } = await FileSystem.getInfoAsync(uriPhoto);
     console.log(uri);
 
@@ -34,26 +62,26 @@ export const uploadFile = async (uriPhoto, objeto,tipo) => {
 
     const storage = getStorage(app);
     const filename = uriPhoto.substring(uriPhoto.lastIndexOf('/') + 1);
+    const config = typeConfig[tipo];
 
-    let storageReference;
-    let QueryResult;
+    const storageReference = storageRef(storage, `${config.storagePath}${filename}`);
+    const QueryResult = await getDocs(query(collection(db, config.collectionName), where(config.docField, '==', objeto[config.docField])));
+    const docRef = QueryResult.docs[0].ref;
+    const oldPhotoURL = QueryResult.docs[0].data()[config.photoField]; 
 
-    if( tipo=="Atleta" || tipo =='Treinador'){
-      storageReference = storageRef(storage, `FotosPerfil/${filename}`);
-    }else if(tipo=="Exercicio"){
-      storageReference = storageRef(storage, `FotosExercicios/${filename}`);
-    }else{
-      storageReference = storageRef(storage, `FotosPlanoTreino/${filename}`);
+    if (oldPhotoURL) {
+      const oldPhotoRef = storageRef(storage, oldPhotoURL);
+      await deleteObject(oldPhotoRef).catch((error) => {
+        console.error("Failed to delete the old photo: ", error);
+      });
     }
 
     const snapshot = await uploadBytes(storageReference, blob);
     const downloadURL = await getDownloadURL(snapshot.ref);
 
-    if (objeto && objeto.idAtleta) {
-      QueryResult = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', objeto.idAtleta)));
-      const objetoA = QueryResult.docs[0].ref;
-      await updateDoc(objetoA, { fotoAtleta: downloadURL });
-      console.log('Athlete photo updated in Firestore');
+    if (docRef) {
+      await updateDoc(docRef, { [config.photoField]: downloadURL });
+      console.log(`${tipo} photo updated in Firestore`);
     }
 
     return downloadURL;
@@ -63,3 +91,18 @@ export const uploadFile = async (uriPhoto, objeto,tipo) => {
   }
 };
 
+
+
+//const handlerImage = async () =>{
+//  const uri = await pickImage();
+//  if (uri) {
+//     try {
+//        const downloadURL = await uploadFile(uri, athlete,userType);
+//        Alert.alert('Photo uploaded successfully');
+//      } catch (error) {
+//        Alert.alert('Upload failed', error.message);
+//      }
+//   }
+//}  
+
+//HANDLER EXEMPLE
