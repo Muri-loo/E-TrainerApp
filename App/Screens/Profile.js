@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import {  ScrollView,  Text,  View, Image,FlatList,  StyleSheet,  TouchableOpacity,Button} from 'react-native';
+import {  ScrollView,  Text,  View, Image,FlatList,  StyleSheet,  TouchableOpacity,Button, Alert} from 'react-native';
 import Fundo from '../Navigation/fundo';
 import Navbar from '../Navigation/navbar';
 import { db, app } from '../../Config/firebase';
@@ -30,63 +30,17 @@ function Profile({ navigation }) {
       });
   };
 
-
-//IMAGE
-  const pickImage1 = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      await uploadFile1(result.assets[0].uri);
-      // return result.assets[0].uri
+const handlerImage = async () =>{
+   const uri = await pickImage();
+    if (uri) {
+      try {
+         const downloadURL = await uploadFile(uri, athlete);
+         Alert.alert('Photo uploaded successfully');
+       } catch (error) {
+         Alert.alert('Upload failed', error.message);
+       }
     }
-  };
-
-
-  //parse the pickImage() and type
-  //uploadFile(pickImage(),type(Trainer,Athlet,Exercice,Workout));
-
-  const uploadFile1 = async (uriPhoto) => {
-    try {
-      const { uri } = await FileSystem.getInfoAsync(uriPhoto);
-      console.log(uri);
-
-      const response = await fetch(uri);
-      const blob = await response.blob();
-
-      const storage = getStorage(app); // Get the storage instance
-      const filename = uriPhoto.substring(uriPhoto.lastIndexOf('/') + 1);
-      const storageReference = storageRef(storage, `FotosExercicios/${filename}`); // Adjust the path as necessary
-
-      const snapshot = await uploadBytes(storageReference, blob);
-
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-         // Update the athlete's 'fotoAtleta' field in Firestore
-    if (athlete && athlete.idAtleta) {
-      const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', athlete.idAtleta)));
-      const atleta = AthletQueryResult.docs[0].ref;
-      await updateDoc(atleta, {
-        fotoAtleta: downloadURL
-      });
-      console.log('Athlete photo updated in Firestore');
-    }
-      checkUserType();
-      alert('Photo uploaded');
-      
-    } catch (error) {
-      console.error(error);
-    }
-
-  };
-  
+}  
   
 
 
@@ -145,13 +99,13 @@ function Profile({ navigation }) {
 
           <View style={styles.profileSection}>
             {athlete?.fotoAtleta ? (
-              <TouchableOpacity onPress={pickImage1}>
+              <TouchableOpacity onPress={handlerImage}>
 
               <Image source={{ uri: athlete.fotoAtleta }} style={styles.profilePic} />
               </TouchableOpacity>
 
             ) : (
-              <TouchableOpacity onPress={pickImage}>
+              <TouchableOpacity onPress={handlerImage}>
               
 
               <Image source={{ uri: 'https://drive.google.com/uc?export=view&id=1_5Ci8Q7WubLNto-M2AEMXouw3r2kcjA0' }} 
