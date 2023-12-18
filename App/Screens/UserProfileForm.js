@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar,Image} from 'react-native';
 import { collection, getDocs, addDoc,query, doc,where} from 'firebase/firestore';
 import { db } from "../../Config/firebase";
 
@@ -114,7 +114,11 @@ const validateForm = async () => {
 
   return (
     <View style={styles.container}>
+     <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Image style={{ width: 50, height: 50,}} source={{ uri: 'https://drive.google.com/uc?export=view&id=1KN_MSCsm1L8sp81rfyJv5eFKqhyy-0Wm' }} />
+        </TouchableOpacity>
       <StatusBar barStyle="light-content" />
+     
       <View style={styles.header}>
         <Text style={styles.headerText}>Fill Your Profile</Text>
         <Text style={styles.subHeaderText}>Don't worry you can change it later</Text>

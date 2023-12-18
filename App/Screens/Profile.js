@@ -6,8 +6,9 @@ import {  ScrollView,  Text,  View, Image,FlatList,  StyleSheet,  TouchableOpaci
 import Fundo from '../Navigation/fundo';
 import Navbar from '../Navigation/navbar';
 import { db, app } from '../../Config/firebase';
+import {pickImage, uploadFile} from '../Navigation/ImageUploader'
 import {  collection,  query,  where,  getDocs, updateDoc} from 'firebase/firestore';
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL} from 'firebase/storage';
 import { getAuth, signOut } from 'firebase/auth';
 
 function Profile({ navigation }) {
@@ -18,9 +19,6 @@ function Profile({ navigation }) {
 
 
   //IMAGE
-  const [image, setImage] = useState(null);
-  const [uploading, setUploding] = useState(false);
-
   const logout = () => {
     const auth = getAuth();
     signOut(auth)
@@ -34,7 +32,7 @@ function Profile({ navigation }) {
 
 
 //IMAGE
-  const pickImage = async () => {
+  const pickImage1 = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -46,21 +44,25 @@ function Profile({ navigation }) {
     console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      await uploadFile1(result.assets[0].uri);
+      // return result.assets[0].uri
     }
   };
 
-  const uploadFile = async () => {
-    setUploding(true); // Consider changing to setUploading for correct spelling
+
+  //parse the pickImage() and type
+  //uploadFile(pickImage(),type(Trainer,Athlet,Exercice,Workout));
+
+  const uploadFile1 = async (uriPhoto) => {
     try {
-      const { uri } = await FileSystem.getInfoAsync(image);
+      const { uri } = await FileSystem.getInfoAsync(uriPhoto);
       console.log(uri);
 
       const response = await fetch(uri);
       const blob = await response.blob();
 
       const storage = getStorage(app); // Get the storage instance
-      const filename = image.substring(image.lastIndexOf('/') + 1);
+      const filename = uriPhoto.substring(uriPhoto.lastIndexOf('/') + 1);
       const storageReference = storageRef(storage, `FotosExercicios/${filename}`); // Adjust the path as necessary
 
       const snapshot = await uploadBytes(storageReference, blob);
@@ -76,21 +78,17 @@ function Profile({ navigation }) {
       });
       console.log('Athlete photo updated in Firestore');
     }
-      
-
-      setUploding(false); // Consider changing to setUploading for correct spelling
+      checkUserType();
       alert('Photo uploaded');
-      setImage(null);
-
+      
     } catch (error) {
       console.error(error);
-      setUploding(false); // Consider changing to setUploading for correct spelling
     }
 
   };
   
   
-  
+
 
   const checkUserType = async () => {
     try {
@@ -144,12 +142,10 @@ function Profile({ navigation }) {
           <View style={styles.profileHeader}>
             <Text style={styles.title}>{athlete.nome}</Text>
           </View>
-          <Button onPress={uploadFile} title='Upload media'></Button>
-          {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
 
           <View style={styles.profileSection}>
             {athlete?.fotoAtleta ? (
-              <TouchableOpacity onPress={pickImage}>
+              <TouchableOpacity onPress={pickImage1}>
 
               <Image source={{ uri: athlete.fotoAtleta }} style={styles.profilePic} />
               </TouchableOpacity>
@@ -354,8 +350,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   studentInfo: {
-    fontSize: 16,            // Font size for other student information
-    color: '#666'            // Set the text color for the student information
+    fontSize: 16,            
+    color: '#666'            
   },
   editButton: {
     width: 50,

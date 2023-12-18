@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {auth} from '../../Config/firebase'; 
 import {signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, fetchSignInMethodsForEmail} from 'firebase/auth';
 import { StackActions } from '@react-navigation/native';
@@ -9,7 +7,8 @@ import { getDocs, collection, query, where, admin } from 'firebase/firestore';
 
 
 
-import {StyleSheet,SafeAreaView,Text,TextInput,Image,TouchableOpacity, Modal,View} from 'react-native';
+import {StyleSheet,Text,TextInput,Image,TouchableOpacity, Modal,View} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
  
 
@@ -100,13 +99,18 @@ function LoginPage({navigation}) {
         setErrorMessage('');
       }, [email, password]);
 
-  
+      
 
 
     return (
 
         <SafeAreaView style={styles.container}>
-            <Text style={{color: '#fff',fontSize: 50,  fontWeight: 'bold', marginTop:150, width:'80%'}}>
+
+        <TouchableOpacity  style={{marginLeft:20, marginTop:-40}} onPress={() => navigation.goBack()}>
+        <Image style={{ width: 50, height: 50,}} source={{ uri: 'https://drive.google.com/uc?export=view&id=1KN_MSCsm1L8sp81rfyJv5eFKqhyy-0Wm' }} />
+        </TouchableOpacity>
+
+            <Text style={{color: '#fff',fontSize: 50,  fontWeight: 'bold', marginTop:50, width:'80%', alignSelf: 'center'}}>
             Login to your{"\n"}account:            
             </Text>
 
@@ -134,14 +138,20 @@ function LoginPage({navigation}) {
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
 
-            <Text style={{color: '#CC2C02'}} onPress={handleForgotPassword}>
+            <Text style={{color: '#CC2C02',  alignSelf: 'center'}} onPress={handleForgotPassword}>
                 Forgot the password?
             </Text>
+
+            
+        
 
             <Image
                 style={styles.tinyLogo}
                 source={require('../assets/E-TrainerWhiteLogo.png')}
             />   
+
+            <Text style={{color:'white',alignSelf: 'center'}}>Dont have an account?<Text style={{color: '#CC2C02'}} onPress={() => navigation.navigate('SingUp')}> Sign Up</Text></Text>
+            
 
 <Modal
         animationType="slide"
@@ -154,7 +164,7 @@ function LoginPage({navigation}) {
             <Text style={{color:'#FFF',fontWeight:'600',margin:4,alignSelf:'center'}}>Enter your email to reset password:</Text>
 
             <TextInput
-              style={[styles.input,{margin:4,alignSelf:'center'}]}
+              style={[styles.input,{margin:4,alignSelf:'center'}]}p
               onChangeText={setForgotPasswordEmail}
               placeholderTextColor="#FFF"
               placeholder="Email"
@@ -178,13 +188,14 @@ function LoginPage({navigation}) {
 }
 
 
-const scaleFactor=0.4;
+const scaleFactor = 0.6;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#000",
-        alignItems: "center",
-        justifyContent: "flex-start",
+        alignItems: "flex-start", // Center items horizontally
+        justifyContent: "center", // Center items vertically
+        paddingTop: 20,
     },
 
     tinyLogo: {
@@ -201,6 +212,8 @@ const styles = StyleSheet.create({
         padding: 10,
         margin: 20,
         alignItems: 'center',
+        alignSelf: 'center',
+
     },
 
     buttonText: {
@@ -215,6 +228,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#3F3F3C",
         color: "#fff",
         paddingLeft: 10, 
+        alignSelf: 'center',
+
         
 
     },

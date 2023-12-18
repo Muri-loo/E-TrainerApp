@@ -29,16 +29,11 @@ function StartPage({navigation} ) {
                 onPress={() => navigation.navigate('SingUp')}
                 accessibilityLabel="Learn more about this purple button"
                 > 
-                <Text style={styles.buttonText}>Signup</Text>
+                <Text style={styles.buttonText}>Sign In</Text>
             </TouchableOpacity>
                 
             </Shadow>
            
-                
-        
-
-            
-
         </SafeAreaView>
     );
 }

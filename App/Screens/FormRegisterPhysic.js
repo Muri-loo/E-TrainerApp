@@ -99,6 +99,9 @@ const FormRegisterPhysic = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image style={{ width: 50, height: 50,}} source={{ uri: 'https://drive.google.com/uc?export=view&id=1KN_MSCsm1L8sp81rfyJv5eFKqhyy-0Wm' }} />
+        </TouchableOpacity>
       <Text style={styles.header}>Tell Us About Yourself</Text>
       <Text style={styles.subHeader}>
         To give you an experience adapted to you we need to know your gender

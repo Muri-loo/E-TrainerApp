@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db } from "../../Config/firebase";
 import { collection, getDocs, addDoc,updateDoc, doc} from 'firebase/firestore';
-import { SafeAreaView, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, ScrollView, TouchableOpacity,Image } from 'react-native';
 import {auth} from '../../Config/firebase'; 
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 
@@ -84,6 +84,9 @@ function ChooseGoals({navigation,route}) {
 
     return (
         <SafeAreaView style={styles.container}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Image style={{ width: 50, height: 50,}} source={{ uri: 'https://drive.google.com/uc?export=view&id=1KN_MSCsm1L8sp81rfyJv5eFKqhyy-0Wm' }} />
+        </TouchableOpacity>
             <Text style={styles.title}>What Are Your Goals?</Text>
             <Text style={styles.subtitle}>
                 With this your AI trainer knows exactly {'\n'} how to train you
