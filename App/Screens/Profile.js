@@ -34,7 +34,7 @@ const handlerImage = async () =>{
    const uri = await pickImage();
     if (uri) {
       try {
-         const downloadURL = await uploadFile(uri, athlete);
+         const downloadURL = await uploadFile(uri, athlete,userType);
          Alert.alert('Photo uploaded successfully');
        } catch (error) {
          Alert.alert('Upload failed', error.message);
