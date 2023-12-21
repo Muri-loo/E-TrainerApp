@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from "../../Config/firebase";
-import { collection, getDocs, addDoc,updateDoc, doc} from 'firebase/firestore';
+import { collection, getDocs, addDoc,setDoc,doc} from 'firebase/firestore';
 import { SafeAreaView, Text, StyleSheet, ScrollView, TouchableOpacity,Image } from 'react-native';
 import {auth} from '../../Config/firebase'; 
 import {createUserWithEmailAndPassword} from 'firebase/auth';
@@ -19,16 +19,17 @@ function ChooseGoals({navigation,route}) {
     
     const submitForm = async () => {
             try {
+
                 const userCredential = await createUserWithEmailAndPassword(auth,route.params.profile.email,route.params.profile.password);
                 const uid = userCredential.user.uid;
 
-                const docRef = await addDoc(AtletaCollectionRef, {
-                                ...route.params.profile,
-                                idAtleta: uid,
+                const docUser = doc(db, "Atleta", uid);
+
+                await setDoc(docUser, {
+                    ...route.params.profile,  // Spread all properties from profile
+                    'idAtleta': uid,              // Add or overwrite the Uid property
                 });
-            
-                const newDocId = docRef.id;
-            
+                            
 
                 for (const goal of GoalsList) {
                     try {
@@ -46,7 +47,7 @@ function ChooseGoals({navigation,route}) {
                 }
 
                 
-                console.log('Document successfully written to Firestore with ID: ', newDocId);
+                console.log('Document successfully written to Firestore with ID: ', uid);
                 navigation.navigate('Home');
         } catch (error) {
           console.error('Error writing document to Firestore: ', error);
@@ -94,7 +95,7 @@ function ChooseGoals({navigation,route}) {
             <ScrollView contentContainerStyle={styles.scrollView}>
                 {GoalsList.map((Goal) => ( // Map over each goal in the state
                     <TouchableOpacity key={Goal.id} style={[styles.button, Goal.selected ? styles.buttonSelected : null]} onPress={() => toggleGoalSelection(Goal.id)}>
-                        <Text style={styles.buttonText}>{Goal.Goal_name}</Text>
+                        <Text style={styles.buttonText}>{Goal.goalName}</Text>
                     </TouchableOpacity>
                 ))}
                 <TouchableOpacity style={[styles.button, { marginTop: '20%', borderRadius:30, padding:10, backgroundColor:'#D72E02' }]}

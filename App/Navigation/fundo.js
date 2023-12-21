@@ -3,7 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Image, Modal, Text, TextInput } fro
 import { useNavigation } from '@react-navigation/native';
 import { auth, db } from '../../Config/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { collection, getDocs, updateDoc, query, doc, where } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, query, doc, where, getDoc} from 'firebase/firestore';
 import { Shadow } from 'react-native-shadow-2';
 
 
@@ -21,30 +21,38 @@ function Fundo() {
 
   const addMister = async () => {
     try {
-      const auth = getAuth();
-      const user = auth.currentUser;
+        const auth = getAuth();
+        const user = auth.currentUser;
 
-      if (user) {
-        const uid = user.uid;
-        const MisterQueryResult = await getDocs(query(collection(db, 'Treinador'), where('codigoTreinador', '==', misterCode)));
-        const misterUID = MisterQueryResult.docs[0].id;
+        if (user) {
+            const uid = user.uid;
+            const MisterQueryResult = await getDocs(query(collection(db, 'Treinador'), where('codigoTreinador', '==', misterCode)));
+            
+            if (MisterQueryResult.size > 0) {
+                const misterUID = MisterQueryResult.docs[0].id;
 
-        if (MisterQueryResult.size > 0) {
-          const athlet = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', uid)));
-          const athletDoc = athlet.docs[0].ref;
-          await updateDoc(athletDoc, {
-            idTreinador: misterUID,
-          });
-        } else {
-          console.log('Mister added successfully');
+                const athletDocRef = doc(db, 'Atleta', uid);
+                const athletDocSnap = await getDoc(athletDocRef); 
+
+                if (athletDocSnap.exists()) {
+                    await updateDoc(athletDocSnap.ref, {
+                        idTreinador: misterUID,
+                    });
+                    console.log('Mister added successfully');
+                } else {
+                    console.log("Athlete document not found");
+                }
+            } else {
+                console.log('No Mister found with the provided code');
+            }
         }
-      }
     } catch (error) {
-      console.error('Error adding mister:', error.message);
+        console.error('Error adding mister:', error.message);
     }
 
     setShowModal(false);
-  };
+};
+
 
   const handleAddPress = async () => {
     try {

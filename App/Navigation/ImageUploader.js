@@ -4,10 +4,6 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObjec
 import { db, app } from '../../Config/firebase'; // Adjust this path to your Firebase config
 import { collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 
-
-
-
-
 export const pickImage = async () => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -16,14 +12,13 @@ export const pickImage = async () => {
     quality: 1,
   });
 
-  console.log(result);
-
   if (!result.canceled) {
     return result.assets[0].uri;
   }
 
   return null;
 };
+
 
 const typeConfig = {
   Atleta: {

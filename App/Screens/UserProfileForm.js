@@ -80,7 +80,7 @@ const validateForm = async () => {
   // Validar campo do nome 
   if (!profile.nome) { 
     errors.name = 'Nome é necessário.'; 
-  } else if (!/^[A-Za-z ]+$/.test(profile.nome)) {
+  } else if (!/^[A-Za-z ]+$/.test(profile.nome)) { //Ç ã... etc
     errors.name = 'O nome não pode conter caracteres especiais ou números.'; 
   }
 

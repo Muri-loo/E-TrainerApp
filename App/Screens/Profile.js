@@ -7,7 +7,7 @@ import Fundo from '../Navigation/fundo';
 import Navbar from '../Navigation/navbar';
 import { db, app } from '../../Config/firebase';
 import {pickImage, uploadFile} from '../Navigation/ImageUploader'
-import {  collection,  query,  where,  getDocs, updateDoc} from 'firebase/firestore';
+import {  collection,  query,  where,  getDocs, doc, getDoc} from 'firebase/firestore';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL} from 'firebase/storage';
 import { getAuth, signOut } from 'firebase/auth';
 
@@ -49,13 +49,13 @@ const handlerImage = async () =>{
       const auth = getAuth();
       const userId = auth.currentUser.uid;
 
-      const AthletQueryResult = await getDocs(query(collection(db, 'Atleta'), where('idAtleta', '==', userId)));
-      const atleta = AthletQueryResult.docs[0];
-
-      if (AthletQueryResult.size > 0) {
-        setAthlete(atleta.data());
-        setUserType('Atleta');
-      }else{
+      const atletaDocRef = doc(db, 'Atleta', userId); 
+      const atletaDocSnap = await getDoc(atletaDocRef); 
+      
+      if (atletaDocSnap.exists()) {
+          setAthlete(atletaDocSnap.data()); // If the document exists, use its data
+          setUserType('Atleta');
+      } else{
 
           const mail = auth.currentUser.email;
           const TrainerQueryResult = await getDocs(query(collection(db, 'Treinador'), where('email', '==', mail)));
