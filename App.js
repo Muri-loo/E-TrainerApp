@@ -13,6 +13,7 @@ import ChooseGoals from './App/Screens/ChooseGoals';
 import FormRegisterPhysic from './App/Screens/FormRegisterPhysic';
 import DisplayTraining from './App/Screens/DisplayTraining';
 import TrainingPlanDetails from './App/Screens/TrainingPlanDetails';
+import AddNewTrainningPlan from './App/Screens/AddNewTrainningPlan';
 
 
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ function App() {
       <Stack.Navigator>        
       
         <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
+        <Stack.Screen name="AddNewTrainningPlan" component={AddNewTrainningPlan}  options={{ headerShown: false }} />
         <Stack.Screen name="TrainingPlanDetails" component={TrainingPlanDetails}  options={{ headerShown: false }} />
         <Stack.Screen name="DisplayTraining" component={DisplayTraining}  options={{ headerShown: false }} />
         <Stack.Screen name="ChooseGoals" component={ChooseGoals}  options={{ headerShown: false }} />

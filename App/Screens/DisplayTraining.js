@@ -14,6 +14,7 @@ import { getAuth } from 'firebase/auth';
 
   function DisplayTraining({ navigation, route }) {
     const [TrainingPlans, setTrainingPlans] = useState([]);
+    const [loading, setLoading] = useState(true); // Added loading state
     const alternativeImage = 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV'; // URL to your default image
 
   
@@ -25,49 +26,59 @@ import { getAuth } from 'firebase/auth';
   
           if (user && route.params) {
             const uid = user.uid;
-            const selectedDate = route.params; // Assuming route.params is the date
-            const trainingPlansRef = collection(db, 'PlanoTreino_Atleta');
-            console.log(selectedDate);
-
-            const trainingPlansQuery = query(
-              trainingPlansRef, 
-            where('idAtleta', '==', uid),
-            where('data', '==', selectedDate) // Use the  selectedDate in the query
+            const selectedDate = route.params;
+            const planoTreino_AtletaRef = collection(db, 'PlanoTreino_Atleta');
+            const planoTreinoRef = collection(db, 'PlanoTreino');
+  
+            const planoTreino_AtletaQuery = query(
+              planoTreino_AtletaRef,
+              where('idAtleta', '==', uid),
+              where('data', '==', selectedDate)
             );
   
-            const querySnapshot = await getDocs(trainingPlansQuery);
-            const plans = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const querySnapshot = await getDocs(planoTreino_AtletaQuery);
+  
+            const plansPromises = querySnapshot.docs.map(async (doc) => {
+              const dataQuery = query(planoTreinoRef, where('idPlanoTreino', '==', doc.data().idPlanoTreino));
+              const dataSnapshot = await getDocs(dataQuery);
+              return dataSnapshot.docs[0].data();
+            });
+  
+            const plans = await Promise.all(plansPromises);
+            console.log(plans);
             setTrainingPlans(plans);
-          } 
-          console.log(TrainingPlans); 
-        } catch (error) { 
-          console.error('Error fetching training plans:', error); 
+          }
+        } catch (error) {
+          console.error('Error fetching training plans:', error);
+        } finally {
+          setLoading(false); 
         }
       };
   
       fetchTrainingPlans();
-    }, []);
+    }, [route.params]);
+
+    
+    
 
     const handleButtonPress = (workoutType) => {
-      console.log(`Selected workout: ${workoutType}`);
-      // Navigation logic here if needed
+      navigation.navigate('TrainingPlanDetails',workoutType);
     };
   
     // Render button with ImageBackground and subtle shadow
     const renderButton = ({ item }) => {
-      // Check if item.image is null or undefined, if so use alternativeImage
       const imageUri = item.image ? item.image : alternativeImage;
   
       return (
         <SafeAreaView style={styles.shadowContainer}>
           <Shadow>
-            <TouchableOpacity onPress={() => handleButtonPress(item.planName)} style={styles.buttonStyle}>
+            <TouchableOpacity onPress={() => handleButtonPress(item)} style={styles.buttonStyle}>
               <ImageBackground
                 source={{ uri: imageUri }}
                 style={styles.imageBackground}
                 imageStyle={styles.buttonImage}
               >
-                <Text style={styles.buttonText}>{item.planName}</Text>
+                <Text style={styles.buttonText}>{item.nomePlano}</Text>
               </ImageBackground>
             </TouchableOpacity>
           </Shadow>
@@ -75,27 +86,30 @@ import { getAuth } from 'firebase/auth';
       );
     };
   
+    //pagecode
     return (
       <SafeAreaView style={styles.container}>
         <Navbarlight navigation={navigation} />
         <Text style={styles.titleText}>Training for today: {route.params}</Text>
   
-        {TrainingPlans.length > 0 ? (
+        {loading ? (
+        <Text style={styles.titleText}>Loading...</Text>
+      ) : TrainingPlans.length > 0 ? (
         <FlatList
           data={TrainingPlans}
           renderItem={renderButton}
-          keyExtractor={item => item.id} // Assuming each plan has a unique 'id'
+          keyExtractor={(item) => item.id} // Ensure the key is unique
           style={styles.scrollViewStyle}
         />
       ) : (
         <Text style={styles.noExercisesText}>
-          NO EXERCISES FOR TODAY, WANT TO ADD SOME?
+          Não tem exercicíos para hoje, aperte no botão abaixo para adicionar.
         </Text>
       )}
-        <TouchableOpacity style={styles.button} >
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddNewTrainningPlan', route.params)}>
+        <Text style={{ color: '#fff', fontWeight: '600' }}>Adicionar Treino para este dia</Text>
+      </TouchableOpacity>
 
-            <Text style={{color:'#fff', fontWeight:'600'}}>Adicionar Treino para este dia</Text> 
-        </TouchableOpacity>
   
         <Fundo navigation={navigation} />
       </SafeAreaView>
