@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {Text, StyleSheet, ScrollView, TouchableOpacity, ImageBackground, FlatList } from 'react-native';
+import {Text, StyleSheet, ActivityIndicator, TouchableOpacity, ImageBackground, FlatList } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
@@ -93,7 +93,7 @@ import { getAuth } from 'firebase/auth';
         <Text style={styles.titleText}>Training for today: {route.params}</Text>
   
         {loading ? (
-        <Text style={styles.titleText}>Loading...</Text>
+          <ActivityIndicator size="large" color="#0000ff" />
       ) : TrainingPlans.length > 0 ? (
         <FlatList
           data={TrainingPlans}
