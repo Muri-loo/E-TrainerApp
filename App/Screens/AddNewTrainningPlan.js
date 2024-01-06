@@ -8,7 +8,7 @@ import {
   FlatList,
   StyleSheet
 } from 'react-native';
-import { collection, getDocs, query , where} from 'firebase/firestore';
+import { collection, getDocs, query , where, addDoc} from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { db, auth} from '../../Config/firebase';
 import { Shadow } from 'react-native-shadow-2';
@@ -47,10 +47,6 @@ function AddNewTrainningPlan({ navigation, route }) {
       .filter((doc) => !associatedPlanIds.includes(doc.id.trim()))
       .map((doc) => doc.data());
     
-
-    
-        console.log(filteredPlansData);
-
       setPlanosTreinos(filteredPlansData);
     } catch (error) {
       console.error(error);
@@ -66,10 +62,29 @@ function AddNewTrainningPlan({ navigation, route }) {
     fetchTrainningPlans();
   }, []);
 
-  const handleButtonPress = () =>{
-   const collectionToQuery = collection(db,'PlanoTreino_Atleta');
-   const queryforTrain= query(collectionToQuery)
-
+  const handleButtonPress = async (selectedPlan) => {
+    try {
+      setLoading(true);
+  
+      const userId = auth.currentUser.uid;
+      const selectedDate = route.params;
+      console.log(selectedPlan.idPlanoTreino,userId,selectedDate);
+      // Create a new document in 'PlanoTreino_Atleta'
+      const newPlanDocRef = await addDoc(collection(db, 'PlanoTreino_Atleta'), {
+        data: selectedDate,
+        idAtleta: userId,
+        idPlanoTreino: selectedPlan.idPlanoTreino,
+      });
+   
+      console.log('Document added with ID: ', newPlanDocRef.id);
+  
+      navigation.navigate('DisplayTraining', selectedDate);
+    } catch (error) {
+      console.error('Error adding plan to PlanoTreino_Atleta:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderPlan = ({ item }) => {

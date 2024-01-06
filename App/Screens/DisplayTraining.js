@@ -39,7 +39,7 @@ import { db, auth} from '../../Config/firebase';
             console.log('No plans found for the current user and date.');
             return;
           }
-      
+    
           // Extract associated plan IDs
           const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
       
@@ -51,7 +51,6 @@ import { db, auth} from '../../Config/firebase';
           const filteredPlansData = allPlansSnapshot.docs
             .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
             .map((doc) => doc.data());
-      
           console.log(filteredPlansData);
           setTrainingPlans(filteredPlansData);
         } catch (error) {
@@ -64,9 +63,9 @@ import { db, auth} from '../../Config/firebase';
       
   
       fetchTrainingPlans();
-    }, [route.params]);
+    }, [route.params]); 
 
-    
+     
     
 
     const handleButtonPress = (workoutType) => {

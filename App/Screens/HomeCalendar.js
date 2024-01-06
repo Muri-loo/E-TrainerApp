@@ -25,10 +25,10 @@ const CalendarPage = ({ navigation }) => {
       );
 
       const PlanoTreino_dates = Array.from(uniqueDatesSet);
-
+        console.log(PlanoTreino_dates);
       setDaysWithTraining(PlanoTreino_dates);
     } catch (error) {
-      console.error('Error fetching training days:', error);
+      console.error('Error fetching training days:', error); 
     } finally {
       setLoading(false);
     }
