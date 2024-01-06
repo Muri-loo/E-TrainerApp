@@ -38,7 +38,6 @@ function AddNewTrainningPlan({ navigation, route }) {
   
       // Extract the 'idPlanoTreino' values from 'PlanoTreino_Atleta'
       const associatedPlanIds = trainningPlanSnapshot.docs.map((doc) => doc.data().idPlanoTreino);
-        console.log(associatedPlanIds);
       // Query 'PlanoTreinoRef' to get all plans
       const allPlansQuery = query(PlanoTreinoRef);
       const allPlansSnapshot = await getDocs(allPlansQuery);

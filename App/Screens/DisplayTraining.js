@@ -5,8 +5,7 @@ import { Shadow } from 'react-native-shadow-2';
 import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
 import { query, collection, where, getDocs } from 'firebase/firestore';
-import { db } from '../../Config/firebase'; 
-import { getAuth } from 'firebase/auth';
+import { db, auth} from '../../Config/firebase'; 
 
 
 
@@ -21,40 +20,48 @@ import { getAuth } from 'firebase/auth';
     useEffect(() => {
       const fetchTrainingPlans = async () => {
         try {
-          const auth = getAuth();
-          const user = auth.currentUser;
-  
-          if (user && route.params) {
-            const uid = user.uid;
-            const selectedDate = route.params;
-            const planoTreino_AtletaRef = collection(db, 'PlanoTreino_Atleta');
-            const planoTreinoRef = collection(db, 'PlanoTreino');
-  
-            const planoTreino_AtletaQuery = query(
-              planoTreino_AtletaRef,
-              where('idAtleta', '==', uid),
-              where('data', '==', selectedDate)
-            );
-  
-            const querySnapshot = await getDocs(planoTreino_AtletaQuery);
-  
-            const plansPromises = querySnapshot.docs.map(async (doc) => {
-              const dataQuery = query(planoTreinoRef, where('idPlanoTreino', '==', doc.data().idPlanoTreino));
-              const dataSnapshot = await getDocs(dataQuery);
-              return dataSnapshot.docs[0].data();
-            });
-  
-            const plans = await Promise.all(plansPromises);
-    
-            console.log(plans);
-            setTrainingPlans(plans);
+          setLoading(true);
+      
+          const userId = auth.currentUser.uid;
+      
+          // Query 'PlanoTreino_Atleta' to get plans associated with the current user and date
+          const queryForTrain = query(
+            collection(db, 'PlanoTreino_Atleta'),
+            where('idAtleta', '==', userId),
+            where('data', '==', route.params)
+          );
+      
+          const querySnapshot = await getDocs(queryForTrain);
+      
+          if (querySnapshot.empty) {
+            // No plans found for the current user and date
+            setTrainingPlans([]);
+            console.log('No plans found for the current user and date.');
+            return;
           }
+      
+          // Extract associated plan IDs
+          const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
+      
+          // Query 'PlanoTreino' to get details of associated plans
+          const allPlansQuery = query(collection(db, 'PlanoTreino'));
+          const allPlansSnapshot = await getDocs(allPlansQuery);
+      
+          // Filter out plans from 'PlanoTreino' that appear in 'PlanoTreino_Atleta' for the current user and date
+          const filteredPlansData = allPlansSnapshot.docs
+            .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
+            .map((doc) => doc.data());
+      
+          console.log(filteredPlansData);
+          setTrainingPlans(filteredPlansData);
         } catch (error) {
           console.error('Error fetching training plans:', error);
+          setError('Error fetching training plans');
         } finally {
-          setLoading(false); 
+          setLoading(false);
         }
       };
+      
   
       fetchTrainingPlans();
     }, [route.params]);
