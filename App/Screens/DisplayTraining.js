@@ -45,6 +45,7 @@ import { getAuth } from 'firebase/auth';
             });
   
             const plans = await Promise.all(plansPromises);
+    
             console.log(plans);
             setTrainingPlans(plans);
           }
