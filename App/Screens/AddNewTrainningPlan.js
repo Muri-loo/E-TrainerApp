@@ -14,7 +14,6 @@ import { db, auth} from '../../Config/firebase';
 import { Shadow } from 'react-native-shadow-2';
 
 import Navbarlight from '../Navigation/navbarlight';
-import { Button } from 'bootstrap';
 
 function AddNewTrainningPlan({ navigation, route }) {
   const [planosTreino, setPlanosTreinos] = useState([]);

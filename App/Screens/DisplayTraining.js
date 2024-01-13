@@ -40,6 +40,7 @@ import { db, auth} from '../../Config/firebase';
   
         // Extract associated plan IDs
         const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
+        //PRECISO DE USAR O ID DA TABELA__PLANO DE TREINO ATLETA, PARA PODER APAGAR MAIS FACIL
     
         // Query 'PlanoTreino' to get details of associated plans
         const allPlansQuery = query(collection(db, 'PlanoTreino'));
@@ -60,10 +61,9 @@ import { db, auth} from '../../Config/firebase';
     };
     
     useEffect(() => {
-  
+
       const unsubscribe = navigation.addListener('focus', () => {
         fetchTrainingPlans();
-
       });
   
       // Return the function to unsubscribe from the event so it gets removed on unmount

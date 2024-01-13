@@ -1,16 +1,20 @@
 import React from 'react';
 import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { collection, doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../Config/firebase';
 
-function TrainingPlanDetails({ route }) {
-  const { fotoPlanoTreino, haveQrcode, tempo, nomePlano } = route.params;
+
+function TrainingPlanDetails({ navigation, route }) {
+  const { fotoPlanoTreino, haveQrcode, tempo, nomePlano, idPlanoTreino} = route.params;
 
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
 
-  const deleteOnPress = () =>{
-    console.log("Apaga");
-  }
+  const deleteOnPress = async () => {
+   console.log("Apaga");
+
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -28,6 +32,7 @@ function TrainingPlanDetails({ route }) {
       </View>
       <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
           <Text style={{fontWeight:600, color:'white'}}>Remover dos treinos de hoje</Text>
+
       </TouchableOpacity>
     </SafeAreaView>
   );
