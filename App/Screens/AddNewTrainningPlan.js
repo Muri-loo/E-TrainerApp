@@ -14,6 +14,7 @@ import { db, auth} from '../../Config/firebase';
 import { Shadow } from 'react-native-shadow-2';
 
 import Navbarlight from '../Navigation/navbarlight';
+import { Button } from 'bootstrap';
 
 function AddNewTrainningPlan({ navigation, route }) {
   const [planosTreino, setPlanosTreinos] = useState([]);
@@ -127,9 +128,10 @@ function AddNewTrainningPlan({ navigation, route }) {
 
         />
       )}
-    </SafeAreaView>
+      </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,

@@ -16,54 +16,60 @@ import { db, auth} from '../../Config/firebase';
     const [loading, setLoading] = useState(true); // Added loading state
     const alternativeImage = 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV'; // URL to your default image
 
-  
-    useEffect(() => {
-      const fetchTrainingPlans = async () => {
-        try {
-          setLoading(true);
-      
-          const userId = auth.currentUser.uid;
-      
-          // Query 'PlanoTreino_Atleta' to get plans associated with the current user and date
-          const queryForTrain = query(
-            collection(db, 'PlanoTreino_Atleta'),
-            where('idAtleta', '==', userId),
-            where('data', '==', route.params)
-          );
-      
-          const querySnapshot = await getDocs(queryForTrain);
-      
-          if (querySnapshot.empty) {
-            // No plans found for the current user and date
-            setTrainingPlans([]);
-            console.log('No plans found for the current user and date.');
-            return;
-          }
+    const fetchTrainingPlans = async () => {
+      try {
+        setLoading(true);
     
-          // Extract associated plan IDs
-          const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
-      
-          // Query 'PlanoTreino' to get details of associated plans
-          const allPlansQuery = query(collection(db, 'PlanoTreino'));
-          const allPlansSnapshot = await getDocs(allPlansQuery);
-      
-          // Filter out plans from 'PlanoTreino' that appear in 'PlanoTreino_Atleta' for the current user and date
-          const filteredPlansData = allPlansSnapshot.docs
-            .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
-            .map((doc) => doc.data());
-          console.log(filteredPlansData);
-          setTrainingPlans(filteredPlansData);
-        } catch (error) {
-          console.error('Error fetching training plans:', error);
-          setError('Error fetching training plans');
-        } finally {
-          setLoading(false);
+        const userId = auth.currentUser.uid;
+    
+        // Query 'PlanoTreino_Atleta' to get plans associated with the current user and date
+        const queryForTrain = query(
+          collection(db, 'PlanoTreino_Atleta'),
+          where('idAtleta', '==', userId),
+          where('data', '==', route.params)
+        );
+    
+        const querySnapshot = await getDocs(queryForTrain);
+    
+        if (querySnapshot.empty) {
+          // No plans found for the current user and date
+          setTrainingPlans([]);
+          console.log('No plans found for the current user and date.');
+          return;
         }
-      };
-      
   
-      fetchTrainingPlans();
-    }, [route.params]); 
+        // Extract associated plan IDs
+        const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
+    
+        // Query 'PlanoTreino' to get details of associated plans
+        const allPlansQuery = query(collection(db, 'PlanoTreino'));
+        const allPlansSnapshot = await getDocs(allPlansQuery);
+    
+        // Filter out plans from 'PlanoTreino' that appear in 'PlanoTreino_Atleta' for the current user and date
+        const filteredPlansData = allPlansSnapshot.docs
+          .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
+          .map((doc) => doc.data());
+        console.log(filteredPlansData);
+        setTrainingPlans(filteredPlansData);
+      } catch (error) {
+        console.error('Error fetching training plans:', error);
+        setError('Error fetching training plans');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    useEffect(() => {
+  
+      const unsubscribe = navigation.addListener('focus', () => {
+        fetchTrainingPlans();
+
+      });
+  
+      // Return the function to unsubscribe from the event so it gets removed on unmount
+      return unsubscribe;
+  
+    }, [navigation]); 
 
      
     

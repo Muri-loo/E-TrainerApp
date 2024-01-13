@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, Text, StyleSheet } from 'react-native';
+import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 function TrainingPlanDetails({ route }) {
@@ -7,6 +7,10 @@ function TrainingPlanDetails({ route }) {
 
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
+
+  const deleteOnPress = () =>{
+    console.log("Apaga");
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -22,6 +26,9 @@ function TrainingPlanDetails({ route }) {
         <Text style={styles.label}>Tempo:</Text>
         <Text style={styles.value}>{tempo}</Text>
       </View>
+      <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
+          <Text style={{fontWeight:600, color:'white'}}>Remover dos treinos de hoje</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -49,6 +56,16 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 18,
     marginBottom: 15,
+  }, 
+  button: {
+    backgroundColor: 'red', // Set background color to red
+    borderRadius: 20, // Add border radius
+    width: '80%', // Set width to 80%
+    padding: 10,
+    margin: 50,
+    marginTop: 100,
+    alignItems: 'center', // Center horizontally
+    alignSelf: 'center', // Center vertically
   },
 });
 
