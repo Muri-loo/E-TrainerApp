@@ -1,147 +1,168 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import {Text, StyleSheet, ActivityIndicator, TouchableOpacity, ImageBackground, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ImageBackground, FlatList } from 'react-native';
 import { Shadow } from 'react-native-shadow-2';
 import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
 import { query, collection, where, getDocs } from 'firebase/firestore';
-import { db, auth} from '../../Config/firebase'; 
+import { db, auth } from '../../Config/firebase';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { SearchBar } from 'react-native-elements';
 
 
+function DisplayTraining({ navigation, route }) {
+  const [TrainingPlans, setTrainingPlans] = useState([]);
+  const [myTrains, setMyTrains] = useState([]);
 
+  const [loading, setLoading] = useState(true);
+  const alternativeImage = 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
 
+  const fetchTrainingPlans = async () => {
+    try {
+      setLoading(true);
 
-  function DisplayTraining({ navigation, route }) {
-    const [TrainingPlans, setTrainingPlans] = useState([]);
-    const [loading, setLoading] = useState(true); // Added loading state
-    const alternativeImage = 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV'; // URL to your default image
+      const userId = auth.currentUser.uid;
 
-    const fetchTrainingPlans = async () => {
-      try {
-        setLoading(true);
-    
-        const userId = auth.currentUser.uid;
-    
-        // Query 'PlanoTreino_Atleta' to get plans associated with the current user and date
-        const queryForTrain = query(
-          collection(db, 'PlanoTreino_Atleta'),
-          where('idAtleta', '==', userId),
-          where('data', '==', route.params)
-        );
-    
-        const querySnapshot = await getDocs(queryForTrain);
-    
-        if (querySnapshot.empty) {
-          // No plans found for the current user and date
-          setTrainingPlans([]);
-          console.log('No plans found for the current user and date.');
-          return;
-        }
-  
-        // Extract associated plan IDs
-        const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
-        //PRECISO DE USAR O ID DA TABELA__PLANO DE TREINO ATLETA, PARA PODER APAGAR MAIS FACIL
-    
-        // Query 'PlanoTreino' to get details of associated plans
-        const allPlansQuery = query(collection(db, 'PlanoTreino'));
-        const allPlansSnapshot = await getDocs(allPlansQuery);
-    
-        // Filter out plans from 'PlanoTreino' that appear in 'PlanoTreino_Atleta' for the current user and date
-        const filteredPlansData = allPlansSnapshot.docs
-          .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
-          .map((doc) => doc.data());
-        console.log(filteredPlansData);
-        setTrainingPlans(filteredPlansData);
-      } catch (error) {
-        console.error('Error fetching training plans:', error);
-        setError('Error fetching training plans');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    useEffect(() => {
-
-      const unsubscribe = navigation.addListener('focus', () => {
-        fetchTrainingPlans();
-      });
-  
-      // Return the function to unsubscribe from the event so it gets removed on unmount
-      return unsubscribe;
-  
-    }, [navigation]); 
-
-     
-    
-
-    const handleButtonPress = (workoutType) => {
-      navigation.navigate('TrainingPlanDetails',workoutType);
-    };
-  
-    // Render button with ImageBackground and subtle shadow
-    const renderButton = ({ item }) => {
-      const imageUri = item.image ? item.image : alternativeImage;
-  
-      return (
-        <SafeAreaView style={styles.shadowContainer}>
-          <Shadow>
-            <TouchableOpacity onPress={() => handleButtonPress(item)} style={styles.buttonStyle}>
-              <ImageBackground
-                source={{ uri: imageUri }}
-                style={styles.imageBackground}
-                imageStyle={styles.buttonImage}
-              >
-                <Text style={styles.buttonText}>{item.nomePlano}</Text>
-              </ImageBackground>
-            </TouchableOpacity>
-          </Shadow>
-        </SafeAreaView>
+      const queryForTrain = query(
+        collection(db, 'PlanoTreino_Atleta'),
+        where('idAtleta', '==', userId),
+        where('data', '==', route.params)
       );
-    };
-  
-    //pagecode
+
+      const querySnapshot = await getDocs(queryForTrain);
+
+      const trainsDataWithIds = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+
+      setMyTrains(trainsDataWithIds);
+
+      if (querySnapshot.empty) {
+        setTrainingPlans([]);
+        console.log('No plans found for the current user and date.');
+        return;
+      }
+
+      const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
+
+      const allPlansQuery = query(collection(db, 'PlanoTreino'));
+      const allPlansSnapshot = await getDocs(allPlansQuery);
+
+      const filteredPlansData = allPlansSnapshot.docs
+        .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
+        .map((doc) => doc.data());
+      setTrainingPlans(filteredPlansData);
+    } catch (error) {
+      console.error('Error fetching training plans:', error);
+      setError('Error fetching training plans');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchTrainingPlans();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const handleButtonPress = (workoutType) => {
+    const foundTrain = myTrains.find(train => train.idPlanoTreino === workoutType.idPlanoTreino);
+    workoutType.deleteId = foundTrain.id;
+
+    navigation.navigate('TrainingPlanDetails', workoutType);
+  };
+
+  const renderButton = ({ item }) => {
+    const imageUri = item.image ? item.image : alternativeImage;
+
     return (
-      <SafeAreaView style={styles.container}>
-        <Navbarlight navigation={navigation} />
-        <Text style={styles.titleText}>Training for today: {route.params}</Text>
+      <View style={styles.shadowContainer}>
+        <Shadow>
+          <TouchableOpacity onPress={() => handleButtonPress(item)} style={styles.buttonStyle}>
+            <ImageBackground
+              source={{ uri: imageUri }}
+              style={styles.imageBackground}
+              imageStyle={styles.buttonImage}
+            >
+              <Text style={styles.buttonText}>{item.nomePlano}</Text>
+            </ImageBackground>
+          </TouchableOpacity>
+        </Shadow>
+      </View>
+    );
+  };
+
+  const isDateGreaterThanVarDate = () => {
+    var dateParts = route.params.split('/');
+    const extractedDate = new Date(Date.UTC(+dateParts[2], dateParts[1] - 1, +dateParts[0]));
   
+    // Get the current date
+    const currentDate = new Date();
+  
+    // Set the time part of currentDate to 00:00:00 to compare only dates
+    currentDate.setHours(0, 0, 0, 0);
+  
+    return extractedDate >= currentDate;
+  };
+  
+
+  const isGreaterThan = isDateGreaterThanVarDate();
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Content Wrapper with justifyContent: 'flex-start' */}
+      <View style={styles.contentWrapper}>
+        <Navbarlight navigation={navigation} />
+        <Text style={styles.titleText}>Treinos para hoje: {route.params}</Text>
+       
+
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
-      ) : TrainingPlans.length > 0 ? (
-        <FlatList
-          data={TrainingPlans}
-          renderItem={renderButton}
-          keyExtractor={(item) => item.id} // Ensure the key is unique
-          style={styles.scrollViewStyle}
-        />
-      ) : (
-        <Text style={styles.noExercisesText}>
-          Não tem exercicíos para hoje, aperte no botão abaixo para adicionar.
-        </Text>
-      )}
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddNewTrainningPlan', route.params)}>
-        <Text style={{ color: '#fff', fontWeight: '600' }}>Adicionar Treino para este dia</Text>
-      </TouchableOpacity>
+        ) : TrainingPlans.length > 0 ? (
+          <FlatList
+            data={TrainingPlans}
+            renderItem={renderButton}
+            keyExtractor={(item) => item.id}
+            style={styles.scrollViewStyle}
+            ItemSeparatorComponent={() => <View style={{ height: 40 }} />} // Adjust the height as needed
+          />
 
+        ) : (
+          <Text style={styles.noExercisesText}>
+            Não tem exercícios para hoje, aperte no botão abaixo para adicionar.
+          </Text>
+        )}
   
-        <Fundo navigation={navigation} />
-      </SafeAreaView>
-    );
-  }
-  
-  
+      </View>
+      {isGreaterThan && (
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('AddNewTrainningPlan', route.params)}
+          >
+            <Text style={{ color: '#fff', fontWeight: '600' }}>Adicionar Treino para este dia</Text>
+          </TouchableOpacity>
+        )}
+      <Fundo navigation={navigation} />
+    </SafeAreaView>
+  );
+}
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
+  },
+  contentWrapper: {
+    flex: 1,
+    justifyContent: 'flex-start',
   },
   titleText: {
     color: '#000',
     fontSize: 20,
-    marginTop: 20,
     padding: 10,
+    paddingTop: 15,
+    marginTop: 0,
   },
   noExercisesText: {
     color: '#000',
@@ -150,9 +171,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   scrollViewStyle: {
-    flex:1,
-},
-  shadowContainer: {
+    flex: 1,
+    marginTop:25,
+  },
+  shadowContainer: {  
     alignItems: 'center',
   },
   buttonStyle: {
@@ -182,7 +204,7 @@ const styles = StyleSheet.create({
     padding: 10,
     margin: 20,
     alignItems: 'center',
-    alignSelf:'center',
+    alignSelf: 'center',
   },
 });
 

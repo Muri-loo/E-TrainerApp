@@ -41,10 +41,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingVertical: 10,
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    shadowColor: '#CC2C02',
-    elevation: 15,
+    shadowOpacity: 0, // No shadow
+    shadowRadius: 0,
+    shadowColor: '#000', // Adjust shadow color if needed
+    elevation: 0, // No elevation (for Android)
     backgroundColor: '#000',
     borderBottomLeftRadius: 20, // Border radius for the bottom-left corner
     borderBottomRightRadius: 20, // Border radius for the bottom-right corner
@@ -64,5 +64,6 @@ const styles = StyleSheet.create({
     marginRight: 20, // Adjust the value as needed to create space
   }
 });
+
 
 export default Navbar;

@@ -15,6 +15,7 @@ const SignupScreen = (navigation) => {
       console.error('Signup failed:', error.message);
     }
   };
+  
 
   return (
     <View style={styles.container}>

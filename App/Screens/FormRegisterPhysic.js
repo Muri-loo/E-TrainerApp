@@ -23,7 +23,7 @@ const FormRegisterPhysic = ({ navigation, route }) => {
     // Format the date as YYYY-MM-DD
     const formattedDate =
       ('0' + currentDate.getDate()).slice(-2) + '/' +
-      ('0' + (currentDate.getMonth() + 1)).slice(-2) + '/' +
+      ('0' + (currentDate.getMonth() + 1)).slice(-2) + '/' + //fico com os ultimos 2 numeros 012 = 12 01 = 01
       currentDate.getFullYear();
 
     // Update the profile state with the formatted date

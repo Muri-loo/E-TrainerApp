@@ -6,13 +6,19 @@ import { db } from '../../Config/firebase';
 
 
 function TrainingPlanDetails({ navigation, route }) {
-  const { fotoPlanoTreino, haveQrcode, tempo, nomePlano, idPlanoTreino} = route.params;
+  const { fotoPlanoTreino, haveQrcode, tempo, nomePlano, deleteId} = route.params;
 
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
 
   const deleteOnPress = async () => {
-   console.log("Apaga");
+    try {
+      const documentRef = doc(db, 'PlanoTreino_Atleta', deleteId);
+      await deleteDoc(documentRef);
+      navigation.navigate('HomeCalendar');
+    } catch (error) {
+      console.error('Error deleting document: ', error);
+    }
 
   };
 

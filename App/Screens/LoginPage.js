@@ -99,7 +99,7 @@ function LoginPage({ navigation }) {
                 source={require('../assets/E-TrainerWhiteLogo.png')}
             />
 
-            <Text style={{ color: 'white', alignSelf: 'center' }}>Don't have an account?<Text style={{ color: '#CC2C02' }} onPress={() => navigation.navigate('SignUp')}> Sign Up</Text></Text>
+            <Text style={{ color: 'white', alignSelf: 'center' }}>Don't have an account?<Text style={{ color: '#CC2C02' }} onPress={() => navigation.navigate('SingUp')}> Sign Up</Text></Text>
 
             <Modal
                 animationType="slide"

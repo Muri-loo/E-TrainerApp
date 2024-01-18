@@ -50,7 +50,6 @@ const typeConfig = {
 export const uploadFile = async (uriPhoto, objeto, tipo) => {
   try {
     const { uri } = await FileSystem.getInfoAsync(uriPhoto);
-    console.log(uri);
 
     const response = await fetch(uri);
     const blob = await response.blob();
@@ -58,9 +57,10 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
     const storage = getStorage(app);
     const filename = uriPhoto.substring(uriPhoto.lastIndexOf('/') + 1);
     const config = typeConfig[tipo];
-
     const storageReference = storageRef(storage, `${config.storagePath}${filename}`);
+
     const QueryResult = await getDocs(query(collection(db, config.collectionName), where(config.docField, '==', objeto[config.docField])));
+
     const docRef = QueryResult.docs[0].ref;
     const oldPhotoURL = QueryResult.docs[0].data()[config.photoField]; 
 

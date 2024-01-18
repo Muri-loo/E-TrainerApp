@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Image, Modal, Text, TextInput } from 'react-native';
+
+import { StyleSheet, View, TouchableOpacity, Image, Modal, Text, TextInput, Alert} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { auth, db } from '../../Config/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
@@ -38,12 +39,12 @@ function Fundo() {
                     await updateDoc(athletDocSnap.ref, {
                         idTreinador: misterUID,
                     });
-                    console.log('Mister added successfully');
-                } else {
-                    console.log("Athlete document not found");
+                    Alert.alert('Treinador', 'Treinador adicionado com sucesso.');
+                  } else {
+                    console.log("document not found");
                 }
             } else {
-                console.log('No Mister found with the provided code');
+              Alert.alert('Treinador', 'Nenhum treinador com esse codigo foi encontrado');
             }
         }
     } catch (error) {
