@@ -120,14 +120,14 @@ const validateForm = async () => {
       <StatusBar barStyle="light-content" />
      
       <View style={styles.header}>
-        <Text style={styles.headerText}>Fill Your Profile</Text>
-        <Text style={styles.subHeaderText}>Don't worry you can change it later</Text>
+        <Text style={styles.headerText}>Preenche o teu perfil</Text>
+        <Text style={styles.subHeaderText}>Não te preocupes podes alterar novamente no futuro</Text>
       </View>
       
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Full Name"
+          placeholder="Nome completo"
           placeholderTextColor="#666"
           value={profile.nome}
           onChangeText={(value) => handleChange('nome', value)}
@@ -142,7 +142,7 @@ const validateForm = async () => {
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder="Senha"
           placeholderTextColor="#666"
           secureTextEntry
           value={profile.password}
@@ -150,7 +150,7 @@ const validateForm = async () => {
         />
         <TextInput
           style={styles.input}
-          placeholder="Phone Number"
+          placeholder="Número telemóvel"
           placeholderTextColor="#666"
           keyboardType="phone-pad"
           value={profile.telemovel}

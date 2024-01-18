@@ -94,7 +94,7 @@ function Profile({ navigation }) {
               <Text style={styles.detailText}>{object?.descricao}</Text>
             </View>
 
-            <Image source={require('../assets/image.png')} style={styles.estatistica} />
+            <Image source={require('../assets/fotofinal.png')} style={styles.estatistica} />
           </>
         )}
 

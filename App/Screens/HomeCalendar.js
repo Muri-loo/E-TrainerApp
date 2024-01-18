@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar } from 'react-native-calendars';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
@@ -48,7 +48,7 @@ const CalendarPage = ({ navigation }) => {
     if (selectedDate) {
       navigation.navigate('DisplayTraining', formatDate(selectedDate));
     } else {
-      alert('Escolha um dia para prosseguir');
+      Alert.alert('Aviso','Escolha um dia para prosseguir');
     }
   };
 
@@ -116,7 +116,7 @@ const CalendarPage = ({ navigation }) => {
 
   <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
     <Text style={{ marginLeft: 5}}>
-      <Text style={{ color: 'blue' }}>DD </Text>
+      <Text style={{ fontWeight:'600', color: '#15bff2' }}>DD </Text>
       Data de hoje
     </Text>
   </View>

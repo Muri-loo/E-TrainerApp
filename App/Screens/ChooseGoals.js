@@ -28,15 +28,15 @@ function ChooseGoals({navigation,route}) {
                 await setDoc(docUser, {
                     ...route.params.profile,  // Spread all properties from profile
                     'idAtleta': uid,              // Add or overwrite the Uid property
-                });
+                }); 
                             
 
-                for (const goal of GoalsList) {
+                for (const goal of GoalsList) { 
                     try {
                         if(goal.selected){
-                            await addDoc(AtletaGoalsCollectionRef, {
+                            await addDoc(AtletaGoalsCollectionRef, { 
                                 idAtleta: uid,
-                                idGoal: goal.id,
+                                idGoal: goal.id, 
                               });
                         }
                        

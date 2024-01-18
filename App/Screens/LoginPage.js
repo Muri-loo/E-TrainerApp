@@ -27,7 +27,7 @@ function LoginPage({ navigation }) {
             await signInWithEmailAndPassword(auth, email, password);
             navigation.dispatch(StackActions.replace('HomeCalendar'));
         } catch (error) {
-            setErrorMessage('Login failed. Please check your credentials.');
+            setErrorMessage('Login falhou. Por favor verifique as suas credenciais.');
             // Additional error handling based on error.code
         }
     };
@@ -63,7 +63,7 @@ function LoginPage({ navigation }) {
         </TouchableOpacity>
 
             <Text style={{ color: '#fff', fontSize: 50, fontWeight: 'bold', width: '80%', alignSelf: 'center' }}>
-                Login to your{"\n"}account:
+                Faça Login na{"\n"}sua conta:
             </Text>
 
             <TextInput
@@ -77,7 +77,7 @@ function LoginPage({ navigation }) {
                 style={styles.input}
                 onChangeText={setPassword}
                 placeholderTextColor="#fff"
-                placeholder="Password"
+                placeholder="Senha"
                 value={password}
                 secureTextEntry
             />
@@ -91,7 +91,7 @@ function LoginPage({ navigation }) {
             </TouchableOpacity>
 
             <Text style={{ color: '#CC2C02', alignSelf: 'center' }} onPress={handleForgotPassword}>
-                Forgot the password?
+                Não sabe a senha?
             </Text>
 
             <Image
@@ -99,7 +99,7 @@ function LoginPage({ navigation }) {
                 source={require('../assets/E-TrainerWhiteLogo.png')}
             />
 
-            <Text style={{ color: 'white', alignSelf: 'center' }}>Don't have an account?<Text style={{ color: '#CC2C02' }} onPress={() => navigation.navigate('SingUp')}> Sign Up</Text></Text>
+            <Text style={{ color: 'white', alignSelf: 'center' }}>Não tem uma conta?<Text style={{ color: '#CC2C02' }} onPress={() => navigation.navigate('SingUp')}>Registe-se</Text></Text>
 
             <Modal
                 animationType="slide"
@@ -109,7 +109,7 @@ function LoginPage({ navigation }) {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={{ color: '#FFF', fontWeight: '600', margin: 4, alignSelf: 'center' }}>Enter your email to reset password:</Text>
+                        <Text style={{ color: '#FFF', fontWeight: '600', margin: 4, alignSelf: 'center' }}>Introduza o seu email para recuperar senha:</Text>
                         <TextInput
                             style={[styles.input, { margin: 4, alignSelf: 'center' }]}
                             onChangeText={setForgotPasswordEmail}
@@ -118,10 +118,10 @@ function LoginPage({ navigation }) {
                             value={forgotPasswordEmail}
                         />
                         <TouchableOpacity style={[styles.button, { margin: 10, alignSelf: 'center' }]} onPress={handleSendResetEmail}>
-                            <Text style={styles.buttonText}>Send Reset Email</Text>
+                            <Text style={styles.buttonText}>Enviar email de recuperação</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.button, { margin: 10, alignSelf: 'center' }]} onPress={handleCloseModal}>
-                            <Text style={styles.buttonText}>Close</Text>
+                            <Text style={styles.buttonText}>Fechar</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

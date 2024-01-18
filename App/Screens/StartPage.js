@@ -21,15 +21,14 @@ function StartPage({navigation} ) {
             </TouchableOpacity>
             </Shadow>
 
-            <Text style={{color:'#fff',margin:25}}>Or</Text>
+            <Text style={{color:'#fff',margin:25}}>ou</Text>
 
             <Shadow distance={10} startColor={'#eb9066d8'} endColor={'#ff00ff10'}>
             <TouchableOpacity
                 style={styles.button}
                 onPress={() => navigation.navigate('SingUp')}
-                accessibilityLabel="Learn more about this purple button"
                 > 
-                <Text style={styles.buttonText}>Sign In</Text>
+                <Text style={styles.buttonText}>Registro</Text>
             </TouchableOpacity>
                 
             </Shadow>

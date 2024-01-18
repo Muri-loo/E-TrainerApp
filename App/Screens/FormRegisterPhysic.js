@@ -37,7 +37,7 @@ const FormRegisterPhysic = ({ navigation, route }) => {
     setShow(true);
   };
 
-  const genders = ['Male', 'Female'];
+  const genders = ['Masculino', 'Feminino'];
 
   const handleContinue = () => {
     // Check if all required fields are filled
@@ -102,12 +102,12 @@ const FormRegisterPhysic = ({ navigation, route }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
             <Image style={{ width: 50, height: 50,}} source={{ uri: 'https://drive.google.com/uc?export=view&id=1KN_MSCsm1L8sp81rfyJv5eFKqhyy-0Wm' }} />
         </TouchableOpacity>
-      <Text style={styles.header}>Tell Us About Yourself</Text>
+      <Text style={styles.header}>  Conta-nos mais sobre ti.</Text>
       <Text style={styles.subHeader}>
-        To give you an experience adapted to you we need to know your gender
-      </Text>
+            Para proporcionar os melhores treinos possíveis, preenche este formulário com os teus dados.
+        </Text>
 
-      <Text style={styles.label}>Gender:</Text>
+      <Text style={styles.label}>Sexo:</Text>
       <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
         {genders.map((gender, index) => (
           <Text
@@ -119,7 +119,7 @@ const FormRegisterPhysic = ({ navigation, route }) => {
         ))}
       </ScrollView>
 
-      <Text style={styles.label}>Birth date:</Text>
+      <Text style={styles.label}>Data nascimento:</Text>
       <TouchableOpacity onPress={showDatepicker}>
         <Image style={{ width: 50, height: 50 }} source={{ uri: 'https://drive.google.com/uc?export=view&id=1ALnSAMWcnXD6LthpeSyCGoLApn4dhO9m' }} />
       </TouchableOpacity>
@@ -132,9 +132,9 @@ const FormRegisterPhysic = ({ navigation, route }) => {
           onChange={onChange}
         />
       )}
-      <Text style={styles.label}>Selected date: <Text style={{ color: '#CC2C02' }}>{profile.dataNascimento}</Text></Text>
+      <Text style={styles.label}>Data selecionada: <Text style={{ color: '#CC2C02' }}>{profile.dataNascimento}</Text></Text>
 
-      <Text style={styles.label}>Height(Cm):</Text>
+      <Text style={styles.label}>Altura(Cm):</Text>
       <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
         {heights.map((height, index) => (
           <Text
@@ -146,7 +146,7 @@ const FormRegisterPhysic = ({ navigation, route }) => {
         ))}
       </ScrollView>
 
-      <Text style={styles.label}>Weight(Kg):</Text>
+      <Text style={styles.label}>Peso(Kg):</Text>
       <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
         {weights.map((weight, index) => (
           <Text
@@ -167,6 +167,8 @@ const FormRegisterPhysic = ({ navigation, route }) => {
         setValue={setValue}  // Update the value in DropDownPicker
         setItems={setItems}
         onChangeValue={(val) => handleProfileChange('nivelFisico', val)}
+        placeholder="Escolha uma opção"  // Defina a mensagem padrão aqui
+
       />
 
       <TouchableOpacity style={styles.button} onPress={handleContinue}>
