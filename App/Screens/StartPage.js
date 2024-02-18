@@ -28,7 +28,7 @@ function StartPage({navigation} ) {
                 style={styles.button}
                 onPress={() => navigation.navigate('SingUp')}
                 > 
-                <Text style={styles.buttonText}>Registro</Text>
+                <Text style={styles.buttonText}>Registo123</Text>
             </TouchableOpacity>
                 
             </Shadow>
