@@ -105,7 +105,7 @@ function Fundo() {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => handlePress('Agenda')}>
+        <TouchableOpacity onPress={() => handlePress('CustomerService')}>
           <Image
             style={styles.tinyLogo}
             source={{
@@ -118,7 +118,7 @@ function Fundo() {
           <Image
             style={styles.tinyLogo}
             source={{
-              uri: 'https://drive.google.com/uc?export=view&id=1jqWEAhebOd_aUFbBuzl7KUS4cjpkadRB',
+              uri: 'https://drive.google.com/uc?=view&id=1jqWEAhebOd_aUFbBuzl7KUS4cjpkadRB',
             }}
           />
         </TouchableOpacity>

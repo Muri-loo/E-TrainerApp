@@ -134,9 +134,15 @@ function Profile({ navigation }) {
         )}
       </View>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-        <Text style={styles.logoutText}>LOGOUT</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+          <Text style={styles.logoutText}>LOGOUT</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('EditProfile',object)}>
+          <Text style={styles.logoutText}>Edit Profile</Text>
+        </TouchableOpacity>
+      </View>
+      
       <Fundo navigation={navigation} />
     </SafeAreaView>
   );
@@ -233,6 +239,13 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  
 });
 
 export default Profile;
