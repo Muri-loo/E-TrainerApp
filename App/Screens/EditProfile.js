@@ -29,6 +29,21 @@ function EditProfile({ navigation,route}) {
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
       <View style={{ flex: 1 }}>
+
+
+      <TouchableOpacity
+        style={[styles.logoutButton,{margin:20}]} 
+        onPress={handleEdit}
+      >
+        <Text style={{ color: '#FFF' }}>
+          {editMode ? 'Guardar Dados' : 'Alterar Dados'}
+        </Text>
+        
+      </TouchableOpacity>
+
+
+<Text style={[styles.label, { marginTop: 30 }]}>Nome:</Text>
+
       <TextInput
           style={styles.input}
           value={profile.nome}
@@ -36,9 +51,36 @@ function EditProfile({ navigation,route}) {
           placeholder="Nome"
           editable={editMode} // Allow editing only in edit mode
         />
-        <TouchableOpacity style={styles.logoutButton} onPress={handleEdit}>
-          <Text style={{color:'#FFF'}}>{editMode ? 'Guardar Dados' : 'Alterar Dados'}</Text>
-        </TouchableOpacity>
+        <Text style={styles.label}>Numero telemóvel:</Text>
+
+      <TextInput
+        style={styles.input}
+        value={profile.telemovel}
+        onChangeText={text => editProfile("telemovel", text)}
+        placeholder="Telemóvel"
+        editable={editMode} // Allow editing only in edit mode
+      />
+        <Text style={styles.label}>Data Nascimento:</Text>
+
+<TextInput
+  style={styles.input}
+  value={profile.dataNascimento}
+  onChangeText={text => editProfile("telemovel", text)}
+  placeholder="Telemóvel"
+  keyboardType="numeric" 
+  editable={editMode} // Allow editing only in edit mode
+/>
+
+<Text style={styles.label}>Peso:</Text>
+
+<TextInput
+  style={styles.input}
+  value={'' + profile.peso}
+  onChangeText={text => editProfile("peso", text)}
+  placeholder="Peso"
+  keyboardType="numeric" 
+  editable={editMode} // Allow editing only in edit mode
+/>
       </View>
       <Fundo navigation={navigation} />
     </SafeAreaView>
@@ -59,11 +101,16 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
     margin: 10,
     paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0d7d7',
   },
+  label:{
+    margin:10,
+    marginLeft:20,
+    marginBottom:-5,
+  }
 });
 
 export default EditProfile;

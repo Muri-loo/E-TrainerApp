@@ -7,21 +7,35 @@ import { query, collection, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../Config/firebase';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { SearchBar } from 'react-native-elements';
-
-
 function DisplayTraining({ navigation, route }) {
   const [TrainingPlans, setTrainingPlans] = useState([]);
+  const [students, setStudentsList] = useState([]);
   const [myTrains, setMyTrains] = useState([]);
-
+  const [isCoach, setIsCoach] = useState(false);
   const [loading, setLoading] = useState(true);
   const alternativeImage = 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
+  const combinedParams = {
+    data: route.params,
+    aluno: null
+  };
 
   const fetchTrainingPlans = async () => {
     try {
       setLoading(true);
-
       const userId = auth.currentUser.uid;
+
+      const checkQuery = query(collection(db,'Atleta'),where('idAtleta','==',userId));
+      const checkQueryDocuments = await getDocs(checkQuery);
+  
+      if (checkQueryDocuments.size > 0){
+        setIsCoach(false);
+      } else {
+        setIsCoach(true);
+        const getTrainerStudentsQuery = query(collection(db,'Atleta'),where('idTreinador','==',userId));
+        const getTrainerStudentsQueryDocuments = await getDocs(getTrainerStudentsQuery);
+        const studentsList = getTrainerStudentsQueryDocuments.docs.map(doc => doc.data());
+        setStudentsList(studentsList);
+      }
 
       const queryForTrain = query(
         collection(db, 'PlanoTreino_Atleta'),
@@ -30,9 +44,7 @@ function DisplayTraining({ navigation, route }) {
       );
 
       const querySnapshot = await getDocs(queryForTrain);
-
       const trainsDataWithIds = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-
       setMyTrains(trainsDataWithIds);
 
       if (querySnapshot.empty) {
@@ -42,10 +54,8 @@ function DisplayTraining({ navigation, route }) {
       }
 
       const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
-
       const allPlansQuery = query(collection(db, 'PlanoTreino'));
       const allPlansSnapshot = await getDocs(allPlansQuery);
-
       const filteredPlansData = allPlansSnapshot.docs
         .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
         .map((doc) => doc.data());
@@ -62,36 +72,46 @@ function DisplayTraining({ navigation, route }) {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchTrainingPlans();
     });
-
     return unsubscribe;
   }, [navigation]);
 
   const handleButtonPress = (workoutType) => {
     const foundTrain = myTrains.find(train => train.idPlanoTreino === workoutType.idPlanoTreino);
     workoutType.deleteId = foundTrain.id;
-
     navigation.navigate('TrainingPlanDetails', workoutType);
   };
 
-  const renderButton = ({ item }) => {
-    const imageUri = item.image ? item.image : alternativeImage;
 
+  const renderItem = ({ item }) => {
+    const imageUri = isCoach ? (item.fotoAtleta ? item.fotoAtleta : alternativeImage) : (item.image ? item.image : alternativeImage);
+    const onPressHandler = isCoach ? () => studentHandler(item) : () => handleButtonPress(item);
+    
     return (
       <View style={styles.shadowContainer}>
         <Shadow>
-          <TouchableOpacity onPress={() => handleButtonPress(item)} style={styles.buttonStyle}>
+          <TouchableOpacity onPress={onPressHandler} style={styles.buttonStyle}>
             <ImageBackground
               source={{ uri: imageUri }}
               style={styles.imageBackground}
               imageStyle={styles.buttonImage}
             >
-              <Text style={styles.buttonText}>{item.nomePlano}</Text>
+              <Text style={[styles.buttonText, isCoach && {color:'black',fontWeight:600,    backgroundColor: 'rgba(255, 255, 255, 0.4)'}]}>{isCoach ? item.nome : item.nomePlano}</Text>
             </ImageBackground>
           </TouchableOpacity>
         </Shadow>
       </View>
     );
   };
+  
+  const studentHandler = (aluno) => {
+    const combinedParams = {
+      data: route.params,
+      aluno: aluno // Assigning aluno to the aluno property of combinedParams
+    };
+
+    navigation.navigate('AddNewTrainningPlan', combinedParams);
+  }
+  
 
   const isDateGreaterThanVarDate = () => {
     var dateParts = route.params.split('/');
@@ -106,39 +126,44 @@ function DisplayTraining({ navigation, route }) {
     return extractedDate >= currentDate;
   };
   
-
   const isGreaterThan = isDateGreaterThanVarDate();
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Content Wrapper with justifyContent: 'flex-start' */}
       <View style={styles.contentWrapper}>
         <Navbarlight navigation={navigation} />
         <Text style={styles.titleText}>Treinos para hoje: {route.params}</Text>
-       
-
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : TrainingPlans.length > 0 ? (
           <FlatList
             data={TrainingPlans}
-            renderItem={renderButton}
+            renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            style={styles.scrollViewStyle}
             ItemSeparatorComponent={() => <View style={{ height: 40 }} />} // Adjust the height as needed
           />
-
-        ) : (
+        ) : !isCoach ? (
           <Text style={styles.noExercisesText}>
             Não tem exercícios para hoje, aperte no botão abaixo para adicionar.
           </Text>
+        ) : (
+          <View style={styles.noExercisesTextContainer}>
+            <Text style={styles.noExercisesText}>
+                Para qual aluno deseja adicionar um Treino?
+            </Text>
+            <FlatList
+                data={students}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id}
+                ItemSeparatorComponent={() => <View style={{ height: 40 }} />} // Adjust the height as needed
+            />
+          </View>
         )}
-  
       </View>
       {isGreaterThan && (
           <TouchableOpacity
             style={styles.button}
-            onPress={() => navigation.navigate('AddNewTrainningPlan', route.params)}
+            onPress={() => navigation.navigate('AddNewTrainningPlan', combinedParams)}
           >
             <Text style={{ color: '#fff', fontWeight: '600' }}>Adicionar Treino para este dia</Text>
           </TouchableOpacity>
@@ -205,6 +230,9 @@ const styles = StyleSheet.create({
     margin: 20,
     alignItems: 'center',
     alignSelf: 'center',
+  },
+  noExercisesTextContainer: {
+    flex: 1,
   },
 });
 

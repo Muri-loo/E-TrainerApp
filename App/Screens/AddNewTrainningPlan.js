@@ -19,7 +19,9 @@ import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 
 function AddNewTrainningPlan({ navigation, route }) {
+  const { data, aluno } = route.params;
   const [loadingData, setLoading] = useState(false);
+
 
   const [planosTreino, setPlanosTreinos] = useState([]);
   const [error, setError] = useState(null);
@@ -33,15 +35,19 @@ function AddNewTrainningPlan({ navigation, route }) {
     setSearch(text);
   };
 
+
+
   const fetchTrainningPlans = async () => {
     try {
       setLoading(true);
+      const searchId = aluno?.idAtleta || auth.currentUser.uid; // Updated this line
 
+      
       const collectionToQuery = collection(db, 'PlanoTreino_Atleta');
       const queryForTrain = query(
         collectionToQuery,
-        where('idAtleta', '==', auth.currentUser.uid),
-        where('data', '==', route.params)
+        where('idAtleta', '==', searchId),
+        where('data', '==', data)
       );
 
       const trainningPlanSnapshot = await getDocs(queryForTrain);
@@ -76,9 +82,9 @@ function AddNewTrainningPlan({ navigation, route }) {
   const handleButtonPress = async (selectedPlan) => {
     try {
       setLoading(true);
+      const userId = aluno?.idAtleta || auth.currentUser.uid; // Updated this line
 
-      const userId = auth.currentUser.uid;
-      const selectedDate = route.params;
+      const selectedDate = data;
       console.log(selectedPlan.idPlanoTreino, userId, selectedDate);
       // Create a new document in 'PlanoTreino_Atleta'
       const newPlanDocRef = await addDoc(collection(db, 'PlanoTreino_Atleta'), {
@@ -120,9 +126,10 @@ function AddNewTrainningPlan({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
       <Navbarlight></Navbarlight>
-      <View style={styles.contentWrapper}>
+        <View style={styles.contentWrapper}>
+        
         <Text style={{ color: 'black', fontSize: 15, fontWeight: 600, margin: 10 }}>
-          ADICIONE TREINO PARA ESTE DIA: {route.params}
+          ADICIONE TREINO PARA ESTE DIA: {data}
         </Text>
 
         <SearchBar
