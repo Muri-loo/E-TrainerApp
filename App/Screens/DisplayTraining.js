@@ -22,7 +22,6 @@ function DisplayTraining({ navigation, route }) {
 
       if (aluno) {
         setIsCoach(false);
-
         const queryForTrain = query(
           collection(db, 'PlanoTreino_Atleta'),
           where('idAtleta', '==', aluno.idAtleta),
@@ -33,21 +32,19 @@ function DisplayTraining({ navigation, route }) {
         const trainsDataWithIds = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
         setMyTrains(trainsDataWithIds);
 
-        
-      if (querySnapshot.empty) {
-        setTrainingPlans([]);
-        console.log('No plans found for the current user and date.');
-        return;
-      }
+        if (querySnapshot.empty) {
+          setTrainingPlans([]);
+          console.log('No plans found for the current user and date.');
+          return;
+        }
 
-      const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
-      const allPlansQuery = query(collection(db, 'PlanoTreino'));
-      const allPlansSnapshot = await getDocs(allPlansQuery);
-      const filteredPlansData = allPlansSnapshot.docs
-        .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
-        .map((doc) => doc.data());
-      setTrainingPlans(filteredPlansData);
-
+        const associatedPlanIds = querySnapshot.docs.map((doc) => doc.data().idPlanoTreino);
+        const allPlansQuery = query(collection(db, 'PlanoTreino'));
+        const allPlansSnapshot = await getDocs(allPlansQuery);
+        const filteredPlansData = allPlansSnapshot.docs
+          .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
+          .map((doc) => doc.data());
+        setTrainingPlans(filteredPlansData);
       } else {
         setIsCoach(true);
         const getTrainerStudentsQuery = query(collection(db,'Atleta'),where('idTreinador','==',userId));
@@ -55,8 +52,6 @@ function DisplayTraining({ navigation, route }) {
         const studentsList = getTrainerStudentsQueryDocuments.docs.map(doc => doc.data());
         setStudentsList(studentsList);
       }
-   
-      
     } catch (error) {
       console.error('Error fetching training plans:', error);
       Alert.alert('Error', 'Error fetching training plans');
@@ -179,10 +174,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 20,
     textAlign: 'center',
-  },
-  scrollViewStyle: {
-    flex: 1,
-    marginTop:25,
   },
   shadowContainer: {  
     alignItems: 'center',
