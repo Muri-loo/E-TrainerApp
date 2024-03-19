@@ -44,9 +44,17 @@ const CalendarPage = ({ navigation }) => {
     setSelectedDate(day.dateString);
   };
 
-  const handleTrainingDay = () => {
+  const handleTrainingDay = async () => {
+    const combinedParams= {
+      data:formatDate(selectedDate),
+      aluno:null,
+    }
     if (selectedDate) {
-      navigation.navigate('DisplayTraining', formatDate(selectedDate));
+      const getAthlet = query(collection(db,'Atleta'),where('idAtleta','==',auth.currentUser.uid));
+      const atletasnapshot = await getDocs(getAthlet);      
+      if(!atletasnapshot.empty)
+        combinedParams.aluno = atletasnapshot.docs[0].data()
+      navigation.navigate('DisplayTraining', combinedParams);
     } else {
       Alert.alert('Aviso','Escolha um dia para prosseguir');
     }

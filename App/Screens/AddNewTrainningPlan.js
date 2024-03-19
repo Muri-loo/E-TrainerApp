@@ -95,7 +95,7 @@ function AddNewTrainningPlan({ navigation, route }) {
 
       console.log('Document added with ID: ', newPlanDocRef.id);
 
-      navigation.navigate('DisplayTraining', selectedDate);
+      navigation.navigate('DisplayTraining', {data,aluno});
     } catch (error) {
       console.error('Error adding plan to PlanoTreino_Atleta:', error);
       setError(error.message);
