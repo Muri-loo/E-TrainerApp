@@ -12,7 +12,7 @@ const CalendarPage = ({ navigation, route }) => {
   const [daysWithTraining, setDaysWithTraining] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadCalendar, setLoadCalendar] = useState(true);
-  const [aluno, setAluno] = useState(null);
+  const [alunoA, setAluno] = useState(null);
   const [studentData, setstudentData] = useState([]);
 
 
@@ -36,6 +36,8 @@ const CalendarPage = ({ navigation, route }) => {
         userId = alunoData.idAtleta;
         setAluno(alunoData);
       } else {
+        console.log('Mister');
+        setLoadCalendar(true);
         setAluno(route.params);
       }
   
@@ -53,8 +55,7 @@ const CalendarPage = ({ navigation, route }) => {
   };
 
   const handleSelectedStudent = (item) => {
-    console.log('Hello');
-    //console.log(item.nome);
+    navigation.navigate('HomeCalendar',item);
   };
   
 
@@ -62,8 +63,10 @@ const CalendarPage = ({ navigation, route }) => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchTrainingDays();
     });
+    fetchTrainingDays();
     return unsubscribe;
-  }, [navigation]);
+  }, [navigation, route.params]); // Removed the extra comma
+  
 
   const handleDayPress = (day) => {
     setSelectedDate(day.dateString);
@@ -72,13 +75,9 @@ const CalendarPage = ({ navigation, route }) => {
   const handleTrainingDay = async () => {
     const combinedParams= {
       data:formatDate(selectedDate),
-      aluno:null,
+      aluno:alunoA,
     }
     if (selectedDate) {
-      const getAthlet = query(collection(db,'Atleta'),where('idAtleta','==',auth.currentUser.uid));
-      const atletasnapshot = await getDocs(getAthlet);      
-      if(!atletasnapshot.empty)
-        combinedParams.aluno = atletasnapshot.docs[0].data()
       navigation.navigate('DisplayTraining', combinedParams);
     } else {
       Alert.alert('Aviso','Escolha um dia para prosseguir');
@@ -157,8 +156,8 @@ const CalendarPage = ({ navigation, route }) => {
         ) : (
           // Your existing Calendar and other content for when loading is done and loadCalendar is true
           <>
-          {aluno && aluno.nome && (
-            <Text style={{fontSize:20, margin:10, fontWeight:'bold'}}>{aluno.nome}</Text>
+          {alunoA && alunoA.nome && (
+            <Text style={{fontSize:20, margin:10, fontWeight:'bold'}}>{alunoA.nome}</Text>
           )}
             <Calendar
               style={{ marginTop: 50, backgroundColor: '#FFFFF' }}
