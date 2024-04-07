@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
+    backgroundColor:'white',
 
   },
   contentWrapper: {

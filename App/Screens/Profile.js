@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, Text, View, Image, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, Text, View, Image, FlatList, StyleSheet, TouchableOpacity, Alert,TextInput,KeyboardAvoidingView, Platform} from 'react-native';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import { db } from '../../Config/firebase';
 import { pickImage, uploadFile } from '../Navigation/ImageUploader';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { Shadow } from 'react-native-shadow-2';
 
 function Profile({ navigation }) {
   const [object, setObject] = useState('');
   const [userType, setUserType] = useState('');
   const [students, setStudents] = useState([]);
+  const [editable , setEditable] = useState(false);
+  
+ 
+  const changeEditable = () =>{
+    setEditable(!editable);
+    if(editable){
+      // implementar logica para guardar as mudanças
+      console.log('Guardei Dados');
+    }
+  }
 
   const logout = async () => {
     try {
@@ -33,6 +45,11 @@ function Profile({ navigation }) {
         Alert.alert('Foto', error.message);
       }
     }
+  };
+
+  const handleSelectedStudent = (item) => {
+    console.log('Hello');
+    //console.log(item.nome);
   };
 
   const checkUserType = async () => {
@@ -63,104 +80,187 @@ function Profile({ navigation }) {
   };
 
   useEffect(() => {
-    checkUserType();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      checkUserType();
+    });
+    return unsubscribe;
+  }, [navigation]);
+  
 
   const getGender = (value) => (value === '0' ? 'Male' : 'Female');
 
   return (
-    <SafeAreaView style={styles.containerWrap}>
-      <Navbarlight navigation={navigation} />
-      <View style={styles.container}>
+    <SafeAreaView  style={styles.containerWrap}>
+    <SafeAreaProvider>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
+    {/* INICIO do container principal */}
+    <Navbarlight navigation={navigation} />
+
+      
+      
+     
+
         {userType === 'Atleta' && (
           <>
-            <Text style={styles.title}>{object?.nome}</Text>
-            <View style={styles.profileSection}>
-              <TouchableOpacity onPress={handlerImage}>
-                <Image source={{ uri: object?.fotoAtleta || 'https://drive.google.com/uc?export=view&id=1VrqvZTseVMNmNciV1CvBEY5nIbFnSD1s' }} style={styles.profilePic} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal:60, marginLeft:55}}>
+            <View style={{ flex: 1, alignItems: 'center'}}>
+              <TouchableOpacity onPress={handlerImage} style={{ marginVertical:15}}>
+                <Image
+                  source={{ uri: object?.fotoAtleta || 'https://drive.google.com/uc?export=view&id=1VrqvZTseVMNmNciV1CvBEY5nIbFnSD1s' }}
+                  style={{ width: 120, height: 120, borderRadius: 10, borderWidth: 2, borderColor: '#FFF', backgroundColor: '#FFF'}}
+                />
               </TouchableOpacity>
-              <View style={styles.detailsContainer}>
-                <Text style={styles.detailText}>Genéro: {getGender(object?.genero)}</Text>
-                <Text style={styles.detailText}>Idade: {object?.dataNascimento}</Text>
-                <Text style={styles.detailText}>Altura: {object?.altura} cm</Text>
-                <Text style={styles.detailText}>Peso: {object?.peso} kg</Text>
+            </View>
+            <Shadow distance={10} startColor={'#D72E02F2'} endColor={'#FFFFFF'} >
+              <TouchableOpacity style={{ backgroundColor: '#D72E02F2', padding: 10, borderRadius: 40, }} onPress={changeEditable}>
+                <Icon name={editable ? "save" : "edit"}   size={20}   color="#FFFFFF" />
+              </TouchableOpacity>
+            </Shadow>
+          </View>
+            <View style={styles.containerData}>
+            
+            <TextInput style={styles.input} value={object.nome} editable={editable} 
+              onChangeText={(newValue) => setObject(prevObject => ({ ...prevObject, nome: newValue }))}
+            />
+
+            <TextInput style={styles.input} value={object.email} editable={editable} />
+            <TextInput style={styles.input} value={object.telemovel} editable={editable}     
+             onChangeText={(newValue) => setObject(prevObject => ({ ...prevObject, telemovel: prevObject }))}
+            />
+            <Text style={{fontWeight:600,marginTop:10}}>Descrição: </Text>
+            <TextInput style={[styles.input,{marginTop:3}]} value={object.descricao} editable={editable}  />
+            <Text style={{fontWeight:600,marginTop:13}}>Metas: </Text>
+            <TextInput style={[styles.input,{marginTop:3,marginBottom:10 }]} value={object.descricao} editable={editable}
+              onChangeText={(newValue) => setObject(prevObject => ({ ...prevObject, descricao: newValue }))}
+            />
+
+
+
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={{ flexDirection: 'column', alignItems: 'flex-start', margin: 4 }}>
+                <Text style={{ fontWeight: 600,marginLeft:4 }}>Altura:</Text>
+                <TextInput 
+                  style={[styles.input, { paddingHorizontal: 20, textAlign: 'center', width: 100 }]} 
+                  value={editable ? object.altura.toString() : object.altura.toString() + " cm"} 
+                  editable={editable} 
+                />
+              </View>
+
+              <View style={{ flexDirection: 'column', alignItems: 'flex-start', margin: 4 }}>
+              <Text style={{ fontWeight: 600,marginLeft:4 }}>Peso:</Text>
+              <TextInput 
+                  style={[styles.input, { paddingHorizontal: 20, textAlign: 'center', width: 100 }]} 
+                  value={editable ? object.peso.toString() : object.peso.toString() + " Kg"} 
+                  editable={editable} 
+                />
               </View>
             </View>
 
-            <View style={{marginTop:20, marginLeft:50}}>
-              <Text style={styles.detailText}>Telemóvel: {object?.telemovel}</Text>
-              <Text style={styles.detailText}>Email: {object?.email}</Text>
-              <Text style={styles.detailText}>Descrição:</Text>
-              <Text style={styles.detailText}>{object?.descricao}</Text>
             </View>
 
-            <Image source={require('../assets/fotofinal.png')} style={styles.estatistica} />
           </>
         )}
 
         {userType === 'Treinador' && (
           <>
-          <View style={{marginTop:40}}>
-          <TouchableOpacity onPress={handlerImage}>
-              <Image source={{ uri: object?.fotoTreinador || 'https://drive.google.com/uc?export=view&id=1VrqvZTseVMNmNciV1CvBEY5nIbFnSD1s' }} style={styles.profilePic} />
-          </TouchableOpacity>
-          </View>
+            <TouchableOpacity onPress={handlerImage}>
+                <Image source={{ uri: object?.fotoTreinador || 'https://drive.google.com/uc?export=view&id=1VrqvZTseVMNmNciV1CvBEY5nIbFnSD1s' }} style={styles.profilePic} />
+            </TouchableOpacity>
           
             <Text style={styles.title}>{object?.nome}</Text>
             
             <View style={styles.detailsContainer}>
-            <Text style={styles.detailText}>
-            <Text style={styles.labelText}>Genéro:</Text> {getGender(object?.genero)}</Text>
-            <Text style={styles.detailText}>  <Text style={styles.labelText}>Data de nascimento:</Text> {object?.dataNascimento}</Text>
-            <Text style={styles.detailText}> <Text style={styles.labelText}>Codigo:</Text> {object?.codigoTreinador}</Text>
-            <Text style={styles.detailText}> <Text style={styles.labelText}>Email:</Text> {object?.email}</Text>
-            <Text style={styles.detailText}> <Text style={styles.labelText}>Descricao:</Text> {object?.descricao}</Text>
+              <Text style={styles.detailText}>
+              <Text style={styles.labelText}>Genéro:</Text> {getGender(object?.genero)}</Text>
+              <Text style={styles.detailText}>  <Text style={styles.labelText}>Data de nascimento:</Text> {object?.dataNascimento}</Text>
+              <Text style={styles.detailText}> <Text style={styles.labelText}>Codigo:</Text> {object?.codigoTreinador}</Text>
+              <Text style={styles.detailText}> <Text style={styles.labelText}>Email:</Text> {object?.email}</Text>
+              <Text style={styles.detailText}> <Text style={styles.labelText}>Descricao:</Text> {object?.descricao}</Text>
+            </View>
 
-          </View>
+          <View style={styles.gridContainer}>
 
             <FlatList
-              data={students}
-              renderItem={({ item }) => (
-                <TouchableOpacity style={styles.studentItem} onPress={() => handleStudentPress(item)}>
-                  <Image source={{ uri: item?.fotoAtleta }} style={styles.fotoAtleta} />
-                  <Text style={styles.studentName}>{item?.nome}</Text>
-                </TouchableOpacity>
-              )}
-              keyExtractor={(item) => item.id}
-              numColumns={3}
-              style={styles.studentGrid}
-            />
-          </>
-        )}
-      </View>
+                data={students}
+                renderItem={({ item }) => (
+                <TouchableOpacity style={styles.studentItem} onPress={() => handleSelectedStudent(item)}>
 
-      <View style={styles.buttonContainer}>
+                    <Image  source={{ uri: item?.fotoAtleta ? item.fotoAtleta : 'https://drive.google.com/uc?export=view&id=1WqNVu_0jLh9sQI511gCINW4aAlHRJP-i' }}
+                    style={styles.fotoAtleta} />
+                    <Text style={styles.studentName}>{item?.nome}</Text>
+                  </TouchableOpacity>
+                )}
+                keyExtractor={(item) => item.id}
+                numColumns={3}
+                style={styles.studentGrid}
+            />
+
+          </View>
+          </> 
+        )}
+
         <TouchableOpacity style={styles.logoutButton} onPress={logout}>
           <Text style={styles.logoutText}>LOGOUT</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.logoutButton} onPress={() => navigation.navigate('EditProfile',object)}>
-          <Text style={styles.logoutText}>Edit Profile</Text>
-        </TouchableOpacity>
-      </View>
       
-      <Fundo navigation={navigation} />
+    {/* Fim do container principal */}
+    </View>
+    <Fundo navigation={navigation} />
+
+    </KeyboardAvoidingView>
+    </SafeAreaProvider>
     </SafeAreaView>
+
   );
 }
 const styles = StyleSheet.create({
   containerWrap: {
     flex: 1,
     justifyContent: 'flex-start',
+    backgroundColor: '#FFFFFF',
+  },
+  input:{
+    backgroundColor:'#3F3F3C',
+    color:'white',
+    padding:5,
+    paddingLeft:15,
+    marginTop:15,
+    borderRadius:5,
+  },
+  containerData: {
+    width:'90%',
+    alignSelf: 'center',
+
   },
   container: {
     flex: 1,
+
   },
-  profileSection: {
-    flexDirection: 'row',
+  editButtonContainer: {
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 30,
-    marginLeft: 55,
+    marginTop: 10,
+  },
+
+  profilePic: {
+    alignSelf: 'center',
+    width: 120,
+    height: 120,
+    marginTop:40,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#FFF',
+    backgroundColor: '#FFF',
+    marginBottom:20,
+    marginHorizontal: 'auto', // Center the profile picture horizontally
+  },
+  editButton:{
+    backgroundColor: '#D72E02F2',
+    padding: 10,
+    borderRadius: 50,
+    alignSelf: 'center',
+    marginBottom: 10,
   },
   detailsContainer: {
     flex: 1,
@@ -168,15 +268,6 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     marginTop:15,
     width:'80%',
-  },
-  profilePic: {
-    alignSelf: 'center',
-    width: 120,
-    height: 120,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: '#FFF',
-    backgroundColor: '#FFF',
   },
   detailText: {
     // Your existing styles for the outer <Text> components
@@ -191,6 +282,12 @@ const styles = StyleSheet.create({
   estatistica: {
     alignSelf: 'center',
   },
+  gridContainer: {
+    flexDirection: 'row', // Layout children in a row
+    flexWrap: 'wrap', // Allow items to wrap to next row
+    justifyContent: 'space-between', // Space items evenly
+    padding: 10, // Add padding around the container
+  },
   studentGrid: {
     alignSelf: 'center',
     marginBottom: 20,
@@ -199,14 +296,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#808080',
     alignItems: 'center',
     margin: 5,
-    width: 120,
-    height: 120,
+    width: '30%', // Adjust the width as needed, accounting for padding/margin
+    aspectRatio: 1, // Keep the items square
     borderRadius: 20,
   },
   fotoAtleta: {
-    marginTop: 10,
-    width: '40%',
-    height: '60%',
+    margin: 5,
+    width: '50%',
+    height: '70%',
     backgroundColor: '#FFF',
   },
   studentName: {
@@ -214,7 +311,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#CC2C02',
     textAlign: 'center',
-    marginTop: 8,
   },
   info: {
     color: '#000',

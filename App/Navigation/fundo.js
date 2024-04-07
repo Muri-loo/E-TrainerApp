@@ -6,6 +6,8 @@ import { auth, db } from '../../Config/firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { collection, getDocs, updateDoc, query, doc, where, getDoc} from 'firebase/firestore';
 import { Shadow } from 'react-native-shadow-2';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 
 function Fundo() {
@@ -13,6 +15,7 @@ function Fundo() {
   const [showModal, setShowModal] = useState(false);
   const [misterCode, setMisterCode] = useState('');
   const [warning, setWarning] = useState('');
+  
 
   // Function to handle press events
   const handlePress = (routeName) => {
@@ -139,7 +142,7 @@ function Fundo() {
         visible={showModal}
         onRequestClose={handleCloseModal}
       >
-        <View style={styles.modalContainer}>
+        <SafeAreaView style={styles.modalContainer}>
           <View style={[styles.modalContent, { backgroundColor: '#FFFFFF' }]}>
             <Text style={styles.warningText}>{warning}</Text>
 
@@ -157,7 +160,7 @@ function Fundo() {
               <Text style={styles.buttonText}>Close</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </SafeAreaView>
       </Modal>
     </View>
   );
