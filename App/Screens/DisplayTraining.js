@@ -8,9 +8,7 @@ import Fundo from '../Navigation/fundo';
 
 function DisplayTraining({ navigation, route }) {
   const [trainingPlans, setTrainingPlans] = useState([]);
-  const [students, setStudentsList] = useState([]);
   const [myTrains, setMyTrains] = useState([]);
-  const [isCoach, setIsCoach] = useState(false);
   const [loading, setLoading] = useState(true);
   const alternativeImage = 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
   const { data, aluno } = route.params;
@@ -18,10 +16,8 @@ function DisplayTraining({ navigation, route }) {
   const fetchTrainingPlans = async () => {
     try {
       setLoading(true);
-      const userId = auth.currentUser.uid;
 
       if (aluno) {
-        setIsCoach(false);
         const queryForTrain = query(
           collection(db, 'PlanoTreino_Atleta'),
           where('idAtleta', '==', aluno.idAtleta),
@@ -45,13 +41,7 @@ function DisplayTraining({ navigation, route }) {
           .filter((doc) => associatedPlanIds.includes(doc.id.trim()))
           .map((doc) => doc.data());
         setTrainingPlans(filteredPlansData);
-      } else {
-        setIsCoach(true);
-        const getTrainerStudentsQuery = query(collection(db,'Atleta'),where('idTreinador','==',userId));
-        const getTrainerStudentsQueryDocuments = await getDocs(getTrainerStudentsQuery);
-        const studentsList = getTrainerStudentsQueryDocuments.docs.map(doc => doc.data());
-        setStudentsList(studentsList);
-      }
+      } 
     } catch (error) {
       console.error('Error fetching training plans:', error);
       Alert.alert('Error', 'Error fetching training plans');
@@ -74,8 +64,8 @@ function DisplayTraining({ navigation, route }) {
   };
 
   const renderItem = ({ item }) => {
-    const imageUri = isCoach ? (item.fotoAtleta ? item.fotoAtleta : alternativeImage) : (item.image ? item.image : alternativeImage);
-    const onPressHandler = isCoach ? () => studentHandler(item) : () => handleButtonPress(item);
+    const imageUri =  (item.image ? item.image : alternativeImage);
+    const onPressHandler = () => handleButtonPress(item);
     
     return (
       <View style={styles.shadowContainer}>
@@ -85,16 +75,13 @@ function DisplayTraining({ navigation, route }) {
             style={styles.imageBackground}
             imageStyle={styles.buttonImage}
           >
-            <Text style={[styles.buttonText, isCoach && {color:'black',fontWeight:600,    backgroundColor: 'rgba(255, 255, 255, 0.4)'}]}>{isCoach ? item.nome : item.nomePlano}</Text>
+            <Text style={styles.buttonText}>{item.nomePlano}</Text>
           </ImageBackground>
         </TouchableOpacity>
       </View>
     );
   };
   
-  const studentHandler = (aluno) => {
-    navigation.push('DisplayTraining', { data, aluno });
-  };
 
   const isDateGreaterThanVarDate = () => {
     const dateParts = data.split('/');
@@ -114,31 +101,20 @@ function DisplayTraining({ navigation, route }) {
 
         <Text style={styles.titleText}>Treinos para hoje: {data}</Text>
         {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : trainingPlans.length > 0 ? (
-          <FlatList
-            data={trainingPlans}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            ItemSeparatorComponent={() => <View style={{ height: 40 }} />} 
-          />
-        ) : !isCoach ? (
-          <Text style={styles.noExercisesText}>
-            Não tem exercícios para hoje, aperte no botão abaixo para adicionar.
-          </Text>
-        ) : (
-          <View style={styles.noExercisesTextContainer}>
-            <Text style={styles.noExercisesText}>
-                Para qual aluno deseja adicionar um Treino?
-            </Text>
-            <FlatList
-                data={students}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id}
-                ItemSeparatorComponent={() => <View style={{ height: 40 }} />} 
-            />
-          </View>
-        )}
+              <ActivityIndicator size="large" color="#0000ff" />
+          ) : trainingPlans.length > 0 ? (
+              <FlatList
+                  data={trainingPlans}
+                  renderItem={renderItem}
+                  keyExtractor={(item) => item.id}
+                  ItemSeparatorComponent={() => <View style={{ height: 40 }} />} 
+              />
+          ) : (
+              <Text style={styles.noExercisesText}>
+                  Não tem exercícios para hoje, aperte no botão abaixo para adicionar.
+              </Text>
+          )}
+
       </View>
       {isGreaterThan && (
         <TouchableOpacity
