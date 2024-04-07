@@ -17,7 +17,7 @@ function Navbarlight() {
     <Shadow style={{width:'100%'}}  distance={1}  offset={[0,3]}>
       <View style={styles.navbarContainer}>
       {route.name === 'HomeCalendar' ? (
-          <TouchableOpacity onPress={() => handlePress('Menu')} style={styles.iconContainer}>
+          <TouchableOpacity onPress={() => handlePress('HomeCalendar')} style={styles.iconContainer}>
             <Image
               style={styles.icon}
               source={{ uri: 'https://drive.google.com/uc?export=view&id=1BiX48q5QbgZnsbks84y2O2fzYXhizoOx' }}
