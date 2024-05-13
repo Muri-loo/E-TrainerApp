@@ -7,7 +7,7 @@ import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 
 function TrainingPlanDetails({ navigation, route }) {
-  const { fotoPlanoTreino, haveQrcode, tempo, nomePlano, deleteId} = route.params;
+  const { fotoPlanoTreino, haveQrcode, tempo, nomePlano, deleteId } = route.params;
 
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
@@ -29,39 +29,27 @@ function TrainingPlanDetails({ navigation, route }) {
       <Text style={styles.Title}>{nomePlano}</Text>
 
       <View style={styles.detailsContainer}>
-      <TouchableOpacity style={styles.infoButton} onPress={deleteOnPress}>
-          <Text style={{fontWeight:600, color:'white'}}>Iniciar Treino</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.infoButton  } onPress={deleteOnPress}>
-          <Text style={{fontWeight:600, color:'white'}}>Iniciar Treino</Text>
-        </TouchableOpacity>
+        <Text style={styles.infoText}>{tempo}</Text>
+        <Text style={styles.infoText}>Iniciar Treino</Text>
       </View>
       <View style={styles.line}></View>
 
       <View>
-      <Text style={{ marginLeft:'5%', marginTop:'2%',fontSize:17,fontWeight:'bold'}}>Exercícios</Text>
-      <ScrollView>
+        <Text style={styles.subTitle}>Exercícios</Text>
+        <ScrollView>
 
-      </ScrollView>
-
+        </ScrollView>
       </View>
-
-
-   
 
       <View style={styles.fundoContainer}>
-
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
-          <Text style={{fontWeight:600, color:'white'}}>Apagar Treino</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveTraining')}>
-          <Text style={{fontWeight:600, color:'white'}}>Iniciar Treino</Text>
-        </TouchableOpacity>
-
-      </View>
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
+            <Text style={styles.buttonText}>Apagar Treino</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveTraining')}>
+            <Text style={styles.buttonText}>Iniciar Treino</Text>
+          </TouchableOpacity>
+        </View>
         <Fundo navigation={navigation} />
       </View>
     </SafeAreaView>
@@ -73,62 +61,68 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-  line:{
-    borderWidth:1,
-    borderColor:'gray',
-    width:'90%',
+  line: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    width: '90%',
     alignSelf: 'center',
   },
   buttonsContainer: {
-    flexDirection: 'row', // Arrange buttons horizontally
-    justifyContent: 'flex-end', // Align buttons to the right
-    paddingHorizontal: 20, // Add some horizontal padding
-    marginTop: 20, // Add some top margin
-    marginBottom:20,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 20,
   },
-  infoButton:{
-    height:'5%',
-    backgroundColor: 'red', // Set background color to red
-    borderRadius: 20, // Add border radius
-    paddingVertical: 10, // Adjust padding
-    paddingHorizontal: 20, // Adjust padding
-    marginLeft: 10, // Add some left margin between buttons
-    alignItems: 'center', // Center horizontally
+  infoText: {
+    fontWeight: 'bold',
+    color: 'white',
+    backgroundColor: 'red',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    fontSize:14,
+    height: '2%', 
+    marginLeft: 10,
   },
   button: {
-    backgroundColor: 'red', // Set background color to red
-    borderRadius: 20, // Add border radius
-    paddingVertical: 10, // Adjust padding
-    paddingHorizontal: 20, // Adjust padding
-    marginLeft: 10, // Add some left margin between buttons
-    alignItems: 'center', // Center horizontally
+    backgroundColor: 'red',
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginLeft: 10,
+    alignItems: 'center',
+  },
+  buttonText: {
+    fontWeight: '600',
+    color: 'white',
   },
   image: {
     width: '100%',
     height: '20%',
-    borderBottomLeftRadius: 30, // Adjust the border radius for the left side
-    marginTop:"-10%",
-    zIndex: -1, // Set a lower z-index for the image
-
+    borderBottomLeftRadius: 30,
+    marginTop: '-10%',
+    zIndex: -1,
   },
   detailsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
   },
-  label: {
-    fontSize: 16,
+  subTitle: {
+    marginLeft: '5%',
+    marginTop: '2%',
+    fontSize: 17,
     fontWeight: 'bold',
-    marginVertical: 5,
   },
   Title: {
     fontSize: 25,
     fontWeight: 'bold',
     marginLeft: '5%',
-    marginBottom:10,
+    marginBottom: 10,
   },
   fundoContainer: {
-    flex: 1, // Take remaining vertical space
-    justifyContent: 'flex-end', // Align at the bottom
+    flex: 1,
+    justifyContent: 'flex-end',
   },
 });
 
