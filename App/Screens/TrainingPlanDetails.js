@@ -1,26 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { collection, doc, deleteDoc } from 'firebase/firestore';
+import { collection, doc as d, deleteDoc, getDocs, where, query, getDoc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
 
 function TrainingPlanDetails({ navigation, route }) {
-  const { fotoPlanoTreino, haveQrcode, tempo, nomePlano, deleteId } = route.params;
-
+  const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino } = route.params;
+  const [exerciseList, setExerciseList] = useState([]);
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
 
   const deleteOnPress = async () => {
     try {
-      const documentRef = doc(db, 'PlanoTreino_Atleta', deleteId);
+      const documentRef = d(db, 'PlanoTreino_Atleta', deleteId);
       await deleteDoc(documentRef);
       navigation.navigate('HomeCalendar');
     } catch (error) {
       console.error('Error deleting document: ', error);
     }
   };
+
+  useEffect(() => {
+    const getExercicesList = async () => {
+      try {
+        const data = await getDocs(query(collection(db, 'Exercicio_PlanoTreino'), where('idPlanoTreino', '==', idPlanoTreino)));
+        const promises = data.docs.map(async (doc) => {
+          const id = doc.data().idExercicio;
+          console.log(id);
+          const docSnap = await getDoc(d(db, "Exercicio", id));
+          console.log(docSnap.data()); 
+          return docSnap.data(); // Return the data of the document snapshot
+        });
+        const exercises = await Promise.all(promises);
+        const exerciseList = exercises.filter(exercise => exercise !== null);
+        setExerciseList(exerciseList);
+        // Now you have the exerciseList containing the details of all exercises
+      } catch (err) {
+        console.error(err); // Handle any errors
+      }
+    };
+
+    getExercicesList();
+  }, [idPlanoTreino]); // Include idPlanoTreino in the dependency array
 
   return (
     <SafeAreaView style={styles.container}>
@@ -29,24 +53,40 @@ function TrainingPlanDetails({ navigation, route }) {
       <Text style={styles.Title}>{nomePlano}</Text>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.infoText}>{tempo}</Text>
-        <Text style={styles.infoText}>Iniciar Treino</Text>
+        <Text style={styles.infoText}><IconFA name={"clock"} size={15} color="white" /> {tempo} min</Text>
+        <Text style={styles.infoText}><IconFA name={"leaf"} size={15} color="white" /> {DificultyLevel}</Text>
       </View>
       <View style={styles.line}></View>
 
-      <View>
-        <Text style={styles.subTitle}>Exercícios</Text>
-        <ScrollView>
+      <View style={{ flex: 1 }}>
 
-        </ScrollView>
-      </View>
+        <Text style={styles.subTitle}> Exercícios </Text>
+          <FlatList
+            data={exerciseList}
+            renderItem={({ item }) => (
+              <View style={styles.exerciseDisplay}>
+              <View style={styles.exerciseImage}>
+              </View>
+
+                <View>
+                  <Text style={styles.nomeExercicio}>{item.nomeExercicio}</Text> 
+                  <Text style={styles.nomeExercicio}><IconFA name={"clock"} size={15} color="white" /> {item.tempo} sec</Text>  
+                </View>
+
+              </View>
+            )}
+            keyExtractor={(item) => item.idExercicio}
+          />
+
+        </View>
+
 
       <View style={styles.fundoContainer}>
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
             <Text style={styles.buttonText}>Apagar Treino</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveTraining')}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveTraining', deleteId)}>
             <Text style={styles.buttonText}>Iniciar Treino</Text>
           </TouchableOpacity>
         </View>
@@ -60,6 +100,29 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+  },
+  exerciseImage:{
+    backgroundColor:'#c2c2c2',
+    width:'35%',
+    borderTopLeftRadius:30,
+    borderBottomLeftRadius:30,
+  },
+  exerciseDisplay:{
+    flexDirection:'row',
+    borderRadius:30,
+    backgroundColor:'#323230',
+    width:'90%',
+    alignSelf:'center',
+    marginBottom:'5%',
+    height:120,
+  },
+  nomeExercicio:{
+    fontSize:20,
+    fontWeight:'bold',
+    color:'white',
+    marginTop:'10%',
+    marginLeft:'10%',
+
   },
   line: {
     borderWidth: 1,
@@ -81,9 +144,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    fontSize:14,
-    height: '2%', 
-    marginLeft: 10,
+    fontSize: 12,
+    marginLeft: 5,
   },
   button: {
     backgroundColor: 'red',
@@ -107,23 +169,25 @@ const styles = StyleSheet.create({
   detailsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
+    marginBottom: 10,
   },
   subTitle: {
     marginLeft: '5%',
     marginTop: '2%',
     fontSize: 17,
     fontWeight: 'bold',
+    marginBottom:'5%',
   },
   Title: {
     fontSize: 25,
     fontWeight: 'bold',
     marginLeft: '5%',
-    marginBottom: 10,
+    margin: 10,
   },
   fundoContainer: {
-    flex: 1,
     justifyContent: 'flex-end',
   },
 });
 
 export default TrainingPlanDetails;
+ 
