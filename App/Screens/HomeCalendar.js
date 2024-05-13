@@ -6,6 +6,10 @@ import Fundo from '../Navigation/fundo';
 import Navbarlight from '../Navigation/navbarlight';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../../Config/firebase';
+import { Shadow } from 'react-native-shadow-2';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
+
+
 
 const CalendarPage = ({ navigation, route }) => {
   const [selectedDate, setSelectedDate] = useState('');
@@ -193,10 +197,21 @@ const CalendarPage = ({ navigation, route }) => {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.button} onPress={handleTrainingDay}>
-              <Text style={styles.texto}>{formatDate(selectedDate)}</Text>
-              <Text style={styles.verText}>Ver treinos para este dia ➡️</Text>
-            </TouchableOpacity>
+            {/* <TouchableOpacity style={styles.button} onPress={handleTrainingDay}>
+              <Text style={styles.verText}>Detalhes Dia</Text>
+            </TouchableOpacity> */}
+
+
+            <View style={styles.middleButton}>
+              <Shadow distance={10} startColor={'#eb9066d8'} endColor={'#ff00ff10'}>
+                <TouchableOpacity 
+                  style={{backgroundColor: '#CC2C02', height: 40, width: 40, borderRadius: 40, justifyContent: 'center', alignItems: 'center'}}  
+                  onPress={handleTrainingDay}>
+                  <IconFA  name={"plus"} size={25} color="white" />
+                </TouchableOpacity>
+              </Shadow>
+            </View>
+
           </>
         )}
 
@@ -210,7 +225,14 @@ const CalendarPage = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-
+  middleButton: {
+    position: 'absolute',
+    bottom: '-3%', // space from bottombar
+    left: '52.5%', // center horizontally
+    transform: [{ translateX: -25 }], // adjust for button width
+    zIndex: 9999, // Set a high zIndex value
+  },
+  
   gridContainer: {
     flexDirection: 'row', // Layout children in a row
     flexWrap: 'wrap', // Allow items to wrap to next row
@@ -241,18 +263,14 @@ const styles = StyleSheet.create({
     color: '#CC2C02',
     textAlign: 'center',
   },
-
-
-
-
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     backgroundColor: '#FFFFFF',
   },
   button: {
-    borderRadius: 20,
-    width: '80%',
+    borderRadius: 40,
+    width: '40%',
     backgroundColor: '#D72E02',
     padding: 10,
     marginTop:5,

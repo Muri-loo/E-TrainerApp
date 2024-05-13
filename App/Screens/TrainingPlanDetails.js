@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
-
+import Navbarlight from '../Navigation/navbarlight';
+import Fundo from '../Navigation/fundo';
 
 function TrainingPlanDetails({ navigation, route }) {
   const { fotoPlanoTreino, haveQrcode, tempo, nomePlano, deleteId} = route.params;
@@ -19,27 +20,50 @@ function TrainingPlanDetails({ navigation, route }) {
     } catch (error) {
       console.error('Error deleting document: ', error);
     }
-
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <Navbarlight navigation={navigation} />
       <Image source={{ uri: imageUri }} style={styles.image} />
+      <Text style={styles.Title}>{nomePlano}</Text>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.label}>Nome do Plano:</Text>
-        <Text style={styles.value}>{nomePlano}</Text>
+      <TouchableOpacity style={styles.infoButton} onPress={deleteOnPress}>
+          <Text style={{fontWeight:600, color:'white'}}>Iniciar Treino</Text>
+        </TouchableOpacity>
 
-        <Text style={styles.label}>Have QR Code:</Text>
-        <Text style={styles.value}>{haveQrcode}</Text>
-
-        <Text style={styles.label}>Tempo:</Text>
-        <Text style={styles.value}>{tempo}</Text>
+        <TouchableOpacity style={styles.infoButton  } onPress={deleteOnPress}>
+          <Text style={{fontWeight:600, color:'white'}}>Iniciar Treino</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
-          <Text style={{fontWeight:600, color:'white'}}>Remover dos treinos de hoje</Text>
+      <View style={styles.line}></View>
 
-      </TouchableOpacity>
+      <View>
+      <Text style={{ marginLeft:'5%', marginTop:'2%',fontSize:17,fontWeight:'bold'}}>Exercícios</Text>
+      <ScrollView>
+
+      </ScrollView>
+
+      </View>
+
+
+   
+
+      <View style={styles.fundoContainer}>
+
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
+          <Text style={{fontWeight:600, color:'white'}}>Apagar Treino</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveTraining')}>
+          <Text style={{fontWeight:600, color:'white'}}>Iniciar Treino</Text>
+        </TouchableOpacity>
+
+      </View>
+        <Fundo navigation={navigation} />
+      </View>
     </SafeAreaView>
   );
 }
@@ -47,36 +71,64 @@ function TrainingPlanDetails({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'white',
+  },
+  line:{
+    borderWidth:1,
+    borderColor:'gray',
+    width:'90%',
+    alignSelf: 'center',
+  },
+  buttonsContainer: {
+    flexDirection: 'row', // Arrange buttons horizontally
+    justifyContent: 'flex-end', // Align buttons to the right
+    paddingHorizontal: 20, // Add some horizontal padding
+    marginTop: 20, // Add some top margin
+    marginBottom:20,
+  },
+  infoButton:{
+    height:'5%',
+    backgroundColor: 'red', // Set background color to red
+    borderRadius: 20, // Add border radius
+    paddingVertical: 10, // Adjust padding
+    paddingHorizontal: 20, // Adjust padding
+    marginLeft: 10, // Add some left margin between buttons
+    alignItems: 'center', // Center horizontally
+  },
+  button: {
+    backgroundColor: 'red', // Set background color to red
+    borderRadius: 20, // Add border radius
+    paddingVertical: 10, // Adjust padding
+    paddingHorizontal: 20, // Adjust padding
+    marginLeft: 10, // Add some left margin between buttons
+    alignItems: 'center', // Center horizontally
   },
   image: {
-    width: 200,
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 20,
+    width: '100%',
+    height: '20%',
+    borderBottomLeftRadius: 30, // Adjust the border radius for the left side
+    marginTop:"-10%",
+    zIndex: -1, // Set a lower z-index for the image
+
   },
   detailsContainer: {
-    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
     marginVertical: 5,
   },
-  value: {
-    fontSize: 18,
-    marginBottom: 15,
-  }, 
-  button: {
-    backgroundColor: 'red', // Set background color to red
-    borderRadius: 20, // Add border radius
-    width: '80%', // Set width to 80%
-    padding: 10,
-    margin: 50,
-    marginTop: 100,
-    alignItems: 'center', // Center horizontally
-    alignSelf: 'center', // Center vertically
+  Title: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    marginLeft: '5%',
+    marginBottom:10,
+  },
+  fundoContainer: {
+    flex: 1, // Take remaining vertical space
+    justifyContent: 'flex-end', // Align at the bottom
   },
 });
 

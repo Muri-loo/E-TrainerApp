@@ -14,6 +14,8 @@ function Profile({ navigation }) {
   const [object, setObject] = useState('');
   const [userType, setUserType] = useState('');
   const [students, setStudents] = useState([]);
+  const [metas, setMetas] = useState([]);
+
   const [editable , setEditable] = useState(false);
   
  
@@ -24,6 +26,30 @@ function Profile({ navigation }) {
       console.log('Guardei Dados');
     }
   }
+
+  const getGoals = async (object) => {
+    console.log('faz');
+    if (object.idAtleta) {
+      console.log('faz1');
+  
+      const AthletsQueryResult = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', object.idAtleta)));
+      const metas = AthletsQueryResult.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const metasNomes = [];
+  
+      for (const doc of metas) {
+        const searchId = doc.idGoal;
+        const goalsQueryResult = await getDocs(query(collection(db, 'Goals'), where('idGoal', '==', searchId)));
+  
+        if (!goalsQueryResult.empty) {
+          const goalDoc = goalsQueryResult.docs[0]; // Assuming there's only one document in the result
+          metasNomes.push(goalDoc.data().goalName);
+        }
+      }
+        setMetas(metasNomes);
+    }
+  };
+  
+  
 
   const logout = async () => {
     try {
@@ -48,7 +74,7 @@ function Profile({ navigation }) {
   };
 
   const handleSelectedStudent = (item) => {
-    console.log('Hello');
+    navigation.navigate('CheckUserProgress',item);
     //console.log(item.nome);
   };
 
@@ -61,6 +87,8 @@ function Profile({ navigation }) {
 
       if (atletaDocSnap.exists()) {
         setObject(atletaDocSnap.data());
+        getGoals(atletaDocSnap.data());
+
         setUserType('Atleta');
       } else {
         const mail = auth.currentUser.email;
@@ -93,7 +121,7 @@ function Profile({ navigation }) {
     <SafeAreaView  style={styles.containerWrap}>
     <SafeAreaProvider>
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-    <View style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1 }}>
     {/* INICIO do container principal */}
     <Navbarlight navigation={navigation} />
 
@@ -131,8 +159,10 @@ function Profile({ navigation }) {
             <Text style={{fontWeight:600,marginTop:10}}>Descrição: </Text>
             <TextInput style={[styles.input,{marginTop:3}]} value={object.descricao} editable={editable}  />
             <Text style={{fontWeight:600,marginTop:13}}>Metas: </Text>
-            <TextInput style={[styles.input,{marginTop:3,marginBottom:10 }]} value={object.descricao} editable={editable}
-              onChangeText={(newValue) => setObject(prevObject => ({ ...prevObject, descricao: newValue }))}
+            <TextInput 
+              style={[styles.input, { marginTop: 3, marginBottom: 10 }]} 
+              value={metas.join(', ')}
+              editable={false}
             />
 
 
@@ -206,7 +236,7 @@ function Profile({ navigation }) {
         </TouchableOpacity>
       
     {/* Fim do container principal */}
-    </View>
+    </ScrollView>
     <Fundo navigation={navigation} />
 
     </KeyboardAvoidingView>

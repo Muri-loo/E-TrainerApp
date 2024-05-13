@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail 
 import { StackActions } from '@react-navigation/native';
 import { db } from '../../Config/firebase';
 import { getDocs, collection, query, where } from 'firebase/firestore';
+import { Shadow } from 'react-native-shadow-2';
 
 function LoginPage({ navigation }) {
     const [showModal, setShowModal] = useState(false);
@@ -85,10 +86,15 @@ function LoginPage({ navigation }) {
             <Text style={{ color: '#FF0000', alignSelf:'center'}}>
                 {errorMessage}
             </Text>
-
-            <TouchableOpacity style={styles.button} onPress={handleLogIn}>
+            
+            <View style={styles.button}>
+            <Shadow  distance={10} startColor={'#eb9066d8'} endColor={'#ff00ff10'} >
+            <TouchableOpacity style={{backgroundColor: "#D72E02",width:200,borderRadius: 20,padding:10,width:270}}  onPress={handleLogIn}>
                 <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>
+            </Shadow>
+
+            </View>
 
             <Text style={{ color: '#CC2C02', alignSelf: 'center' }} onPress={handleForgotPassword}>
                 Não sabe a senha?
@@ -117,10 +123,10 @@ function LoginPage({ navigation }) {
                             placeholder="Email"
                             value={forgotPasswordEmail}
                         />
-                        <TouchableOpacity style={[styles.button, { margin: 10, alignSelf: 'center' }]} onPress={handleSendResetEmail}>
+                        <TouchableOpacity style={[styles.button2, { margin: 10, alignSelf: 'center' }]} onPress={handleSendResetEmail}>
                             <Text style={styles.buttonText}>Enviar email de recuperação</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.button, { margin: 10, alignSelf: 'center' }]} onPress={handleCloseModal}>
+                        <TouchableOpacity style={[styles.button2, { margin: 10, alignSelf: 'center' }]} onPress={handleCloseModal}>
                             <Text style={styles.buttonText}>Fechar</Text>
                         </TouchableOpacity>
                     </View>
@@ -151,7 +157,7 @@ backButton: { // New style for the back button
         marginTop: 0,
         alignSelf: 'center',
     },
-    button: {
+    button2:{
         borderRadius: 20,
         width: '80%',
         backgroundColor: "#D72E02",
@@ -160,7 +166,13 @@ backButton: { // New style for the back button
         alignItems: 'center',
         alignSelf: 'center',
     },
+    button: {
+        margin: 20,
+        alignItems: 'center',
+        alignSelf: 'center',
+    },
     buttonText: {
+        alignSelf:'center',
         color: "#fff",
     },
     input: {

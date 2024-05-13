@@ -2,6 +2,10 @@ import React from 'react';
 import { StyleSheet, View, TouchableOpacity, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
+import IconAD from 'react-native-vector-icons/AntDesign';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
+
+
 
 function Navbarlight() {
   const navigation = useNavigation();
@@ -34,11 +38,8 @@ function Navbarlight() {
             source={require('../assets/etrainerlogolight.png')}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.iconContainer}>
-          <Image
-            style={styles.icon}
-            source={{ uri: 'https://drive.google.com/uc?export=view&id=1x7avbZIKjVoTMm5KgKgftXDq_ggPBfsf' }}
-          />
+        <TouchableOpacity onPress={() => handlePress('CustomerService')} style={styles.iconContainer}>
+        <IconAD name={"questioncircleo"} size={25} color="black" />
         </TouchableOpacity>
       </View>
     </Shadow>

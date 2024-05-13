@@ -18,6 +18,10 @@ import AddNewTrainningPlan from './App/Screens/AddNewTrainningPlan';
 import CustomerService from './App/Screens/CustomerService';
 import EditProfile from './App/Screens/EditProfile';
 import Navbarlight from './App/Navigation/navbarlight';
+import CreateTrainingPlan from './App/Screens/CreateTrainingPlan';
+import CreateExercise from './App/Screens/CreateExercicise';
+import CheckUserProgress from './App/Screens/CheckUserProgress';
+import LiveTraining from './App/Screens/LiveTraining';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +31,12 @@ function App() {
       <Stack.Navigator>        
       
         <Stack.Screen name="Home" component={StartPage}  options={{ headerShown: false }} />
+        <Stack.Screen name="LiveTraining" component={LiveTraining}  options={{ headerShown: false }} />
+
+        <Stack.Screen name="CreateTrainingPlan" component={CreateTrainingPlan}  options={{ headerShown: false }} />
+        <Stack.Screen name="CreateExercise" component={CreateExercise}  options={{ headerShown: false }} />
+        <Stack.Screen name="CheckUserProgress" component={CheckUserProgress}  options={{ headerShown: false }} />
+        
         <Stack.Screen name="navi" component={Navbarlight}  options={{ headerShown: false }} />
 
         <Stack.Screen name="CustomerService" component={CustomerService}  options={{ headerShown: false }} />
