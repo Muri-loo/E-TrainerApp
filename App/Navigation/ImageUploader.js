@@ -47,6 +47,7 @@ const typeConfig = {
   },
 };
 
+
 export const uploadFile = async (uriPhoto, objeto, tipo) => {
   try {
     const { uri } = await FileSystem.getInfoAsync(uriPhoto);
@@ -88,16 +89,16 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
 
 
 
-//const handlerImage = async () =>{
-//  const uri = await pickImage();
-//  if (uri) {
+// const handlerImage = async () => {
+//   const uri = await pickImage();
+//   if (uri) {
 //     try {
-//        const downloadURL = await uploadFile(uri, athlete,userType);
-//        Alert.alert('Photo uploaded successfully');
-//      } catch (error) {
-//        Alert.alert('Upload failed', error.message);
-//      }
+//       await uploadFile(uri, object, userType);
+//       Alert.alert('Foto', 'Foto carregada com sucesso');
+//     } catch (error) {
+//       Alert.alert('Foto', error.message);
+//     }
 //   }
-//}  
+// };
 
 //HANDLER EXEMPLE

@@ -7,16 +7,17 @@ import IconFA from 'react-native-vector-icons/FontAwesome5';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 
 function LiveTraining({ navigation, route }) {
+  const {lista,idPlanoTreino} = route.params;
   const [seconds, setSeconds] = useState(0);
   const [isTrainingFinished, setIsTrainingFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [exercises, setExerciseList] = useState([]);
-  const [exercise, setCurrentExercise] = useState(route.params[0]);
+  const [exercise, setCurrentExercise] = useState(lista[0]);
+  const [punches, setPunches] = useState([]);
   let exerciseNumber = 0;
 
-
   useEffect(() => {
-    setExerciseList(route.params);
+    setExerciseList(lista);
     const intervalId = setInterval(() => {
       if (!isPaused && !isTrainingFinished) {
         setSeconds(prevSeconds => prevSeconds + 1);
@@ -26,15 +27,21 @@ function LiveTraining({ navigation, route }) {
     return () => clearInterval(intervalId);
   }, [isPaused, isTrainingFinished]);
 
+
+
   const formatTime = seconds => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
   };
 
+
+
   const handleTogglePause = () => {
     setIsPaused(prevState => !prevState);
   };
+
+
 
   const handleToggleFoward = useCallback(() => {
     if (!isTrainingFinished) {
@@ -47,14 +54,39 @@ function LiveTraining({ navigation, route }) {
     }
   }, [isTrainingFinished, exerciseNumber, exercises]);
 
+
+
   const handleFinishTraining = () => {
     setIsTrainingFinished(true);
-    console.log(`Seconds when 'Terminar Treino' was pressed: ${seconds}`);
+  
+    // Calculate average speed and strength per punch
+    console.log(punches);
+    const totalPunchStrength = punches.reduce((acc, punch) => acc + punch.strength, 0);
+    const averageStrengthPerPunchNewton = (totalPunchStrength / punches.length).toFixed(2);
+    
+  
+    // Find the strongest punch
+    const strongestPunchStrength = punches.reduce((max, punch) => (punch.strength > max ? punch.strength : max), punches[0].strength);
+  
+    // Populate FinishedTraining object
+    const FinishedTraining = {
+      AverageSpeedPerPunch: (seconds/punches.length).toFixed(2),
+      AverageStrengthPerPunchNewton: averageStrengthPerPunchNewton, // Assuming 1 kgf equals 9.81 newtons
+      DurationOfTrainning: formatTime(seconds),
+      NumberOfPunches: punches.length,
+      PlanTrainId: idPlanoTreino, // Get this from your application's context or state management
+      StrongestPunch: strongestPunchStrength,
+    };
+  
+    console.log('Finished Training:', FinishedTraining);
   };
+  
+  
 
   const handleSimularSoco = () => {
     const randomValue = Math.floor(Math.random() * (500 - 300 + 1)) + 300;
-    console.log(`PunchForce: ${randomValue}, TimeOfPunch: ${seconds}`);
+    const punch = { strength: randomValue, time: seconds };
+    setPunches(prevPunches => [...prevPunches, punch]);
   };
 
   return (
