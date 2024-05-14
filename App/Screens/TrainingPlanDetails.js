@@ -66,7 +66,9 @@ function TrainingPlanDetails({ navigation, route }) {
             renderItem={({ item }) => (
               <View style={styles.exerciseDisplay}>
               <View style={styles.exerciseImage}>
-              <Image style={{flex:1,borderBottomLeftRadius:30,borderTopLeftRadius:30}} source={{ uri: item.fotoExercicio }} />         
+              {item.fotoExercicio ? (
+                      <Image style={{flex: 1, borderBottomLeftRadius:30, borderTopLeftRadius:30}} source={{uri: item.fotoExercicio}} />
+                    ) : null}  
               </View>
 
                 <View>
