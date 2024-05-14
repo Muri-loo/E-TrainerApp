@@ -5,6 +5,7 @@ import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
 
 function Exercises({ navigation }) {
 
@@ -27,21 +28,24 @@ useEffect(() => {
     <SafeAreaView style={styles.container}>
     <Navbarlight navigation={navigation} />
     <View style={{ flex: 1 }}>
-    <Text>List of Exercises</Text>
+    <Text style={{  marginHorizontal: 10, marginTop: 10, marginBottom: 10, fontSize: 20, fontWeight: 'bold'}}>List of Exercises</Text>
       <View style={styles.gridContainer}>
 
             <FlatList
                 data={exercises}
                 renderItem={({ item }) => (
-                <TouchableOpacity style={styles.studentItem} onPress={() => handleSelectedStudent(item)}>
-
-                    <Image  source={{ uri: item?.fotoAtleta ? item.fotoAtleta : 'https://drive.google.com/uc?export=view&id=1WqNVu_0jLh9sQI511gCINW4aAlHRJP-i' }}
-                    style={styles.fotoAtleta} />
-                    <Text style={styles.studentName}>{item?.nome}</Text>
-                  </TouchableOpacity>
+                    <View style={styles.exerciseDisplay}>
+                    <View style={styles.exerciseImage}>
+                    </View>
+      
+                      <View>
+                        <Text style={styles.nomeExercicio}>{item.nomeExercicio}</Text> 
+                        <Text style={styles.nomeExercicio}><IconFA name={"clock"} size={15} color="white" /> {item.tempo} sec</Text>  
+                      </View>
+      
+                    </View>
                 )}
                 keyExtractor={(item) => item.id}
-                numColumns={3}
                 style={styles.studentGrid}
             />
 
@@ -68,40 +72,38 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginTop: 20,
         marginHorizontal: 10,
+        marginBottom: 10,
     },
+    
     buttonText: {
         color: 'white',
         fontWeight: 'bold',
     },
-    studentGrid: {
-        alignSelf: 'center',
-        marginBottom: 20,
-      },
       gridContainer: {
-        flexDirection: 'row', // Layout children in a row
-        flexWrap: 'wrap', // Allow items to wrap to next row
-        justifyContent: 'space-between', // Space items evenly
-        padding: 10, // Add padding around the container
+        flex: 1,
+
       },
-      studentItem: {
-        backgroundColor: '#808080',
-        alignItems: 'center',
-        margin: 5,
-        width: '30%', // Adjust the width as needed, accounting for padding/margin
-        aspectRatio: 1, // Keep the items square
-        borderRadius: 20,
+      exerciseImage:{
+        backgroundColor:'#c2c2c2',
+        width:'35%',
+        borderTopLeftRadius:30,
+        borderBottomLeftRadius:30,
       },
-      fotoAtleta: {
-        margin: 5,
-        width: '50%',
-        height: '70%',
-        backgroundColor: '#FFF',
+      exerciseDisplay:{
+        flexDirection:'row',
+        borderRadius:30,
+        backgroundColor:'#323230',
+        marginBottom:'5%',
+        marginHorizontal: 10,
+        height:100,
       },
-      studentName: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#CC2C02',
-        textAlign: 'center',
+      nomeExercicio:{
+        fontSize:20,
+        fontWeight:'bold',
+        color:'white',
+        marginTop:'10%',
+        marginLeft:'10%',
+    
       },
 });
 
