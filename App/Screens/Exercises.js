@@ -28,8 +28,8 @@ useEffect(() => {
     <SafeAreaView style={styles.container}>
     <Navbarlight navigation={navigation} />
     <View style={{ flex: 1 }}>
-    <Text style={{ marginHorizontal: 10, marginTop: 10, marginBottom: 10, fontSize: 20, fontWeight: 'bold'}}>List of Exercises</Text>
-     
+    <Text style={{ marginHorizontal: 10, marginTop: 10, marginBottom: 10, fontSize: 20, fontWeight: 'bold', alignSelf: 'center'}}>Exercicios</Text>
+    <View style={styles.line}></View> 
       <View style={styles.gridContainer}>
 
             <FlatList
@@ -52,7 +52,7 @@ useEffect(() => {
 
           </View>
       <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateExercise')}>
-        <Text style={styles.buttonText}>Add Exercise</Text>
+        <Text style={styles.buttonText}>Criar exercicio</Text>
       </TouchableOpacity>
       
     </View>
@@ -92,6 +92,13 @@ const styles = StyleSheet.create({
         width:'35%',
         borderTopLeftRadius:30,
         borderBottomLeftRadius:30,
+      },
+      line: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        width: '90%',
+        alignSelf: 'center',
+        marginBottom: 10,
       },
       exerciseDisplay:{
         flexDirection:'row',
