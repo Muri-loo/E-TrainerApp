@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
@@ -10,12 +10,8 @@ function LiveTraining({ navigation, route }) {
   const [seconds, setSeconds] = useState(0);
   const [isTrainingFinished, setIsTrainingFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [exercises, setExerciseList] = useState([]);
-  const [exercise, setCurrentExercise] = useState(route.params[0]);
-  let exerciseNumber = 0;
 
   useEffect(() => {
-    setExerciseList(route.params);
     const intervalId = setInterval(() => {
       if (!isPaused && !isTrainingFinished) {
         setSeconds(prevSeconds => prevSeconds + 1);
@@ -35,18 +31,6 @@ function LiveTraining({ navigation, route }) {
     setIsPaused(prevState => !prevState);
   };
 
-  const handleToggleFoward = useCallback(() => {
-    if (!isTrainingFinished) {
-      exerciseNumber++;
-      if (exerciseNumber >= exercises.length) {
-        handleFinishTraining();
-      } else {
-        setCurrentExercise(exercises[exerciseNumber]);
-      }
-    }
-  }, [isTrainingFinished, exerciseNumber, exercises, handleFinishTraining]);  
-  
-
   const handleFinishTraining = () => {
     setIsTrainingFinished(true);
     console.log(`Seconds when 'Terminar Treino' was pressed: ${seconds}`);
@@ -62,31 +46,15 @@ function LiveTraining({ navigation, route }) {
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
       <View style={styles.content}>
-
-      <View style={styles.topLeft}>
-        <Text style={{ fontSize: 18 }}>
-          <Text style={{ fontWeight: 'bold' }}>Exercício:</Text> {exercise.nomeExercicio}
-        </Text>
-
-      </View>
-
-      <View style={styles.topLeft}>
-        <Text style={{ fontSize: 18 }}>
-          <Text style={{ fontWeight: 'bold',color:'#F01801' }}>Descrição:</Text> {exercise.descricao}
-        </Text>
-      </View>
-      <View style={styles.line}></View>
-
+        <View style={styles.topLeft}>
+          <Text>{route.params}</Text>
+        </View>
         <Text style={styles.timer}>{formatTime(seconds)}</Text>
-        <Text style={{fontSize:15, alignSelf:'center'}}>Este botão tem como{'\n'}objetivo simular um soco</Text>
         <TouchableOpacity style={styles.button} onPress={handleSimularSoco}>
           <Text style={{ color: 'white' }}><IconMC name="boxing-glove" size={80} color="white" /></Text>
         </TouchableOpacity>
 
-
-
-      </View>
-        <View style={styles.controlButtons}>
+        <View style={[styles.row, { justifyContent: 'flex-end' }]}>
           <TouchableOpacity style={styles.button} onPress={handleTogglePause}>
             <Text style={{ color: 'white' }}>
               {isPaused ? (
@@ -97,7 +65,7 @@ function LiveTraining({ navigation, route }) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={handleToggleFoward}>
+          <TouchableOpacity style={styles.button} onPress={handleTogglePause}>
             <Text style={{ color: 'white' }}>
               <IconFA name="forward" size={15} color="white" />
             </Text>
@@ -107,6 +75,7 @@ function LiveTraining({ navigation, route }) {
             <Text style={{ color: 'white' }}>Terminar Treino</Text>
           </TouchableOpacity>
         </View>
+      </View>
       <Fundo navigation={navigation} />
     </SafeAreaView>
   );
@@ -118,24 +87,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     justifyContent: 'space-between',
   },
-  line: {
-    borderWidth: 1  ,
-    borderColor: '#CC2C02',
-    backgroundColor: '#CC2C02',
-    width: '100%',
-    alignSelf: 'center',
-  },
   content: {
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
-    justifyContent: 'flex-start', // Align content at the start
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   timer: {
     fontSize: 48,
     fontWeight: 'bold',
-    alignSelf: 'center',
-    marginBottom: 20, // Reduce margin bottom
   },
   button: {
     backgroundColor: 'red',
@@ -143,22 +104,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     alignItems: 'center',
-    alignSelf: 'center',
-    marginBottom: 10, // Reduce margin bottom
+    marginRight: '3%',
   },
-  controlButtons: {
+  row: {
     flexDirection: 'row',
-    justifyContent: 'center', // Align buttons at the center horizontally
-    marginBottom: 20, // Adjust the margin bottom to create space between the buttons and other content
+    margin: '7%',
   },
-  
   topLeft: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 10, // Reduce margin bottom
+    top: 20,
+    left: 20,
   },
 });
-
-
 
 export default LiveTraining;

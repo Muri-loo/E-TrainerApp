@@ -106,7 +106,7 @@ function DisplayTraining({ navigation, route }) {
               <FlatList
                   data={trainingPlans}
                   renderItem={renderItem}
-                  keyExtractor={(item) => item.idPlanoTreino}
+                  keyExtractor={(item) => item.idExercicio}
                   ItemSeparatorComponent={() => <View style={{ height: 40 }} />} 
               />
           ) : (

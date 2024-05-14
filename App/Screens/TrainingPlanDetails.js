@@ -84,9 +84,9 @@ function TrainingPlanDetails({ navigation, route }) {
       <View style={styles.fundoContainer}>
         <View style={styles.buttonsContainer}>
           <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
-            <Text style={styles.buttonText}>Remover Treino</Text>
+            <Text style={styles.buttonText}>Apagar Treino</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveTraining', exerciseList)}>
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LiveTraining', deleteId)}>
             <Text style={styles.buttonText}>Iniciar Treino</Text>
           </TouchableOpacity>
         </View>
