@@ -4,9 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import { pickImage, uploadFile } from '../Navigation/ImageUploader';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
-import { v4 as uuidv4 } from 'uuid';
 
 function CreateExercise({ navigation }) {
   const [errors, setErrors] = useState({});
@@ -14,10 +13,11 @@ function CreateExercise({ navigation }) {
   const [exercise, setExercise] = useState({
     descricao: '',
     fotoExercicio: '',
-    idExercicio: uuidv4(),
+      idExercicio: '',
     nomeExercicio: '',
     tempo: '',
   });
+  const [uri, setUri] = useState('');
 
   const handleChange = (name, value) => {
     setExercise(prevExercise => ({
@@ -32,25 +32,33 @@ function CreateExercise({ navigation }) {
 
   const handleImageUpload = async () => {
     const uri = await pickImage();
-    if (uri) {
-      try {
-        await uploadFile(uri, exercise, 'exercise');
-        setExercise(prevExercise => ({
-          ...prevExercise,
-          fotoExercicio: uri
-        }));
-        alert('Imagem carregada com sucesso!');
-      } catch (error) {
-        alert('Erro ao carregar a imagem: ' + error.message);
-      }
-    }
+    setUri(uri);
   };
+
 
   const handleSubmit = async () => {
     if (isFormValid) {
       try {
-        await addDoc(collection(db, 'Exercicio'), exercise);
+        if (uri) {
+            try {
+              await uploadFile(uri, exercise, 'Exercicio');
+            } catch (error) {
+                Alert.alert('Foto', error.message);
+            }
+          }
+        const docRef = await addDoc(collection(db, 'Exercicio'), exercise);
+        
+        // Update the exercise object with the generated ID
+        const updatedExercise = {
+          ...exercise,
+          idExercicio: docRef.id
+        };
+        
+        // Update Firestore with the updated exercise object
+        await setDoc(doc(db, 'Exercicio', docRef.id), updatedExercise);
+        
         alert('Exercise added successfully!');
+        
         // Clear form fields after submission
         setExercise({
           descricao: '',
@@ -67,6 +75,8 @@ function CreateExercise({ navigation }) {
       alert('Please fill in all required fields.');
     }
   };
+  
+  
 
   const validateForm = () => {
     let errors = {};
