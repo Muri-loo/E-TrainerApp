@@ -142,7 +142,7 @@ function Fundo() {
             <IconMC name={mister ? "strategy" : "sine-wave"} size={25} color="black" />
           </TouchableOpacity>
           
-          <TouchableOpacity onPress={mister ? () => handlePress('CreateExercise') : handleAddPress}>
+          <TouchableOpacity onPress={mister ? () => handlePress('Exercises') : handleAddPress}>
             {mister ? (
               <IconFA name={"dumbbell"} size={25} color="black" />
             ) : (

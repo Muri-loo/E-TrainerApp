@@ -5,10 +5,15 @@ import Fundo from '../Navigation/fundo';
 import { View, Text, StyleSheet } from 'react-native';
 
 function CreateTrainingPlan({ navigation }) {
+
+  
+
+
   return (
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
       <View style={{ flex: 1 }}>
+      
       </View>
       <Fundo navigation={navigation} />
     </SafeAreaView>
