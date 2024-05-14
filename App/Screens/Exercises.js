@@ -37,6 +37,7 @@ useEffect(() => {
                 renderItem={({ item }) => (
                     <View style={styles.exerciseDisplay}>
                     <View style={styles.exerciseImage}>
+                      <Image style={{flex:1,borderBottomLeftRadius:30,borderTopLeftRadius:30}} source={{ uri: item.fotoExercicio }} />         
                     </View>
       
                       <View>
