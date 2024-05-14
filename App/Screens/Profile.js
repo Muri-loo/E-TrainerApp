@@ -124,11 +124,6 @@ function Profile({ navigation }) {
     <ScrollView style={{ flex: 1 }}>
     {/* INICIO do container principal */}
     <Navbarlight navigation={navigation} />
-
-      
-      
-     
-
         {userType === 'Atleta' && (
           <>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal:60, marginLeft:55}}>
@@ -195,21 +190,33 @@ function Profile({ navigation }) {
 
         {userType === 'Treinador' && (
           <>
-            <TouchableOpacity onPress={handlerImage}>
-                <Image source={{ uri: object?.fotoTreinador || 'https://drive.google.com/uc?export=view&id=1VrqvZTseVMNmNciV1CvBEY5nIbFnSD1s' }} style={styles.profilePic} />
-            </TouchableOpacity>
-          
-            <Text style={styles.title}>{object?.nome}</Text>
+          <Text style={styles.title}>{object?.nome}</Text>
             
-            <View style={styles.detailsContainer}>
-              <Text style={styles.detailText}>
-              <Text style={styles.labelText}>Genéro:</Text> {getGender(object?.genero)}</Text>
-              <Text style={styles.detailText}>  <Text style={styles.labelText}>Data de nascimento:</Text> {object?.dataNascimento}</Text>
-              <Text style={styles.detailText}> <Text style={styles.labelText}>Codigo:</Text> {object?.codigoTreinador}</Text>
-              <Text style={styles.detailText}> <Text style={styles.labelText}>Email:</Text> {object?.email}</Text>
-              <Text style={styles.detailText}> <Text style={styles.labelText}>Descricao:</Text> {object?.descricao}</Text>
-            </View>
-
+            
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 }}>
+  <TouchableOpacity onPress={handlerImage}>
+    <Image source={{ uri: object?.fotoTreinador || 'https://drive.google.com/uc?export=view&id=1VrqvZTseVMNmNciV1CvBEY5nIbFnSD1s' }} style={styles.profilePic} />
+  </TouchableOpacity>
+  <View style={styles.detailsContainer}>
+    <Text style={styles.detailText}>
+      <Text style={styles.labelText}>Genéro:</Text> {getGender(object?.genero)}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.labelText}>Data de nascimento:</Text> {object?.dataNascimento}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.labelText}>Codigo:</Text> {object?.codigoTreinador}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.labelText}>Email:</Text> {object?.email}
+    </Text>
+    <Text style={styles.detailText}>
+      <Text style={styles.labelText}>Descricao:</Text> {object?.descricao}
+    </Text>
+  </View>
+</View>
+            <Text style={{fontWeight: 'bold',marginTop:10, alignSelf: 'center', fontSize: 20 }}>Lista de atletas: </Text>
+                <View style={styles.line}></View> 
           <View style={styles.gridContainer}>
 
             <FlatList
@@ -268,6 +275,13 @@ const styles = StyleSheet.create({
     flex: 1,
 
   },
+  line: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    width: '90%',
+    alignSelf: 'center',
+    marginTop: 10,
+  },
   editButtonContainer: {
     alignItems: 'center',
     marginTop: 10,
@@ -277,13 +291,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     width: 120,
     height: 120,
-    marginTop:40,
+    marginTop:20,
+    marginLeft: 30,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#FFF',
     backgroundColor: '#FFF',
-    marginBottom:20,
-    marginHorizontal: 'auto', // Center the profile picture horizontally
+  
   },
   editButton:{
     backgroundColor: '#D72E02F2',
@@ -303,7 +317,6 @@ const styles = StyleSheet.create({
     // Your existing styles for the outer <Text> components
     color: '#000',
     fontSize: 15,
-    marginLeft: 29,
   },
   labelText: {
     // Styles specific to the label (first <Text>)

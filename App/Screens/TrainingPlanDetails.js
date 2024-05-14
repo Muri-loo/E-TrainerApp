@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView } from 'react-native';
+import { View, Image, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, doc as d, deleteDoc, getDocs, where, query, getDoc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
