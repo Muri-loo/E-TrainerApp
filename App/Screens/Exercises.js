@@ -28,7 +28,8 @@ useEffect(() => {
     <SafeAreaView style={styles.container}>
     <Navbarlight navigation={navigation} />
     <View style={{ flex: 1 }}>
-    <Text style={{  marginHorizontal: 10, marginTop: 10, marginBottom: 10, fontSize: 20, fontWeight: 'bold'}}>List of Exercises</Text>
+    <Text style={{ marginHorizontal: 10, marginTop: 10, marginBottom: 10, fontSize: 20, fontWeight: 'bold'}}>List of Exercises</Text>
+     
       <View style={styles.gridContainer}>
 
             <FlatList
@@ -71,13 +72,16 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         marginTop: 20,
-        marginHorizontal: 10,
+        width:'90%',
+        alignSelf:'center',
         marginBottom: 10,
     },
     
     buttonText: {
         color: 'white',
         fontWeight: 'bold',
+        alignSelf:'center',
+        borderRadius: 30,
     },
       gridContainer: {
         flex: 1,
@@ -93,8 +97,9 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         borderRadius:30,
         backgroundColor:'#323230',
+        width:'90%',
+        alignSelf:'center',
         marginBottom:'5%',
-        marginHorizontal: 10,
         height:100,
       },
       nomeExercicio:{

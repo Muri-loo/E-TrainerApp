@@ -97,6 +97,8 @@ function CreateExercise({ navigation }) {
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
       <View style={{ flex: 1 }}>
+      <Text style={styles.title}>Criar exercicio</Text>
+      <View style={styles.line}></View>
       <Text style={styles.label}>Exercise Name:</Text>
         <TextInput
           style={styles.input}
@@ -146,6 +148,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 10,
   },
+  title: {
+    alignSelf: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 10,
+  },
   input: {
     borderWidth: 1,
     borderColor: 'gray',
@@ -172,6 +181,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
     alignItems: 'center',
     marginTop: 20,
+  },
+  line: {
+    borderWidth: 1,
+    borderColor: 'gray',
+    width: '90%',
+    alignSelf: 'center',
   },
   uploadText: {
     color: 'white',
