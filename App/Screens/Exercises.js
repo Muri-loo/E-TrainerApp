@@ -7,10 +7,10 @@ import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firesto
 import { db } from '../../Config/firebase';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
 
-function Exercises({ navigation }) {
+function Exercises({ navigation,route }) {
 
 
-
+const [novo, setNovo] = useState(false);
 const [exercises, setExercises] = useState([]);
 const getExercises = async () => {
     const ExercisesQueryResult = await getDocs(query(collection(db, 'Exercicio')));
@@ -25,6 +25,7 @@ useEffect(() => {
   }, [navigation]);
   
   return (
+  
     <SafeAreaView style={styles.container}>
     <Navbarlight navigation={navigation} />
     <View style={{ flex: 1 }}>

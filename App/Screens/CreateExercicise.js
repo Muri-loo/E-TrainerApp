@@ -7,7 +7,7 @@ import { pickImage, uploadFile } from '../Navigation/ImageUploader';
 import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
 
-function CreateExercise({ navigation }) {
+function CreateExercise({ navigation,route }) {
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
   const [exercise, setExercise] = useState({
@@ -94,10 +94,7 @@ function CreateExercise({ navigation }) {
       errors.tempo = 'Time is required';
       isValid = false;
     }
-    /* if (!exercise.fotoExercicio) {
-      errors.fotoExercicio = 'Image is required';
-      isValid = false;
-    } */
+
 
     setErrors(errors);
     setIsFormValid(isValid);
@@ -107,43 +104,49 @@ function CreateExercise({ navigation }) {
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
       <View style={{ flex: 1 }}>
-      <Text style={styles.title}>Criar exercicio</Text>
-      <View style={styles.line}></View>
-      <Text style={styles.label}>Exercise Name:</Text>
-        <TextInput
-          style={styles.input}
-          value={exercise.nomeExercicio}
-          onChangeText={(value) => handleChange('nomeExercicio', value)}
-        />
-        {errors.nomeExercicio && <Text style={styles.error}>{errors.nomeExercicio}</Text>}
-        <Text style={styles.label}>Description:</Text>
-        <TextInput
-          style={styles.input}
-          value={exercise.descricao}
-          onChangeText={(value) => handleChange('descricao', value)}
-        />
-        {errors.descricao && <Text style={styles.error}>{errors.descricao}</Text>}
-        <Text style={styles.label}>Duration:</Text>
-        <TextInput
-          style={styles.input}
-          value={exercise.tempo}
-          onChangeText={(value) => handleChange('tempo', value)}
-        />
-        {errors.tempo && <Text style={styles.error}>{errors.tempo}</Text>}
-
-        <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
-          <Text style={styles.uploadText}>Upload Image</Text>
-        </TouchableOpacity>
-        {errors.fotoExercicio && <Text style={styles.error}>{errors.fotoExercicio}</Text>}
-
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
-        </TouchableOpacity>
-
+        {!route.params ? (
+          <>
+            <Text style={styles.title}>Criar exercicio</Text>
+            <View style={styles.line}></View>
+            <Text style={styles.label}>Exercise Name:</Text>
+            <TextInput
+              style={styles.input}
+              value={exercise.nomeExercicio}
+              onChangeText={(value) => handleChange('nomeExercicio', value)}
+            />
+            {errors.nomeExercicio && <Text style={styles.error}>{errors.nomeExercicio}</Text>}
+            <Text style={styles.label}>Description:</Text>
+            <TextInput
+              style={styles.input}
+              value={exercise.descricao}
+              onChangeText={(value) => handleChange('descricao', value)}
+            />
+            {errors.descricao && <Text style={styles.error}>{errors.descricao}</Text>}
+            <Text style={styles.label}>Duration:</Text>
+            <TextInput
+              style={styles.input}
+              value={exercise.tempo}
+              onChangeText={(value) => handleChange('tempo', value)}
+            />
+            {errors.tempo && <Text style={styles.error}>{errors.tempo}</Text>}
+  
+            <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
+              <Text style={styles.uploadText}>Upload Image</Text>
+            </TouchableOpacity>
+            {errors.fotoExercicio && <Text style={styles.error}>{errors.fotoExercicio}</Text>}
+  
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>Submit</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <Text>hello</Text>
+        )}
       </View>
       <Fundo navigation={navigation} />
     </SafeAreaView>
   );
+  
 }
 
 const styles = StyleSheet.create({
