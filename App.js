@@ -23,6 +23,7 @@ import CreateExercise from './App/Screens/CreateExercicise';
 import CheckUserProgress from './App/Screens/CheckUserProgress';
 import LiveTraining from './App/Screens/LiveTraining';
 import Exercises from './App/Screens/Exercises';
+import TrainingPlans from './App/Screens/TrainingPlans';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,7 +54,7 @@ function App() {
         <Stack.Screen name="Profile" component={Profile}  options={{ headerShown: false }} />
         <Stack.Screen name="navBottom" component={Fundo}  options={{ headerShown: false }} />
         <Stack.Screen name="Exercises" component={Exercises}  options={{ headerShown: false }} />
-
+        <Stack.Screen name="TrainingPlans" component={TrainingPlans}  options={{ headerShown: false }} />
       </Stack.Navigator>
 
     </NavigationContainer>
