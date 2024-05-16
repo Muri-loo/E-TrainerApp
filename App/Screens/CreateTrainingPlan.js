@@ -161,7 +161,7 @@ function CreateTrainingPlan({ navigation }) {
         <Text style={styles.label}>Dificuldade:</Text>
         <Picker
           selectedValue={dificuldade} 
-          style={{ height: 50, width: 150, color: 'white' }}
+          style={{ height: 50, width: 200, color: 'black' }}
           onValueChange={(itemValue, itemIndex) => {setDificuldade(itemValue);}}
 >
           <Picker.Item label="Fácil" value="Fácil" />
@@ -169,7 +169,7 @@ function CreateTrainingPlan({ navigation }) {
           <Picker.Item label="Avançado" value="Avançado" />
           <Picker.Item label="Profissional" value="Profissional" />
         </Picker>
-        
+
         {errors.dificuldade && <Text style={styles.error}>{errors.dificuldade}</Text>}
         <Text style={styles.label}>Exercicios selecionados:</Text>
         <FlatList
