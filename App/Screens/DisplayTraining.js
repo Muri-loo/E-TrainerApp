@@ -5,6 +5,7 @@ import { db, auth } from '../../Config/firebase';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
 
 function DisplayTraining({ navigation, route }) {
   const [trainingPlans, setTrainingPlans] = useState([]);
@@ -64,7 +65,7 @@ function DisplayTraining({ navigation, route }) {
   };
 
   const renderItem = ({ item }) => {
-    const imageUri =  (item.image ? item.image : alternativeImage);
+    const imageUri =  (item.fotoPlanoTreino ? item.fotoPlanoTreino : alternativeImage);
     const onPressHandler = () => handleButtonPress(item);
     
     return (
@@ -117,13 +118,27 @@ function DisplayTraining({ navigation, route }) {
 
       </View>
       {isGreaterThan && (
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('AddNewTrainningPlan', { data, aluno })}
-        >
-          <Text style={{ color: '#fff', fontWeight: '600' }}>Adicionar Treino para este dia</Text>
-        </TouchableOpacity>
-      )}
+        <View style={styles.addButtonContainer}>
+  <View style={styles.addButtonWrapper}>
+    <View style={styles.addButtonColumn}>
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddNewTrainningPlan', { data: data, aluno: aluno, type: 'todos' })}>
+      <IconFA style={styles.addButtonIcon} name={"dumbbell"} size={25} color="white" />
+      <Text style={styles.addButtonText}>Todos os Treinos</Text>
+    </TouchableOpacity>
+    </View>
+    
+    <View style={styles.addButtonColumn}>
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddNewTrainningPlan', { data: data, aluno: aluno, type: 'recomendados' })}>
+      <IconFA style={styles.addButtonIcon} name={"lightbulb"} size={25} color="white" />
+      <Text style={styles.addButtonText}>Treinos Recomendados</Text>
+    </TouchableOpacity>
+    </View>
+  </View>
+</View>
+
+
+)}
+
       <Fundo navigation={navigation} />
     </SafeAreaView>
   );
@@ -176,14 +191,39 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
   },
-  button: {
+  addButtonContainer: {
+    marginHorizontal: '5%',
+    marginVertical: '5%',
+  },
+  addButtonWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  addButtonColumn: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButton: {
     borderRadius: 20,
     width: '80%',
+    height: 100,
     backgroundColor: '#D72E02',
-    padding: 10,
-    margin: 20,
+    justifyContent: 'center',
     alignItems: 'center',
+    padding: 10, // Add padding here
+
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign:'center',
+  },
+
+  addButtonIcon: {
     alignSelf: 'center',
+    padding: 5,
   },
   noExercisesTextContainer: {
     flex: 1,

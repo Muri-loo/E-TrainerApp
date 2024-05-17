@@ -3,7 +3,7 @@ import { TouchableOpacity, Text, TextInput, View, StyleSheet } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
-import { pickImage, uploadFile } from '../Navigation/ImageUploader';
+import { pickImage, uploadFile, formatTime } from '../Navigation/funcoes';
 import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
 

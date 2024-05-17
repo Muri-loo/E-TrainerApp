@@ -3,11 +3,11 @@ import { TouchableOpacity, Text, TextInput, View, StyleSheet, FlatList, Modal, I
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
-import { pickImage, uploadFile } from '../Navigation/ImageUploader';
+import { pickImage, uploadFile, formatTime } from '../Navigation/funcoes';
 import { collection, addDoc, getDocs, setDoc, doc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
 
 function CreateTrainingPlan({ navigation }) {
   const [trainingPlan, setTrainingPlan] = useState({
@@ -20,6 +20,8 @@ function CreateTrainingPlan({ navigation }) {
   });
   const [exercises, setExercises] = useState([]);
   const [selectedExercises, setSelectedExercises] = useState([]);
+  const [goals, setGoals] = useState([]);
+  const [selectedGoals, setSelectedGoals] = useState([]);
   const [DificultyLevel, setDificuldade] = useState('');
   const [goal, setGoal] = useState(false);
   const [searchText, setSearchText] = useState('');
@@ -34,34 +36,39 @@ function CreateTrainingPlan({ navigation }) {
 
   useEffect(() => {
     validateForm();
-  }, [trainingPlan, selectedExercises]); // Add selectedExercises to the dependency array
+  }, [trainingPlan, selectedExercises]);
 
   const fetchExercises = async () => {
+    const querySnapshotGoals = await getDocs(collection(db, 'Goals'));
+    const fetchedGoals = querySnapshotGoals.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+
     const querySnapshot = await getDocs(collection(db, 'Exercicio'));
-    const fetchedExercises = [];
-    querySnapshot.forEach((doc) => {
-      fetchedExercises.push({ ...doc.data(), id: doc.id });
-    });
+    const fetchedExercises = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+
     setExercises(fetchedExercises);
+    setGoals(fetchedGoals);
   };
 
   const handleChange = (name, value) => {
-    setTrainingPlan(prevPlan => ({
-      ...prevPlan,
-      [name]: value
-    }));
+    setTrainingPlan(prevPlan => ({ ...prevPlan, [name]: value }));
   };
 
-  const handleExerciseSelect = (exercise) => {
-    setSelectedExercises(prevSelected => {
-      if (prevSelected.some(e => e.id === exercise.id)) {
-        return prevSelected.filter(e => e.id !== exercise.id);
-      } else {
-        return [...prevSelected, exercise];
-      }
-    });
+  const handleSelect = (item) => {
+    if (!goal) {
+      setSelectedExercises(prevSelected => {
+        return prevSelected.some(e => e.id === item.id)
+          ? prevSelected.filter(e => e.id !== item.id)
+          : [...prevSelected, item];
+      });
+    } else {
+      setSelectedGoals(prevSelected => {
+        return prevSelected.some(e => e.id === item.id)
+          ? prevSelected.filter(e => e.id !== item.id)
+          : [...prevSelected, item];
+      });
+    }
   };
-
+  
   const handleImageUpload = async () => {
     const uri = await pickImage();
     setUri(uri);
@@ -69,7 +76,6 @@ function CreateTrainingPlan({ navigation }) {
 
   const handleSubmit = async () => {
     if (isFormValid) {
-    
       try {
         let imageUrl = '';
         if (uri) {
@@ -82,28 +88,24 @@ function CreateTrainingPlan({ navigation }) {
           fotoPlanoTreino: imageUrl,
           DificultyLevel: DificultyLevel,
         };
-      const docRef = await addDoc(collection(db, 'PlanoTreino'), trainingPlanToSave);
+        
+        const docRef = await addDoc(collection(db, 'PlanoTreino'), trainingPlanToSave);
 
+        let tempoPlano = 0;
+        await Promise.all(selectedExercises.map(async (e) => {
+          tempoPlano += parseInt(e.tempo, 10);
+          const object = { idExercicio: e.id, idPlanoTreino: docRef.id };
+          await addDoc(collection(db, 'Exercicio_PlanoTreino'), object);
+        }));
 
-      let tempoPlano = 0;
-
-      await Promise.all(selectedExercises.map(async (e) => {
-        tempoPlano += parseInt(e.tempo, 10); // Make sure to add to tempoPlano correctly
-        const object = { idExercicio: e.id, idPlanoTreino: docRef.id };
-        await addDoc(collection(db, 'Exercicio_PlanoTreino'), object);
-      }));
-      
-
-        // Update the training plan object with the generated ID
         const updatedTrainingPlan = {
           ...trainingPlanToSave,
           idPlanoTreino: docRef.id,
-          tempo:tempoPlano
+          tempo: tempoPlano
         };
 
-        // Update Firestore with the updated training plan object
         await setDoc(doc(db, 'PlanoTreino', docRef.id), updatedTrainingPlan);
-      
+        
         alert('Training plan added successfully!');
         setTrainingPlan({
           idPlanoTreino: '',
@@ -114,7 +116,7 @@ function CreateTrainingPlan({ navigation }) {
           DificultyLevel: '',
         });
 
-
+        setSelectedGoals([]);
         setSelectedExercises([]);
         setUri('');
       } catch (error) {
@@ -142,8 +144,8 @@ function CreateTrainingPlan({ navigation }) {
       errors.exercicios = 'Selecione pelo menos 1 exercicio';
       isValid = false;
     }
-    if (!DificultyLevel) { // Check the difficulty state
-      errors.dificuldade = 'Selecione a dificuldade'; // Correct the error field
+    if (!DificultyLevel) {
+      errors.dificuldade = 'Selecione a dificuldade';
       isValid = false;
     }
   
@@ -177,64 +179,65 @@ function CreateTrainingPlan({ navigation }) {
         {errors.descricao && <Text style={styles.error}>{errors.descricao}</Text>}
         <Text style={styles.label}>Dificuldade:</Text>
         <Picker
-          selectedValue={DificultyLevel} 
+          selectedValue={DificultyLevel}
           style={{ height: 50, width: 200, color: 'black' }}
-          onValueChange={(itemValue, itemIndex) => {setDificuldade(itemValue);}}
->
+          onValueChange={(itemValue, itemIndex) => { setDificuldade(itemValue); }}
+        >
           <Picker.Item label="Fácil" value="Fácil" />
           <Picker.Item label="Intermédio" value="Intermédio" />
           <Picker.Item label="Avançado" value="Avançado" />
           <Picker.Item label="Profissional" value="Profissional" />
         </Picker>
-
+  
         {errors.dificuldade && <Text style={styles.error}>{errors.dificuldade}</Text>}
         <Text style={styles.label}>Exercicios selecionados:</Text>
         <FlatList
-          data={selectedExercises}
-          keyExtractor={(item) => item.id}
+          data={!goal ? selectedExercises : selectedGoals}
+          keyExtractor={(item) => (goal ? item.idGoal : item.idExercicio)}
           renderItem={({ item }) => (
-          <View style={styles.selectedExerciseItem}>
+            <View style={styles.selectedExerciseItem}>
               {item.fotoExercicio ? (
-            <Image style={styles.exerciseImage} source={{ uri: item.fotoExercicio }} />
-            ) : null}
-            <View >
-            <Text style={styles.cenas}>{item.nomeExercicio}</Text>
-            <Text style={styles.cenas}><IconFA name={"clock"} size={15} color="white" /> {item.tempo} sec</Text>
-          </View>
-
-        </View>
-
-  )}
-/>
+                <Image style={styles.exerciseImage} source={{ uri: item.fotoExercicio }} />
+              ) : null}
+              <View>
+                <Text style={styles.cenas}>{!goal ? item.nomeExercicio : item.goalName}</Text>
+                {!goal && (
+                  <Text style={styles.cenas}>
+                    <IconFA name={"clock"} size={15} color="white" /> {formatTime(item.tempo)}
+                  </Text>
+                )}
+              </View>
+            </View>
+          )}
+        />
+  
         {errors.exercicios && <Text style={styles.error}>{errors.exercicios}</Text>}
-
+  
         <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>Add Exercise</Text>
         </TouchableOpacity>
-
-
-        <TouchableOpacity style={styles.addButton}  onPress={() => { setGoal(true); setModalVisible(true);}}>
+  
+  
+        <TouchableOpacity style={styles.addButton} onPress={() => { setGoal(true); setModalVisible(true); }}>
           <Text style={styles.buttonText}>Adicionar Objectivos</Text>
         </TouchableOpacity>
-
+  
         <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
           <Text style={styles.uploadText}>Upload Image</Text>
         </TouchableOpacity>
         {uri ? <Image source={{ uri }} style={styles.image} /> : null}
-
+  
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
           <Text style={styles.buttonText}>Submit</Text>
         </TouchableOpacity>
       </View>
       <Fundo navigation={navigation} />
-
+  
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
+        onRequestClose={() => { setModalVisible(!modalVisible); }}
       >
         <View style={styles.modalView}>
           <TextInput
@@ -244,167 +247,162 @@ function CreateTrainingPlan({ navigation }) {
             onChangeText={(text) => setSearchText(text)}
           />
           <FlatList
-          //fazer if aqui tambem para a data
-            data={filteredExercises}
-            keyExtractor={(item) => item.id}
+            data={goal ? goals : filteredExercises}
+            keyExtractor={(item) => (goal ? item.idGoal : item.idExercicio)}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={[
                   styles.exerciseItem,
-                  selectedExercises.some(e => e.id === item.id) && styles.selectedExercise
+                  selectedExercises.some((e) => e.id === item.id) && styles.selectedExercise
                 ]}
-                onPress={() => handleExerciseSelect(item)}
+                onPress={() => handleSelect(item)}
               >
-           
-          {!goal ? (
-          <>
-          {/* EXERCICIO */}
-            <Text>{item.nomeExercicio}</Text>
-            <Text>Tempo Meta: {item.tempo}</Text>
-          </>
-          ) : (
-            <>
-            {/* GOALS */}
-              <Text>{item.camposGoal}</Text>
-              <Text>Tempo: {item.camposGoal}</Text>
-            </>
-          )}
-
-          
-              
+                {!goal ? (
+                  // Render exercise information if not in goal mode
+                  <>
+                    <Text>{item.nomeExercicio}</Text>
+                    <Text>Tempo Meta: {formatTime(item.tempo)}</Text>
+                  </>
+                ) : (
+                  // Render goal name if in goal mode
+                  <Text>{item.goalName}</Text>
+                )}
               </TouchableOpacity>
             )}
           />
           <TouchableOpacity
             style={[styles.button, styles.closeButton]}
-            onPress={() => setModalVisible(!modalVisible)}
+            onPress={() => {
+              setGoal(false);
+              setModalVisible(false);
+            }}
           >
             <Text style={styles.buttonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </Modal>
+  
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    justifyContent: 'space-between',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginLeft: 10,
-  },
-  title: {
-    alignSelf: 'center',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    marginHorizontal: 10,
-    paddingHorizontal: 10,
-    marginTop: 5,
-  },
-  button: {
-    backgroundColor: '#D72E02',
-    padding: 10,
-    borderRadius: 5,
-    margin: 10,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  uploadButton: {
-    backgroundColor: '#D72E02',
-    padding: 10,
-    borderRadius: 5,
-    marginHorizontal: 10,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  cenas: {
-    color : "white"
-  },
-  line: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    width: '90%',
-    alignSelf: 'center',
-  },
-  uploadText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  error: {
-    color: 'red',
-    marginLeft: 10,
-  },
-  exerciseItem: {
-    padding: 10,
-    margin: 5,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: 'gray',
-  },
-  selectedExercise: {
-    backgroundColor: '#D72E02',
-    borderColor: 'white',
-  },
-  selectedExerciseItem: {
-    padding: 10,
-    margin: 5,
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: 'gray',
-    backgroundColor: '#D72E02',
-    color: 'white',
-  },
-  addButton: {
-    backgroundColor: '#D72E02',
-    padding: 10,
-    borderRadius: 5,
-    marginHorizontal: 10,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  modalView: {
-    flex: 1,
-    backgroundColor: 'white',
-    marginTop: 50,
-    padding: 20,
-  },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  closeButton: {
-    backgroundColor: '#D72E02',
-    padding: 10,
-    borderRadius: 5,
-    marginHorizontal: 10,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  image: {
-    width: 100,
-    height: 100,
-    margin: 10,
-    alignSelf: 'center',
-  },
-});
-
-export default CreateTrainingPlan;
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: 'white',
+      justifyContent: 'space-between',
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginTop: 10,
+      marginLeft: 10,
+    },
+    title: {
+      alignSelf: 'center',
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginTop: 10,
+      marginBottom: 10,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 5,
+      marginHorizontal: 10,
+      paddingHorizontal: 10,
+      marginTop: 5,
+    },
+    button: {
+      backgroundColor: '#D72E02',
+      padding: 10,
+      borderRadius: 5,
+      margin: 10,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    uploadButton: {
+      backgroundColor: '#D72E02',
+      padding: 10,
+      borderRadius: 5,
+      marginHorizontal: 10,
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    cenas: {
+      color: 'white',
+    },
+    line: {
+      borderWidth: 1,
+      borderColor: 'gray',
+      width: '90%',
+      alignSelf: 'center',
+    },
+    uploadText: {
+      color: 'white',
+      fontWeight: 'bold',
+    },
+    error: {
+      color: 'red',
+      marginLeft: 10,
+    },
+    exerciseItem: {
+      padding: 10,
+      margin: 5,
+      borderWidth: 1,
+      borderRadius: 5,
+      borderColor: 'gray',
+    },
+    selectedExercise: {
+      backgroundColor: '#D72E02',
+      borderColor: 'white',
+    },
+    selectedExerciseItem: {
+      padding: 10,
+      margin: 5,
+      borderWidth: 1,
+      borderRadius: 5,
+      borderColor: 'gray',
+      backgroundColor: '#D72E02',
+      color: 'white',
+    },
+    addButton: {
+      backgroundColor: '#D72E02',
+      padding: 10,
+      borderRadius: 5,
+      marginHorizontal: 10,
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    modalView: {
+      flex: 1,
+      backgroundColor: 'white',
+      marginTop: 50,
+      padding: 20,
+    },
+    searchInput: {
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 5,
+      marginBottom: 10,
+      paddingHorizontal: 10,
+    },
+    closeButton: {
+      backgroundColor: '#D72E02',
+      padding: 10,
+      borderRadius: 5,
+      marginHorizontal: 10,
+      alignItems: 'center',
+      marginTop: 20,
+    },
+    image: {
+      width: 100,
+      height: 100,
+      margin: 10,
+      alignSelf: 'center',
+    },
+  });
+  
+  export default CreateTrainingPlan;

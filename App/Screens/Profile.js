@@ -4,7 +4,7 @@ import { ScrollView, Text, View, Image, FlatList, StyleSheet, TouchableOpacity, 
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import { db } from '../../Config/firebase';
-import { pickImage, uploadFile } from '../Navigation/ImageUploader';
+import { pickImage, uploadFile } from '../Navigation/funcoes';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { getAuth, signOut } from 'firebase/auth';
 import Icon from 'react-native-vector-icons/FontAwesome';

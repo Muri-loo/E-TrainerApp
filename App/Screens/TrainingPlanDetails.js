@@ -6,9 +6,10 @@ import { db } from '../../Config/firebase';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
+import { formatTime } from '../Navigation/funcoes';
 
 function TrainingPlanDetails({ navigation, route }) {
-  const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino } = route.params;
+  const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino,descricao } = route.params;
   const [exerciseList, setExerciseList] = useState([]);
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
@@ -53,7 +54,7 @@ function TrainingPlanDetails({ navigation, route }) {
       <Text style={styles.Title}>{nomePlano}</Text>
 
       <View style={styles.detailsContainer}>
-        <Text style={styles.infoText}><IconFA name={"clock"} size={15} color="white" /> {tempo} min</Text>
+        <Text style={styles.infoText}><IconFA name={"clock"} size={15} color="white" /> {formatTime(tempo)} min</Text>
         <Text style={styles.infoText}><IconFA name={"leaf"} size={15} color="white" /> {DificultyLevel}</Text>
       </View>
       <View style={styles.line}></View>

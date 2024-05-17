@@ -105,7 +105,7 @@ function AddNewTrainningPlan({ navigation, route }) {
   };
 
   const renderPlan = ({ item }) => {
-    const imageUri = item.image ? item.image : alternativeImage;
+    const imageUri = item.fotoPlanoTreino ? item.fotoPlanoTreino : alternativeImage;
 
     return (
       <SafeAreaView>
@@ -158,7 +158,7 @@ function AddNewTrainningPlan({ navigation, route }) {
           <FlatList
           data={planosTreino}
           renderItem={renderPlan}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.idPlanoTreino}
           ItemSeparatorComponent={() => <View style={{ height: 20 }} />} // Adjust the height as needed
           contentContainerStyle={{ paddingBottom: 20 }} // Additional padding to compensate for ItemSeparatorComponent height
           style={{ alignSelf: 'center', marginVertical: -20 }} // Adjust marginVertical to compensate for negative space introduced by ItemSeparatorComponent

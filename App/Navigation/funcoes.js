@@ -87,7 +87,26 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
   }
 };
 
+export const algoritmoRecomendacao = async (idUtilizador) => {
+  try {
+    const querySnapshot = await getDocs(query(collection(db, 'FinishedTrain'), where('idUtilizador', '==', idUtilizador)));
+    const allUserTrainsArray = querySnapshot.docs.map(doc => {
+      const trainData = doc.data(); // Access document data
+      return { trainData };
+    });
+    console.log(trainData);
 
+  } catch (error) {
+    console.error('Error fetching finished trains:', error);
+    throw error;
+  }
+};
+
+export const formatTime = seconds => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+};
 
 // const handlerImage = async () => {
 //   const uri = await pickImage();
