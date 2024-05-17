@@ -21,6 +21,7 @@ function CreateTrainingPlan({ navigation }) {
   const [exercises, setExercises] = useState([]);
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [DificultyLevel, setDificuldade] = useState('');
+  const [goal, setGoal] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [errors, setErrors] = useState({});
@@ -69,8 +70,6 @@ function CreateTrainingPlan({ navigation }) {
   const handleSubmit = async () => {
     if (isFormValid) {
     
-
-      
       try {
         let imageUrl = '';
         if (uri) {
@@ -103,9 +102,7 @@ function CreateTrainingPlan({ navigation }) {
 
         // Update Firestore with the updated training plan object
         await setDoc(doc(db, 'PlanoTreino', docRef.id), updatedTrainingPlan);
-       
-
-
+      
         alert('Training plan added successfully!');
         setTrainingPlan({
           idPlanoTreino: '',
@@ -214,6 +211,11 @@ function CreateTrainingPlan({ navigation }) {
           <Text style={styles.buttonText}>Add Exercise</Text>
         </TouchableOpacity>
 
+
+        <TouchableOpacity style={styles.addButton}  onPress={() => { setGoal(true); setModalVisible(true);}}>
+          <Text style={styles.buttonText}>Adicionar Objectivos</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
           <Text style={styles.uploadText}>Upload Image</Text>
         </TouchableOpacity>
@@ -241,6 +243,7 @@ function CreateTrainingPlan({ navigation }) {
             onChangeText={(text) => setSearchText(text)}
           />
           <FlatList
+          //fazer if aqui tambem para a data
             data={filteredExercises}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
@@ -251,8 +254,23 @@ function CreateTrainingPlan({ navigation }) {
                 ]}
                 onPress={() => handleExerciseSelect(item)}
               >
-                <Text>{item.nomeExercicio}</Text>
-                <Text>Tempo: {item.tempo}</Text>
+           
+          {!goal ? (
+          <>
+          {/* EXERCICIO */}
+            <Text>{item.nomeExercicio}</Text>
+            <Text>Tempo Meta: {item.tempo}</Text>
+          </>
+          ) : (
+            <>
+            {/* GOALS */}
+              <Text>{item.camposGoal}</Text>
+              <Text>Tempo: {item.camposGoal}</Text>
+            </>
+          )}
+
+          
+              
               </TouchableOpacity>
             )}
           />
