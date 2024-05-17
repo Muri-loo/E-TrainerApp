@@ -82,21 +82,29 @@ function CreateTrainingPlan({ navigation }) {
           exercicios: selectedExercises.map(e => e.id),
           fotoPlanoTreino: imageUrl
         };
-        const docRef = await addDoc(collection(db, 'PlanoTreino'), trainingPlanToSave);
-        
+      const docRef = await addDoc(collection(db, 'PlanoTreino'), trainingPlanToSave);
+
+
+      let tempoPlano = 0;
+
+      await Promise.all(selectedExercises.map(async (e) => {
+        tempoPlano += parseInt(e.tempo, 10); // Make sure to add to tempoPlano correctly
+        const object = { idExercicio: e.id, idPlanoTreino: docRef.id };
+        await addDoc(collection(db, 'Exercicio_PlanoTreino'), object);
+      }));
+      
+
         // Update the training plan object with the generated ID
         const updatedTrainingPlan = {
           ...trainingPlanToSave,
-          idPlanoTreino: docRef.id
+          idPlanoTreino: docRef.id,
+          tempo:tempoPlano
         };
 
         // Update Firestore with the updated training plan object
         await setDoc(doc(db, 'PlanoTreino', docRef.id), updatedTrainingPlan);
+       
 
-        selectedExercises.map(async (e) => {
-          const object = { idExercicio: e.id, idPlanoTreino: docRef.id };
-          await addDoc(collection(db, 'Exercicio_PlanoTreino'), object);
-        });
 
         alert('Training plan added successfully!');
         setTrainingPlan({
