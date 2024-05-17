@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Text, TextInput, View, StyleSheet, FlatList, Modal, Image } from 'react-native';
+import { TouchableOpacity, Text, TextInput, View, StyleSheet, FlatList, Modal, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
@@ -29,6 +29,7 @@ function CreateTrainingPlan({ navigation }) {
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
   const [uri, setUri] = useState('');
+  const [tempoPlano, setTempoPlano] = useState(0);
 
   useEffect(() => {
     fetchExercises();
@@ -37,6 +38,14 @@ function CreateTrainingPlan({ navigation }) {
   useEffect(() => {
     validateForm();
   }, [trainingPlan, selectedExercises]);
+  
+  useEffect(() => {
+    let tempoTotal = 0;
+    selectedExercises.forEach((exercise) => {
+      tempoTotal += parseInt(exercise.tempo, 10);
+    });
+    setTempoPlano(tempoTotal);
+  }, [selectedExercises]);
 
   const fetchExercises = async () => {
     const querySnapshotGoals = await getDocs(collection(db, 'Goals'));
@@ -54,20 +63,21 @@ function CreateTrainingPlan({ navigation }) {
   };
 
   const handleSelect = (item) => {
-    if (!goal) {
-      setSelectedExercises(prevSelected => {
+    if (goal) {
+      setSelectedGoals(prevSelected => {
         return prevSelected.some(e => e.id === item.id)
           ? prevSelected.filter(e => e.id !== item.id)
           : [...prevSelected, item];
       });
     } else {
-      setSelectedGoals(prevSelected => {
+      setSelectedExercises(prevSelected => {
         return prevSelected.some(e => e.id === item.id)
           ? prevSelected.filter(e => e.id !== item.id)
           : [...prevSelected, item];
       });
     }
   };
+  
   
   const handleImageUpload = async () => {
     const uri = await pickImage();
@@ -106,7 +116,7 @@ function CreateTrainingPlan({ navigation }) {
 
         await setDoc(doc(db, 'PlanoTreino', docRef.id), updatedTrainingPlan);
         
-        alert('Training plan added successfully!');
+        alert('Treino adicionado com sucesso!');
         setTrainingPlan({
           idPlanoTreino: '',
           nomePlano: '',
@@ -120,12 +130,17 @@ function CreateTrainingPlan({ navigation }) {
         setSelectedExercises([]);
         setUri('');
       } catch (error) {
-        console.error('Error adding training plan: ', error);
-        alert('An error occurred while adding the training plan.');
+        console.error('Erro ao adicionar plano treino: ', error);
+        alert('Erro ao adicionar plano de treino');
       }
     } else {
-      alert('Please fill in all required fields.');
+      alert('Preencha todos os campos obrigatórios');
     }
+  };
+
+  const handleModalVisibility = (goalFlag) => {
+    setGoal(goalFlag);
+    setModalVisible(true);
   };
 
   const validateForm = () => {
@@ -144,6 +159,10 @@ function CreateTrainingPlan({ navigation }) {
       errors.exercicios = 'Selecione pelo menos 1 exercicio';
       isValid = false;
     }
+    if (selectedGoals.length === 0) {
+      errors.goals = 'Selecione pelo menos 1 objetivo';
+      isValid = false;
+    }
     if (!DificultyLevel) {
       errors.dificuldade = 'Selecione a dificuldade';
       isValid = false;
@@ -151,8 +170,7 @@ function CreateTrainingPlan({ navigation }) {
   
     setErrors(errors);
     setIsFormValid(isValid);
-  };
-
+  }
   const filteredExercises = exercises.filter(exercise =>
     exercise.nomeExercicio.toLowerCase().includes(searchText.toLowerCase())
   );
@@ -163,73 +181,108 @@ function CreateTrainingPlan({ navigation }) {
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>Criar Plano de Treino</Text>
         <View style={styles.line}></View>
-        <Text style={styles.label}>Nome:</Text>
-        <TextInput
-          style={styles.input}
-          value={trainingPlan.nomePlano}
-          onChangeText={(value) => handleChange('nomePlano', value)}
-        />
-        {errors.nomePlano && <Text style={styles.error}>{errors.nomePlano}</Text>}
-        <Text style={styles.label}>Descrição:</Text>
-        <TextInput
-          style={styles.input}
-          value={trainingPlan.descricao}
-          onChangeText={(value) => handleChange('descricao', value)}
-        />
-        {errors.descricao && <Text style={styles.error}>{errors.descricao}</Text>}
-        <Text style={styles.label}>Dificuldade:</Text>
-        <Picker
-          selectedValue={DificultyLevel}
-          style={{ height: 50, width: 200, color: 'black' }}
-          onValueChange={(itemValue, itemIndex) => { setDificuldade(itemValue); }}
-        >
-          <Picker.Item label="Fácil" value="Fácil" />
-          <Picker.Item label="Intermédio" value="Intermédio" />
-          <Picker.Item label="Avançado" value="Avançado" />
-          <Picker.Item label="Profissional" value="Profissional" />
-        </Picker>
-  
-        {errors.dificuldade && <Text style={styles.error}>{errors.dificuldade}</Text>}
-        <Text style={styles.label}>Exercicios selecionados:</Text>
-        <FlatList
-          data={!goal ? selectedExercises : selectedGoals}
-          keyExtractor={(item) => (goal ? item.idGoal : item.idExercicio)}
-          renderItem={({ item }) => (
-            <View style={styles.selectedExerciseItem}>
-              {item.fotoExercicio ? (
-                <Image style={styles.exerciseImage} source={{ uri: item.fotoExercicio }} />
-              ) : null}
-              <View>
-                <Text style={styles.cenas}>{!goal ? item.nomeExercicio : item.goalName}</Text>
-                {!goal && (
-                  <Text style={styles.cenas}>
-                    <IconFA name={"clock"} size={15} color="white" /> {formatTime(item.tempo)}
-                  </Text>
-                )}
-              </View>
-            </View>
-          )}
-        />
-  
-        {errors.exercicios && <Text style={styles.error}>{errors.exercicios}</Text>}
-  
-        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-          <Text style={styles.buttonText}>Add Exercise</Text>
+        <View style={styles.selectedContainer}>
+          <View style={styles.selectedList}>
+            <Text style={styles.label}>Nome:</Text>
+            <TextInput
+              style={styles.input}
+              value={trainingPlan.nomePlano}
+              onChangeText={(value) => handleChange('nomePlano', value)}
+            />
+            {errors.nomePlano && <Text style={styles.error}>{errors.nomePlano}</Text>}
+          </View>
+          <View style={styles.selectedList}>
+            <Text style={styles.label}>Descrição:</Text>
+            <TextInput
+              style={styles.input}
+              value={trainingPlan.descricao}
+              onChangeText={(value) => handleChange('descricao', value)}
+            />
+            {errors.descricao && <Text style={styles.error}>{errors.descricao}</Text>}
+          </View>
+        </View>
+
+        <View style={styles.selectedContainer}>
+        <View style={styles.selectedList}>
+          <Text style={styles.label}>Dificuldade:</Text>
+            <Picker
+              selectedValue={DificultyLevel}
+              style={{ height: 50, width: 200, color: 'black' }}
+              onValueChange={(itemValue, itemIndex) => { setDificuldade(itemValue); }}
+            >
+              <Picker.Item label="Fácil" value="Fácil" />
+              <Picker.Item label="Intermédio" value="Intermédio" />
+              <Picker.Item label="Avançado" value="Avançado" />
+              <Picker.Item label="Profissional" value="Profissional" />
+            </Picker>
+            {errors.dificuldade && <Text style={styles.error}>{errors.dificuldade}</Text>}
+          </View>
+    
+          
+          <View style={styles.selectedList}>
+            <Text style={styles.label}>Tempo de treino: </Text>
+            <Text style={{fontSize : 20, marginLeft: '10%', marginTop: '7%'}}>{formatTime(tempoPlano)}</Text>
+          </View>
+        </View>
+
+        <View style={styles.selectedContainer}>
+          <View style={styles.selectedList}>
+            <Text style={styles.label}>Exercicios selecionados:</Text>
+            <FlatList
+              data={selectedExercises}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.selectedExerciseItem}>
+                  {item.fotoExercicio ? (
+                    <Image style={styles.exerciseImage} source={{ uri: item.fotoExercicio }} />
+                  ) : null}
+                  <View>
+                    <Text style={styles.cenas}>{item.nomeExercicio}</Text>
+                    <Text style={styles.cenas}>
+                      <IconFA name={"clock"} size={15} color="white" /> {formatTime(item.tempo)}
+                    </Text>
+                  </View>
+                </View>
+              )}
+            />
+            {errors.exercicios && <Text style={styles.error}>{errors.exercicios}</Text>}
+          </View>
+
+          <View style={styles.selectedList}>
+            <Text style={styles.label}>Objetivos selecionados:</Text>
+            <FlatList
+              data={selectedGoals}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.selectedExerciseItem}>
+                  <View>
+                    <Text style={styles.cenas}>{item.goalName}</Text>
+                  </View>
+                </View>
+              )}
+            />
+            {errors.goals && <Text style={styles.error}>{errors.goals}</Text>}
+          </View>
+        </View>
+
+        <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.addButton} onPress={() => handleModalVisibility(false)}>
+          <Text style={styles.buttonText}>Adicionar exercicios</Text>
         </TouchableOpacity>
-  
-  
-        <TouchableOpacity style={styles.addButton} onPress={() => { setGoal(true); setModalVisible(true); }}>
-          <Text style={styles.buttonText}>Adicionar Objectivos</Text>
-        </TouchableOpacity>
-  
-        <TouchableOpacity style={styles.uploadButton} onPress={handleImageUpload}>
-          <Text style={styles.uploadText}>Upload Image</Text>
-        </TouchableOpacity>
-        {uri ? <Image source={{ uri }} style={styles.image} /> : null}
-  
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Submit</Text>
-        </TouchableOpacity>
+
+          <TouchableOpacity style={styles.addButton} onPress={() => handleModalVisibility(true)}>
+            <Text style={styles.buttonText}>Adicionar objectivos</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.addButton} onPress={handleImageUpload}>
+            <Text style={styles.buttonText}>Adicionar Imagem</Text>
+          </TouchableOpacity>
+          {uri ? <Image source={{ uri }} style={styles.image} /> : null}
+
+          <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Criar plano de treino</Text>
+          </TouchableOpacity>
+        </View>
       </View>
       <Fundo navigation={navigation} />
   
@@ -248,23 +301,24 @@ function CreateTrainingPlan({ navigation }) {
           />
           <FlatList
             data={goal ? goals : filteredExercises}
-            keyExtractor={(item) => (goal ? item.idGoal : item.idExercicio)}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={[
                   styles.exerciseItem,
-                  selectedExercises.some((e) => e.id === item.id) && styles.selectedExercise
+                  (goal
+                    ? selectedGoals.some(e => e.id === item.id)
+                    : selectedExercises.some(e => e.id === item.id)
+                  ) && styles.selectedExercise
                 ]}
                 onPress={() => handleSelect(item)}
               >
                 {!goal ? (
-                  // Render exercise information if not in goal mode
                   <>
                     <Text>{item.nomeExercicio}</Text>
-                    <Text>Tempo Meta: {formatTime(item.tempo)}</Text>
+                    <Text>Duração: {formatTime(item.tempo)}</Text>
                   </>
                 ) : (
-                  // Render goal name if in goal mode
                   <Text>{item.goalName}</Text>
                 )}
               </TouchableOpacity>
@@ -281,7 +335,6 @@ function CreateTrainingPlan({ navigation }) {
           </TouchableOpacity>
         </View>
       </Modal>
-  
     </SafeAreaView>
   );
 }
@@ -296,6 +349,17 @@ function CreateTrainingPlan({ navigation }) {
       fontWeight: 'bold',
       marginTop: 10,
       marginLeft: 10,
+    },
+    selectedContainer: {
+      flexDirection: 'row',
+    },
+    scrollViewContent: {
+      flexGrow: 1,
+      justifyContent: 'space-between',
+    },
+    selectedList: {
+      flex: 1,
+      marginRight: 10, // Adjust spacing between lists
     },
     title: {
       alignSelf: 'center',
@@ -312,6 +376,20 @@ function CreateTrainingPlan({ navigation }) {
       paddingHorizontal: 10,
       marginTop: 5,
     },
+    scrollViewContent: {
+      flexGrow: 1,
+      justifyContent: 'space-between',
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      position: 'absolute',
+      marginBottom: '2%',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: 'white', // Adjust as needed
+    },
     button: {
       backgroundColor: '#D72E02',
       padding: 10,
@@ -322,17 +400,13 @@ function CreateTrainingPlan({ navigation }) {
     buttonText: {
       color: 'white',
       fontWeight: 'bold',
-    },
-    uploadButton: {
-      backgroundColor: '#D72E02',
-      padding: 10,
-      borderRadius: 5,
-      marginHorizontal: 10,
-      alignItems: 'center',
-      marginTop: 20,
+      alignSelf: 'center',
     },
     cenas: {
       color: 'white',
+    },
+    selecionados: {
+      flexDirection: "row",
     },
     line: {
       borderWidth: 1,
@@ -372,9 +446,10 @@ function CreateTrainingPlan({ navigation }) {
       backgroundColor: '#D72E02',
       padding: 10,
       borderRadius: 5,
-      marginHorizontal: 10,
+      marginHorizontal: 5,
       alignItems: 'center',
       marginTop: 20,
+      width: '22%'
     },
     modalView: {
       flex: 1,
