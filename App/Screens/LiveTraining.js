@@ -75,7 +75,7 @@ function LiveTraining({ navigation, route }) {
     const finishedTraining = {
       AverageSpeedPerPunch: (seconds / punches.length).toFixed(2),
       AverageStrengthPerPunchNewton: averageStrengthPerPunchNewton, // Assuming 1 kgf equals 9.81 newtons
-      DurationOfTrainning: formatTime(seconds),
+      DurationOfTrainning: seconds,
       NumberOfPunches: punches.length,
       PlanTrainId: idPlanoTreino, // Get this from your application's context or state management
       StrongestPunch: strongestPunchStrength,
@@ -126,7 +126,7 @@ function LiveTraining({ navigation, route }) {
           </Text>
         <View style={styles.line}></View>
         <Text style={styles.timer}>{formatTime(seconds)}</Text>
-        <Text style={{ fontSize: 15, alignSelf: 'center' }}>Este botão tem como{'\n'}objetivo simular um soco</Text>
+        <Text style={{ fontSize: 15, alignSelf: 'center', marginVertical:'5%'}}>Este botão tem como{'\n'}objetivo simular um soco</Text>
         <TouchableOpacity style={styles.button} onPress={handleSimularSoco}>
           <Text style={{ color: 'white' }}><IconMC name="boxing-glove" size={80} color="white" /></Text>
         </TouchableOpacity>
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#CC2C02',
     width: '100%',
     alignSelf: 'center',
-    marginBottom:'5%',
+    marginBottom:'5%'
   },
   content: {
     flex: 1,

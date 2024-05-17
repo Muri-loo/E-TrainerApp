@@ -11,16 +11,16 @@ import {Picker} from '@react-native-picker/picker';
 
 function CreateTrainingPlan({ navigation }) {
   const [trainingPlan, setTrainingPlan] = useState({
-    idPlano: '',
+    idPlanoTreino: '',
     nomePlano: '',
-    descricaoPlano: '',
-    exercicios: [],
-    fotoPlano: '',
-    dificuldade: '',
+    descricao: '',
+    exercicios: [], 
+    fotoPlanoTreino: '',
+    DificultyLevel: '',
   });
   const [exercises, setExercises] = useState([]);
   const [selectedExercises, setSelectedExercises] = useState([]);
-  const [dificuldade, setDificuldade] = useState('');
+  const [DificultyLevel, setDificuldade] = useState('');
   const [searchText, setSearchText] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [errors, setErrors] = useState({});
@@ -68,36 +68,47 @@ function CreateTrainingPlan({ navigation }) {
 
   const handleSubmit = async () => {
     if (isFormValid) {
+    
+
+      
       try {
         let imageUrl = '';
         if (uri) {
           imageUrl = await uploadFile(uri, trainingPlan, 'PlanoTreino');
         }
+
         const trainingPlanToSave = {
           ...trainingPlan,
           exercicios: selectedExercises.map(e => e.id),
-          fotoPlano: imageUrl
+          fotoPlanoTreino: imageUrl
         };
         const docRef = await addDoc(collection(db, 'PlanoTreino'), trainingPlanToSave);
-
+        
         // Update the training plan object with the generated ID
         const updatedTrainingPlan = {
           ...trainingPlanToSave,
-          idPlano: docRef.id
+          idPlanoTreino: docRef.id
         };
 
         // Update Firestore with the updated training plan object
         await setDoc(doc(db, 'PlanoTreino', docRef.id), updatedTrainingPlan);
 
+        selectedExercises.map(async (e) => {
+          const object = { idExercicio: e.id, idPlanoTreino: docRef.id };
+          await addDoc(collection(db, 'Exercicio_PlanoTreino'), object);
+        });
+
         alert('Training plan added successfully!');
         setTrainingPlan({
-          idPlano: '',
+          idPlanoTreino: '',
           nomePlano: '',
-          descricaoPlano: '',
+          descricao: '',
           exercicios: [],
-          fotoPlano: '',
-          dificuldade: '',
+          fotoPlanoTreino: '',
+          DificultyLevel: '',
         });
+
+
         setSelectedExercises([]);
         setUri('');
       } catch (error) {
@@ -117,15 +128,15 @@ function CreateTrainingPlan({ navigation }) {
       errors.nomePlano = 'Escolha um nome';
       isValid = false;
     }
-    if (!trainingPlan.descricaoPlano) {
-      errors.descricaoPlano = 'Escreva uma descrição';
+    if (!trainingPlan.descricao) {
+      errors.descricao = 'Escreva uma descrição';
       isValid = false;
     }
     if (selectedExercises.length === 0) {
       errors.exercicios = 'Selecione pelo menos 1 exercicio';
       isValid = false;
     }
-    if (!dificuldade) { // Check the difficulty state
+    if (!DificultyLevel) { // Check the difficulty state
       errors.dificuldade = 'Selecione a dificuldade'; // Correct the error field
       isValid = false;
     }
@@ -154,13 +165,13 @@ function CreateTrainingPlan({ navigation }) {
         <Text style={styles.label}>Descrição:</Text>
         <TextInput
           style={styles.input}
-          value={trainingPlan.descricaoPlano}
-          onChangeText={(value) => handleChange('descricaoPlano', value)}
+          value={trainingPlan.descricao}
+          onChangeText={(value) => handleChange('descricao', value)}
         />
-        {errors.descricaoPlano && <Text style={styles.error}>{errors.descricaoPlano}</Text>}
+        {errors.descricao && <Text style={styles.error}>{errors.descricao}</Text>}
         <Text style={styles.label}>Dificuldade:</Text>
         <Picker
-          selectedValue={dificuldade} 
+          selectedValue={DificultyLevel} 
           style={{ height: 50, width: 200, color: 'black' }}
           onValueChange={(itemValue, itemIndex) => {setDificuldade(itemValue);}}
 >
@@ -187,7 +198,6 @@ function CreateTrainingPlan({ navigation }) {
 
         </View>
 
-        
   )}
 />
         {errors.exercicios && <Text style={styles.error}>{errors.exercicios}</Text>}
