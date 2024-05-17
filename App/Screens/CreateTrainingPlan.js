@@ -106,6 +106,7 @@ function CreateTrainingPlan({ navigation }) {
         const trainingPlanToSave = {
           ...trainingPlan,
           exercicios: selectedExercises.map(e => e.id),
+          objetivos: selectedGoals.map(g => g.id),
           fotoPlanoTreino: imageUrl,
           DificultyLevel: DificultyLevel,
         };
