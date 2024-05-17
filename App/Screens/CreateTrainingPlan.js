@@ -65,9 +65,19 @@ function CreateTrainingPlan({ navigation }) {
   const handleSelect = (item) => {
     if (goal) {
       setSelectedGoals(prevSelected => {
-        return prevSelected.some(e => e.id === item.id)
+        const isAlreadySelected = prevSelected.some(e => e.id === item.id);
+        const updatedSelectedGoals = isAlreadySelected
           ? prevSelected.filter(e => e.id !== item.id)
           : [...prevSelected, item];
+        
+        // Check if there are any selected goals, if yes, remove the error
+        const hasSelectedGoals = updatedSelectedGoals.length > 0;
+        setErrors(prevErrors => ({
+          ...prevErrors,
+          goals: hasSelectedGoals ? '' : 'Selecione pelo menos 1 objetivo',
+        }));
+  
+        return updatedSelectedGoals;
       });
     } else {
       setSelectedExercises(prevSelected => {
@@ -77,6 +87,7 @@ function CreateTrainingPlan({ navigation }) {
       });
     }
   };
+  
   
   
   const handleImageUpload = async () => {
