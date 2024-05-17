@@ -79,7 +79,8 @@ function CreateTrainingPlan({ navigation }) {
         const trainingPlanToSave = {
           ...trainingPlan,
           exercicios: selectedExercises.map(e => e.id),
-          fotoPlanoTreino: imageUrl
+          fotoPlanoTreino: imageUrl,
+          DificultyLevel: DificultyLevel,
         };
       const docRef = await addDoc(collection(db, 'PlanoTreino'), trainingPlanToSave);
 
