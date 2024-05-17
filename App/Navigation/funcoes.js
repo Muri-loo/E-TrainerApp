@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject} from 'firebase/storage';
 import { db, app } from '../../Config/firebase'; // Adjust this path to your Firebase config
-import { collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, getDoc,doc as document } from 'firebase/firestore';
 
 export const pickImage = async () => {
   let result = await ImagePicker.launchImageLibraryAsync({
@@ -90,17 +90,26 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
     const querySnapshot = await getDocs(query(collection(db, 'FinishedTrain'), where('idUtilizador', '==', idUtilizador)));
-    const allUserTrainsArray = querySnapshot.docs.map(doc => {
-      const trainData = doc.data(); // Access document data
-      return { trainData };
-    });
-    console.log(trainData);
+    const querySnapshotGoals = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', idUtilizador)));
+    const userGoals = await Promise.all(querySnapshotGoals.docs.map(async (doc) => {
+      const goalSnapshot = await getDoc(document(db,'Goals',doc.data().idGoal));
+      return goalSnapshot.data(); 
+    }));
+
+    if(!querySnapshot.empty){
+
+
+    } else {
+      return null;
+    }
 
   } catch (error) {
     console.error('Error fetching finished trains:', error);
     throw error;
   }
 };
+
+
 
 export const formatTime = seconds => {
   const minutes = Math.floor(seconds / 60);

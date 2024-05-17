@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { algoritmoRecomendacao } from '../Navigation/funcoes';
 
 import { db, auth } from '../../Config/firebase';
 import { Shadow } from 'react-native-shadow-2';
@@ -19,7 +20,7 @@ import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 
 function AddNewTrainningPlan({ navigation, route }) {
-  const { data, aluno } = route.params;
+  const { data, aluno, type } = route.params;
   const [loadingData, setLoading] = useState(false);
 
 
@@ -62,6 +63,16 @@ function AddNewTrainningPlan({ navigation, route }) {
       const filteredPlansData = allPlansSnapshot.docs
         .filter((doc) => !associatedPlanIds.includes(doc.id.trim()))
         .map((doc) => doc.data());
+
+      if(type==='todos'){
+        setPlanosTreinos(filteredPlansData);
+      } else {
+        const exerciciosRecomendados = algoritmoRecomendacao(aluno.idAtleta);
+        if(!exerciciosRecomendados){
+          console.log('nunca treinou');
+        }
+
+      }
 
       setPlanosTreinos(filteredPlansData);
     } catch (error) {
