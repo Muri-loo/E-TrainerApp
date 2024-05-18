@@ -42,38 +42,41 @@ function AddNewTrainningPlan({ navigation, route }) {
     try {
       setLoading(true);
       const searchId = aluno?.idAtleta || auth.currentUser.uid; // Updated this line
-
-      
+  
       const collectionToQuery = collection(db, 'PlanoTreino_Atleta');
       const queryForTrain = query(
         collectionToQuery,
         where('idAtleta', '==', searchId),
         where('data', '==', data)
       );
-
+  
+      let exerciciosRecomendados = [];
+      if (type === 'recomendacao') {
+        exerciciosRecomendados = await algoritmoRecomendacao(aluno.idAtleta);
+        console.log(exerciciosRecomendados);
+      }
+  
       const trainningPlanSnapshot = await getDocs(queryForTrain);
-
+  
       // Extract the 'idPlanoTreino' values from 'PlanoTreino_Atleta'
       const associatedPlanIds = trainningPlanSnapshot.docs.map((doc) => doc.data().idPlanoTreino);
+  
       // Query 'PlanoTreinoRef' to get all plans
-      const allPlansQuery = query(PlanoTreinoRef);
+      const allPlansQuery = query(collection(db, 'PlanoTreino'));
       const allPlansSnapshot = await getDocs(allPlansQuery);
-
-      // Filter out plans from 'PlanoTreinoRef' that appear in 'PlanoTreino_Atleta' for the current user
-      const filteredPlansData = allPlansSnapshot.docs
+  
+      // Filter out plans from 'PlanoTreino' that appear in 'PlanoTreino_Atleta' for the current user
+      let filteredPlansData = allPlansSnapshot.docs
         .filter((doc) => !associatedPlanIds.includes(doc.id.trim()))
         .map((doc) => doc.data());
-
-      if(type==='todos'){
-        setPlanosTreinos(filteredPlansData);
-      } else {
-        const exerciciosRecomendados = algoritmoRecomendacao(aluno.idAtleta);
-        if(!exerciciosRecomendados){
-          console.log('nunca treinou');
-        }
-
+  
+      // If there are recommended exercises, further filter the plans
+      if (exerciciosRecomendados.length > 0) {
+        filteredPlansData = filteredPlansData.filter((plan) =>
+          exerciciosRecomendados.includes(plan.idPlanoTreino)
+        );
       }
-
+  
       setPlanosTreinos(filteredPlansData);
     } catch (error) {
       console.error(error);
@@ -82,6 +85,7 @@ function AddNewTrainningPlan({ navigation, route }) {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {

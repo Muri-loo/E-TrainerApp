@@ -37,7 +37,7 @@ function CreateTrainingPlan({ navigation }) {
 
   useEffect(() => {
     validateForm();
-  }, [trainingPlan, selectedExercises]);
+  }, [trainingPlan, selectedExercises,selectedGoals]);
   
   useEffect(() => {
     let tempoTotal = 0;
@@ -179,7 +179,7 @@ function CreateTrainingPlan({ navigation }) {
       errors.dificuldade = 'Selecione a dificuldade';
       isValid = false;
     }
-  
+   
     setErrors(errors);
     setIsFormValid(isValid);
   }

@@ -87,27 +87,43 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
   }
 };
 
+
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
-    const querySnapshot = await getDocs(query(collection(db, 'FinishedTrain'), where('idUtilizador', '==', idUtilizador)));
     const querySnapshotGoals = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', idUtilizador)));
-    const userGoals = await Promise.all(querySnapshotGoals.docs.map(async (doc) => {
-      const goalSnapshot = await getDoc(document(db,'Goals',doc.data().idGoal));
-      return goalSnapshot.data(); 
-    }));
 
-    if(!querySnapshot.empty){
-
-
-    } else {
+    if (querySnapshotGoals.empty) {
       return null;
     }
+
+    // Use a Set to avoid duplicate IDs
+    const uniquePlanoTreinoIds = new Set();
+
+    await Promise.all(
+      querySnapshotGoals.docs.map(async (doc) => {
+          const recomendedPlanningTrainsSnapshot = await getDocs(
+          query(collection(db, 'PlanoTreino'), where('objetivos', 'array-contains', doc.data().idGoal))
+        );
+        
+        // Extract document data from the query snapshot
+        recomendedPlanningTrainsSnapshot.docs.forEach((trainDoc) => {
+          uniquePlanoTreinoIds.add(trainDoc.data().idPlanoTreino);
+        });
+      })
+    );
+
+    // Convert the Set to an array if you need to return an array
+    const uniquePlanoTreinoIdsArray = Array.from(uniquePlanoTreinoIds);
+
+    // Log the unique IDs to check the data
+    return uniquePlanoTreinoIdsArray;
 
   } catch (error) {
     console.error('Error fetching finished trains:', error);
     throw error;
   }
 };
+
 
 
 

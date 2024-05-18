@@ -128,7 +128,7 @@ function DisplayTraining({ navigation, route }) {
     </View>
     
     <View style={styles.addButtonColumn}>
-      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddNewTrainningPlan', { data: data, aluno: aluno, type: 'recomendados' })}>
+      <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('AddNewTrainningPlan', { data: data, aluno: aluno, type: 'recomendacao' })}>
       <IconFA style={styles.addButtonIcon} name={"lightbulb"} size={25} color="white" />
       <Text style={styles.addButtonText}>Treinos Recomendados</Text>
     </TouchableOpacity>
