@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Text, TextInput, View, StyleSheet, FlatList, Modal, Image, ScrollView } from 'react-native';
+import { TouchableOpacity, Text, TextInput, View, StyleSheet, FlatList, Modal, Image, ScrollView, Alert} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
@@ -98,16 +98,14 @@ function CreateTrainingPlan({ navigation }) {
   const handleSubmit = async () => {
     if (isFormValid) {
       try {
-        let imageUrl = '';
-        if (uri) {
-          imageUrl = await uploadFile(uri, trainingPlan, 'PlanoTreino');
-        }
-
+      
+     
+    
         const trainingPlanToSave = {
           ...trainingPlan,
           exercicios: selectedExercises.map(e => e.id),
           objetivos: selectedGoals.map(g => g.id),
-          fotoPlanoTreino: imageUrl,
+          fotoPlanoTreino: '',
           DificultyLevel: DificultyLevel,
         };
         
@@ -128,6 +126,15 @@ function CreateTrainingPlan({ navigation }) {
 
         await setDoc(doc(db, 'PlanoTreino', docRef.id), updatedTrainingPlan);
         
+        if (uri) {
+          console.log(uri);
+          try {
+            await uploadFile(uri, updatedTrainingPlan, 'PlanoTreino');
+          } catch (error) {
+              Alert.alert('Foto', error.message);
+          }
+        }
+
         alert('Treino adicionado com sucesso!');
         setTrainingPlan({
           idPlanoTreino: '',
@@ -245,9 +252,9 @@ function CreateTrainingPlan({ navigation }) {
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.selectedExerciseItem}>
-                  {item.fotoExercicio ? (
+                  {/* {item.fotoExercicio ? (
                     <Image style={styles.exerciseImage} source={{ uri: item.fotoExercicio }} />
-                  ) : null}
+                  ) : null} */}
                   <View>
                     <Text style={styles.cenas}>{item.nomeExercicio}</Text>
                     <Text style={styles.cenas}>
@@ -289,7 +296,7 @@ function CreateTrainingPlan({ navigation }) {
           <TouchableOpacity style={styles.addButton} onPress={handleImageUpload}>
             <Text style={styles.buttonText}>Adicionar Imagem</Text>
           </TouchableOpacity>
-          {uri ? <Image source={{ uri }} style={styles.image} /> : null}
+          {/* {uri ? <Image source={{ uri }} style={styles.image} /> : null} */}
 
           <TouchableOpacity style={styles.addButton} onPress={handleSubmit}>
             <Text style={styles.buttonText}>Criar plano de treino</Text>

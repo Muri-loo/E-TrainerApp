@@ -8,10 +8,9 @@ import {
   FlatList,
   StyleSheet,
 } from 'react-native';
-import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { algoritmoRecomendacao } from '../Navigation/funcoes';
-
 import { db, auth } from '../../Config/firebase';
 import { Shadow } from 'react-native-shadow-2';
 import { SearchBar } from 'react-native-elements';
@@ -22,97 +21,74 @@ import Fundo from '../Navigation/fundo';
 function AddNewTrainningPlan({ navigation, route }) {
   const { data, aluno, type } = route.params;
   const [loadingData, setLoading] = useState(false);
-
-
   const [planosTreino, setPlanosTreinos] = useState([]);
   const [error, setError] = useState(null);
-
   const [pesquisa, setSearch] = useState('');
-  const PlanoTreinoRef = collection(db, 'PlanoTreino');
-  const alternativeImage =
-    'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV'; // URL to your default image
-
-  const handleSearch = (text) => {
-    setSearch(text);
-  };
-
-
-
-  const fetchTrainningPlans = async () => {
-    try {
-      setLoading(true);
-      const searchId = aluno?.idAtleta || auth.currentUser.uid; // Updated this line
-  
-      const collectionToQuery = collection(db, 'PlanoTreino_Atleta');
-      const queryForTrain = query(
-        collectionToQuery,
-        where('idAtleta', '==', searchId),
-        where('data', '==', data)
-      );
-  
-      let exerciciosRecomendados = [];
-      if (type === 'recomendacao') {
-        exerciciosRecomendados = await algoritmoRecomendacao(aluno.idAtleta);
-        console.log(exerciciosRecomendados);
-      }
-  
-      const trainningPlanSnapshot = await getDocs(queryForTrain);
-  
-      // Extract the 'idPlanoTreino' values from 'PlanoTreino_Atleta'
-      const associatedPlanIds = trainningPlanSnapshot.docs.map((doc) => doc.data().idPlanoTreino);
-  
-      // Query 'PlanoTreinoRef' to get all plans
-      const allPlansQuery = query(collection(db, 'PlanoTreino'));
-      const allPlansSnapshot = await getDocs(allPlansQuery);
-  
-      // Filter out plans from 'PlanoTreino' that appear in 'PlanoTreino_Atleta' for the current user
-      let filteredPlansData = allPlansSnapshot.docs
-        .filter((doc) => !associatedPlanIds.includes(doc.id.trim()))
-        .map((doc) => doc.data());
-  
-      // If there are recommended exercises, further filter the plans
-      if (exerciciosRecomendados.length > 0) {
-        filteredPlansData = filteredPlansData.filter((plan) =>
-          exerciciosRecomendados.includes(plan.idPlanoTreino)
-        );
-      }
-  
-      setPlanosTreinos(filteredPlansData);
-    } catch (error) {
-      console.error(error);
-      setError(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
+  const alternativeImage = 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV'; // URL to your default image
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      fetchTrainningPlans();
-    });
-    return unsubscribe;
-  }, [navigation]);
+    const fetchTrainningPlans = async () => {
+      try {
+        setLoading(true);
+        const searchId = aluno?.idAtleta || auth.currentUser.uid;
+        const collectionToQuery = collection(db, 'PlanoTreino_Atleta');
+        const queryForTrain = query(
+          collectionToQuery,
+          where('idAtleta', '==', searchId),
+          where('data', '==', data)
+        );
+  
+        let exerciciosRecomendados = [];
+        if (type === 'recomendacao') {
+          exerciciosRecomendados = await algoritmoRecomendacao(aluno.idAtleta);
+        }
+  
+        const trainningPlanSnapshot = await getDocs(queryForTrain);
+  
+        const associatedPlanIds = trainningPlanSnapshot.docs.map((doc) => doc.data().idPlanoTreino);
+  
+        const allPlansQuery = query(collection(db, 'PlanoTreino'));
+        const allPlansSnapshot = await getDocs(allPlansQuery);
+  
+        let filteredPlansData = allPlansSnapshot.docs
+          .filter((doc) => !associatedPlanIds.includes(doc.id.trim()))
+          .map((doc) => doc.data());
+  
+        if (exerciciosRecomendados.length > 0) {
+          filteredPlansData = filteredPlansData.filter((plan) =>
+            exerciciosRecomendados.includes(plan.idPlanoTreino)
+          );
+        }
+  
+        // Filter the plans based on the search term
+        filteredPlansData = filteredPlansData.filter((plan) =>
+          plan.nomePlano.toLowerCase().includes(pesquisa.toLowerCase())
+        );
+  
+        setPlanosTreinos(filteredPlansData);
+      } catch (error) {
+        console.error(error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchTrainningPlans();
+  }, [data, aluno, type, pesquisa]);
 
-  const handleButtonPress = async (selectedPlan) => {
+  const handleButtonPress = async (selectedTrainingPlan) => {
     try {
       setLoading(true);
-      const userId = aluno?.idAtleta || auth.currentUser.uid; // Updated this line
-
-      const selectedDate = data;
-      console.log(selectedPlan.idPlanoTreino, userId, selectedDate);
-      // Create a new document in 'PlanoTreino_Atleta'
-      const newPlanDocRef = await addDoc(collection(db, 'PlanoTreino_Atleta'), {
-        data: selectedDate,
-        idAtleta: userId,
-        idPlanoTreino: selectedPlan.idPlanoTreino,
-      });
-
-      console.log('Document added with ID: ', newPlanDocRef.id);
-
-      navigation.navigate('DisplayTraining', {data,aluno});
+      // Add additional attributes to selectedTrainingPlan
+      const updatedTrainingPlan = {
+        ...selectedTrainingPlan,
+        data: data,
+        aluno: aluno
+      };
+      navigation.navigate('TrainingPlanDetails', updatedTrainingPlan);
     } catch (error) {
-      console.error('Error adding plan to PlanoTreino_Atleta:', error);
+      console.error('Error navigating to TrainingPlanDetails:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -141,28 +117,27 @@ function AddNewTrainningPlan({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
       <Navbarlight></Navbarlight>
-        <View style={styles.contentWrapper}>
-        
+      <View style={styles.contentWrapper}>
         <Text style={{ color: 'black', fontSize: 15, fontWeight: 600, margin: 10 }}>
           ADICIONE TREINO PARA ESTE DIA: {data}
         </Text>
-
         <SearchBar
-          placeholder="Pesquisa o treino a tua medida"
+          placeholder="O que procura?"
           containerStyle={{
             borderBottomColor: 'transparent',
             borderTopColor: 'transparent',
             backgroundColor: 'transparent',
+            width:'90%',
+            alignSelf:'center',
           }}
           inputContainerStyle={{ backgroundColor: 'transparent', width: '80%' }}
           value={pesquisa}
-          onChangeText={handleSearch}
+          onChangeText={setSearch}
           inputStyle={{
             color: 'black',
             textAlign: 'center',
           }}
         />
-
         {loadingData ? (
           // Loading indicator while data is being fetched
           <ActivityIndicator size="large" color="#0000ff" />
@@ -171,14 +146,13 @@ function AddNewTrainningPlan({ navigation, route }) {
           <Text>Error: {error}</Text>
         ) : (
           <FlatList
-          data={planosTreino}
-          renderItem={renderPlan}
-          keyExtractor={(item) => item.idPlanoTreino}
-          ItemSeparatorComponent={() => <View style={{ height: 20 }} />} // Adjust the height as needed
-          contentContainerStyle={{ paddingBottom: 20 }} // Additional padding to compensate for ItemSeparatorComponent height
-          style={{ alignSelf: 'center', marginVertical: -20 }} // Adjust marginVertical to compensate for negative space introduced by ItemSeparatorComponent
-        />
-
+            data={planosTreino}
+            renderItem={renderPlan}
+            keyExtractor={(item) => item.idPlanoTreino}
+            ItemSeparatorComponent={() => <View style={{ height: 20 }} />} // Adjust the height as needed
+            contentContainerStyle={{ paddingBottom: 20 }} // Additional padding to compensate for ItemSeparatorComponent height
+            style={{ alignSelf: 'center', marginVertical: -20 }} // Adjust marginVertical to compensate for negative space introduced by ItemSeparatorComponent
+          />
         )}
       </View>
       <Fundo></Fundo>
@@ -190,30 +164,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'flex-start',
-    backgroundColor:'white',
-
+    backgroundColor: 'white',
   },
   contentWrapper: {
     flex: 1,
     justifyContent: 'flex-start',
-  },
-  titleText: {
-    color: '#000',
-    fontSize: 20,
-    marginTop: 20,
-    padding: 10,
-  },
-  noExercisesText: {
-    color: '#000',
-    fontSize: 18,
-    marginTop: 20,
-    textAlign: 'center',
-  },
-  scrollViewStyle: {
-    flex: 1,
-  },
-  shadowContainer: {
-    alignItems: 'center',
   },
   buttonStyle: {
     height: 120,
@@ -235,16 +190,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
   },
-  button: {
-    borderRadius: 20,
-    width: '80%',
-    backgroundColor: '#D72E02',
-    padding: 10,
-    margin: 20,
-    alignItems: 'center',
-    alignSelf: 'center',
-  },
-
 });
 
 export default AddNewTrainningPlan;

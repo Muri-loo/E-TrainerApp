@@ -6,7 +6,7 @@ import Fundo from '../Navigation/fundo';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
-
+import { formatTime } from '../Navigation/funcoes';
 function Exercises({ navigation,route }) {
 
 
@@ -45,7 +45,7 @@ useEffect(() => {
       
                       <View>
                         <Text style={styles.nomeExercicio}>{item.nomeExercicio}</Text> 
-                        <Text style={styles.nomeExercicio}><IconFA name={"clock"} size={15} color="white" /> {item.tempo} sec</Text>  
+                        <Text style={styles.nomeExercicio}><IconFA name={"clock"} size={15} color="white" /> {formatTime(item.tempo)} min</Text>  
                       </View>
       
                     </View>

@@ -60,11 +60,13 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
     const config = typeConfig[tipo];
     const storageReference = storageRef(storage, `${config.storagePath}${filename}`);
 
-    const QueryResult = await getDocs(query(collection(db, config.collectionName), where(config.docField, '==', objeto[config.docField])));
+    const QueryResult = await getDoc(document(db, config.collectionName, objeto[config.docField]));
+    console.log(QueryResult.data());
+    const oldPhotoURL = QueryResult.data()[config.photoField]; 
+    
+    const docRef = QueryResult.ref;
 
-    const docRef = QueryResult.docs[0].ref;
-    const oldPhotoURL = QueryResult.docs[0].data()[config.photoField]; 
-
+  
     if (oldPhotoURL) {
       const oldPhotoRef = storageRef(storage, oldPhotoURL);
       await deleteObject(oldPhotoRef).catch((error) => {
@@ -82,7 +84,7 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
 
     return downloadURL;
   } catch (error) {
-    console.error(error);
+    console.error("upload",error);
     throw error;
   }
 };

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { TouchableOpacity, Text, TextInput, View, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, TextInput, View, StyleSheet,Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import { pickImage, uploadFile, formatTime } from '../Navigation/funcoes';
-import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, setDoc, doc,getDoc } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
 
 function CreateExercise({ navigation,route }) {
@@ -39,13 +39,6 @@ function CreateExercise({ navigation,route }) {
   const handleSubmit = async () => {
     if (isFormValid) {
       try {
-        if (uri) {
-            try {
-              await uploadFile(uri, exercise, 'Exercicio');
-            } catch (error) {
-                Alert.alert('Foto', error.message);
-            }
-          }
         const docRef = await addDoc(collection(db, 'Exercicio'), exercise);
         
         // Update the exercise object with the generated ID
@@ -56,6 +49,14 @@ function CreateExercise({ navigation,route }) {
         
         // Update Firestore with the updated exercise object
         await setDoc(doc(db, 'Exercicio', docRef.id), updatedExercise);
+
+        if (uri) {
+          try {
+            await uploadFile(uri, updatedExercise, 'Exercicio');
+          } catch (error) {
+              Alert.alert('Foto', error.message);
+          }
+        }
         
         alert('Exercise added successfully!');
         
