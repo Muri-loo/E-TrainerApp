@@ -92,36 +92,33 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
 
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
-    const querySnapshotGoals = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', idUtilizador)));
+    // Fetch user's goals
+    const goalsSnapshot = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', idUtilizador)));
 
-    if (querySnapshotGoals.empty) {
-      return null;
+    if (goalsSnapshot.empty) {
+      return null; // No goals found for the user
     }
 
-    // Use a Set to avoid duplicate IDs
+    // Extract goal IDs
+    const goalIds = goalsSnapshot.docs.map(doc => doc.data().idGoal);
+
+    // Use a Set to avoid duplicate training plan IDs
     const uniquePlanoTreinoIds = new Set();
 
-    await Promise.all(
-      querySnapshotGoals.docs.map(async (doc) => {
-          const recomendedPlanningTrainsSnapshot = await getDocs(
-          query(collection(db, 'PlanoTreino'), where('objetivos', 'array-contains', doc.data().idGoal))
-        );
-        
-        // Extract document data from the query snapshot
-        recomendedPlanningTrainsSnapshot.docs.forEach((trainDoc) => {
-          uniquePlanoTreinoIds.add(trainDoc.data().idPlanoTreino);
-        });
-      })
-    );
+    // Fetch training plans that match any of the user's goals
+    const trainingPlansSnapshot = await getDocs(query(collection(db, 'PlanoTreino'), where('objetivos', 'array-contains-any', goalIds)));
 
-    // Convert the Set to an array if you need to return an array
+    trainingPlansSnapshot.docs.forEach(doc => {
+      uniquePlanoTreinoIds.add(doc.data().idPlanoTreino);
+    });
+
+    // Convert the Set to an array
     const uniquePlanoTreinoIdsArray = Array.from(uniquePlanoTreinoIds);
 
-    // Log the unique IDs to check the data
     return uniquePlanoTreinoIdsArray;
 
   } catch (error) {
-    console.error('Error fetching finished trains:', error);
+    console.error('Error fetching recommended training plans:', error);
     throw error;
   }
 };
