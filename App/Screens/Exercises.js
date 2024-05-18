@@ -45,7 +45,7 @@ useEffect(() => {
       
                       <View>
                         <Text style={styles.nomeExercicio}>{item.nomeExercicio}</Text> 
-                        <Text style={styles.nomeExercicio}><IconFA name={"clock"} size={15} color="white" /> {formatTime(item.tempo)} min</Text>  
+                        <Text style={styles.time}><IconFA name={"clock"} size={15} color="white" /> {formatTime(item.tempo)} min</Text>  
                       </View>
       
                     </View>
@@ -119,7 +119,12 @@ const styles = StyleSheet.create({
         color:'white',
         marginTop:'10%',
         marginLeft:'10%',
+        marginBottom: '2%',
     
+      },
+      time:{
+        color:'white',
+        marginLeft:'10%',
       },
 });
 

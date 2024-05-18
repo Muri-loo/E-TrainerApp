@@ -58,7 +58,7 @@ function CreateExercise({ navigation,route }) {
           }
         }
         
-        alert('Exercise added successfully!');
+        alert('Exercicio criado com sucesso!');
         
         // Clear form fields after submission
         setExercise({
@@ -69,11 +69,11 @@ function CreateExercise({ navigation,route }) {
           tempo: '',
         });
       } catch (error) {
-        console.error('Error adding exercise: ', error);
-        alert('An error occurred while adding the exercise.');
+        console.error('Erro ao adicionar exericio: ', error);
+        alert('Ocorreu um erro ao adicionar exericio. ');
       }
     } else {
-      alert('Please fill in all required fields.');
+      alert('Preencha todos os campos obrigatórios.');
     }
   };
   
@@ -109,21 +109,21 @@ function CreateExercise({ navigation,route }) {
           <>
             <Text style={styles.title}>Criar exercicio</Text>
             <View style={styles.line}></View>
-            <Text style={styles.label}>Exercise Name:</Text>
+            <Text style={styles.label}>Nome:</Text>
             <TextInput
               style={styles.input}
               value={exercise.nomeExercicio}
               onChangeText={(value) => handleChange('nomeExercicio', value)}
             />
             {errors.nomeExercicio && <Text style={styles.error}>{errors.nomeExercicio}</Text>}
-            <Text style={styles.label}>Description:</Text>
+            <Text style={styles.label}>Descrição:</Text>
             <TextInput
               style={styles.input}
               value={exercise.descricao}
               onChangeText={(value) => handleChange('descricao', value)}
             />
             {errors.descricao && <Text style={styles.error}>{errors.descricao}</Text>}
-            <Text style={styles.label}>Duration:</Text>
+            <Text style={styles.label}>Duração:</Text>
             <TextInput
               style={styles.input}
               value={exercise.tempo}
@@ -137,7 +137,7 @@ function CreateExercise({ navigation,route }) {
             {errors.fotoExercicio && <Text style={styles.error}>{errors.fotoExercicio}</Text>}
   
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.buttonText}>Submit</Text>
+              <Text style={styles.buttonText}>Criar exercicio</Text>
             </TouchableOpacity>
           </>
         ) : (

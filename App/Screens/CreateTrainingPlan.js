@@ -314,7 +314,7 @@ function CreateTrainingPlan({ navigation }) {
         <View style={styles.modalView}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search exercises..."
+            placeholder="Procurar exercicios..."
             value={searchText}
             onChangeText={(text) => setSearchText(text)}
           />
