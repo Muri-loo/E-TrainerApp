@@ -19,6 +19,12 @@ export const pickImage = async () => {
   return null;
 };
 
+const AGEGROUPS = {
+  Teen: { lowerBound: 13, upperBound: 19 },
+  Adult: { lowerBound: 20, upperBound: 59 },
+  Senior: { lowerBound: 60, upperBound: Infinity } // Assuming senior age starts from 60 and onwards
+};
+
 
 const typeConfig = {
   Atleta: {
@@ -92,8 +98,13 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
 
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
+
+    const finishedTrains = await getDocs(query(collection(db, 'FinishedTrain'),where("idUtilizador","==",idUtilizador)));
+
     // Fetch user's goals
     const goalsSnapshot = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', idUtilizador)));
+
+
 
     if (goalsSnapshot.empty) {
       return null; // No goals found for the user

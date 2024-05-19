@@ -2,35 +2,64 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
-import { View, Text, StyleSheet, TouchableOpacity,Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity,Image, Alert } from 'react-native';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db, auth } from '../../Config/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, getDoc,doc } from 'firebase/firestore';
 
 
 function LiveTraining({ navigation, route }) {
   const {lista,idPlanoTreino} = route.params;
   const [seconds, setSeconds] = useState(0);
   const [isTrainingFinished, setIsTrainingFinished] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); 
   const [exercises, setExerciseList] = useState([]);
   const [exercise, setCurrentExercise] = useState(lista[0]);
   const [punches, setPunches] = useState([]);
   let exerciseNumber = 0;
+  const [age, setAge] = useState(0);
 
+  
   useEffect(() => {
-    setExerciseList(lista);
+    const fetchData = async () => {
+      try {
+        const atletaDoc = await getDoc(doc(collection(db,'Atleta'), auth.currentUser.uid));
+        const atletaData = atletaDoc.data();
+        
+        // Parse date of birth and calculate age
+        const parts = atletaData.dataNascimento.split('/');
+        const dataNascimento = new Date(parts[2], parts[1] - 1, parts[0]); // Year, month (0-indexed), day
+        
+        // Calculate age
+        const today = new Date();
+        let age = today.getFullYear() - dataNascimento.getFullYear();
+        const monthDiff = today.getMonth() - dataNascimento.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dataNascimento.getDate())) {
+          age--;
+        }
+        
+        // Set age in the state
+        setAge(age);
+        
+        setExerciseList(lista);
+      } catch (error) {
+        console.error('Error fetching athlete data:', error);
+      }
+    };
+    
+    fetchData();
+    
     const intervalId = setInterval(() => {
       if (!isPaused && !isTrainingFinished) {
         setSeconds(prevSeconds => prevSeconds + 1);
       }
     }, 1000);
-
+    
+    // Cleanup function to clear interval when component unmounts or re-renders
     return () => clearInterval(intervalId);
-  }, [isPaused, isTrainingFinished]);
-
-
+  }, []); // Empty dependency array to run only once on mount
+  
 
   const formatTime = seconds => {
     const minutes = Math.floor(seconds / 60);
@@ -60,36 +89,54 @@ function LiveTraining({ navigation, route }) {
 
 
   const handleFinishTraining = async () => {
-    setIsTrainingFinished(true);
+    // Prompt user for confirmation
+    Alert.alert(
+      "Confirm Finish Training",
+      "Are you sure you want to finish training?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "Yes", onPress: async () => {
+          setIsTrainingFinished(true);
   
-    // Calculate average speed and strength per punch
-    console.log(punches);
-    const totalPunchStrength = punches.reduce((acc, punch) => acc + punch.strength, 0);
-    const averageStrengthPerPunchNewton = (totalPunchStrength / punches.length).toFixed(2);
+          // Calculate average speed and strength per punch
+          console.log(punches);
+          const totalPunchStrength = punches.reduce((acc, punch) => acc + punch.strength, 0);
+          const averageStrengthPerPunchNewton = (totalPunchStrength / punches.length).toFixed(2);
   
-    // Find the strongest punch
-    const strongestPunchStrength = punches.reduce((max, punch) => (punch.strength > max ? punch.strength : max), punches[0].strength);
-    const id = auth.currentUser.uid;
+          // Find the strongest punch
+          const strongestPunchStrength = punches.reduce((max, punch) => (punch.strength > max ? punch.strength : max), punches[0].strength);
+          const id = auth.currentUser.uid;
   
-    // Populate FinishedTraining object
-    const finishedTraining = {
-      AverageSpeedPerPunch: (seconds / punches.length).toFixed(2),
-      AverageStrengthPerPunchNewton: averageStrengthPerPunchNewton, // Assuming 1 kgf equals 9.81 newtons
-      DurationOfTrainning: seconds,
-      NumberOfPunches: punches.length,
-      PlanTrainId: idPlanoTreino, // Get this from your application's context or state management
-      StrongestPunch: strongestPunchStrength,
-      idUtilizador: id,
-    };
+          // Populate FinishedTraining object
+          const finishedTraining = {
+            AverageSpeedPerPunch: (seconds / punches.length).toFixed(2),
+            AverageStrengthPerPunchNewton: averageStrengthPerPunchNewton, // Assuming 1 kgf equals 9.81 newtons
+            DurationOfTrainning: seconds,
+            NumberOfPunches: punches.length,
+            PlanTrainId: idPlanoTreino, // Get this from your application's context or state management
+            StrongestPunch: strongestPunchStrength,
+            punches:punches,
+            idade:age,
+            idUtilizador: id,
+          };
   
-    try {
-      await addDoc(collection(db, 'FinishedTrain'), finishedTraining);
-      console.log('Finished Training:', finishedTraining);
-    } catch (error) {
-      console.error('Error adding finished training: ', error);
-      alert('An error occurred while adding the finished training.');
-    }
+          try {
+            await addDoc(collection(db, 'FinishedTrain'), finishedTraining);
+          } catch (error) {
+            console.error('Error adding finished training: ', error);
+            alert('An error occurred while adding the finished training.');
+          } finally {
+            navigation.navigate('HomeCalendar');
+          }
+        } }
+      ]
+    );
   };
+  
   
   
   

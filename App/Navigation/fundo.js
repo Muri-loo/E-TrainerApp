@@ -138,7 +138,7 @@ function Fundo() {
             <IconFA name={"home"} size={25} color="black" />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => handlePress('TrainingPlans')}>
+          <TouchableOpacity onPress={!mister ? () => handlePress("CheckUserProgress") : () => handlePress('TrainingPlans')}>
             <IconMC name={mister ? "strategy" : "sine-wave"} size={25} color="black" />
           </TouchableOpacity>
           
