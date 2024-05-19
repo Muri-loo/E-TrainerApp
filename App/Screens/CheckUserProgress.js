@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, TouchableOpacity,Image, Alert,ScrollView } from
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconMI from 'react-native-vector-icons/MaterialIcons';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
-
+import { formatTime } from '../Navigation/funcoes';
 
 import { auth, db } from '../../Config/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -83,7 +83,7 @@ function CheckUserProgress({ navigation, route }) {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
   
 <View style={styles.content}>
-<Text style={styles.title}>Estatísticas de Treino</Text>
+<Text style={styles.title}>Estatísticas do Utilizador</Text>
 <Text style={styles.statLeft}>
   <IconMC name="speedometer" size={18} color="#D72E02" /> Velocidade Média por Soco: <Text style={{ color: '#D72E02' }}>{averageSpeedPerPunch}</Text>
 </Text>
@@ -91,19 +91,21 @@ function CheckUserProgress({ navigation, route }) {
   <IconMC name="dumbbell" size={18} color="#D72E02" /> Força Média por Soco (Newton): <Text style={{ color: '#D72E02' }}>{averageStrengthPerPunchNewton}</Text>
 </Text>
 <Text style={styles.statLeft}>
-  <IconMI name="timer" size={18} color="#D72E02" /> Duração Total dos Treinos: <Text style={{ color: '#D72E02' }}>{totalDuration}</Text>
+  <IconMC name="clipboard-check" size={18} color="#D72E02" /> Total de Treinos Concluídos: <Text style={{ color: '#D72E02' }}>{totalTrainings}</Text>
 </Text>
+<Text style={styles.statLeft}>
+  <IconMI name="timer" size={18} color="#D72E02" /> Duração Total dos Treinos: <Text style={{ color: '#D72E02' }}>{formatTime(totalDuration) } min</Text>
+</Text> 
+
+<Text style={styles.statLeft}>
+  <IconMI name="timer" size={18} color="#D72E02" /> Duração Média por Treino: <Text style={{ color: '#D72E02' }}>{formatTime(averageDurationPerTraining)} min</Text>
+</Text>
+
 <Text style={styles.statLeft}>
   <IconFA name="fist-raised" size={18} color="#D72E02" /> Número Total de Socos: <Text style={{ color: '#D72E02' }}>{totalPunches}</Text>
 </Text>
 <Text style={styles.statLeft}>
-  <IconMI name="timer" size={18} color="#D72E02" /> Duração Média por Treino: <Text style={{ color: '#D72E02' }}>{averageDurationPerTraining}</Text>
-</Text>
-<Text style={styles.statLeft}>
   <IconFA name="fist-raised" size={18} color="#D72E02" /> Número Médio de Socos por Treino: <Text style={{ color: '#D72E02' }}>{averagePunchesPerTraining}</Text>
-</Text>
-<Text style={styles.statLeft}>
-  <IconMC name="clipboard-check" size={18} color="#D72E02" /> Total de Treinos Concluídos: <Text style={{ color: '#D72E02' }}>{totalTrainings}</Text>
 </Text>
 <Text style={styles.statLeft}>
   <IconFA name="fist-raised" size={18} color="#D72E02" /> Soco Mais Forte: <Text style={{ color: '#D72E02' }}>{strongestPunch}</Text>
