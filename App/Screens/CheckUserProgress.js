@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
-import { View, Text, StyleSheet, TouchableOpacity,Image, Alert,ScrollView,Dimensions  } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView, Dimensions } from 'react-native';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconMI from 'react-native-vector-icons/MaterialIcons';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
@@ -12,11 +12,8 @@ import { auth, db } from '../../Config/firebase';
 import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 
 function CheckUserProgress({ navigation, route }) {
-  const xData = [1, 2, 3, 4, 5,6,7,8,9,10];
+  const xData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const [yData, setYData] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
-
-  const [punches, setPunches] = useState([]);
-  const [allTrainsData, setTrains] = useState([]);
   const [averageSpeedPerPunch, setAverageSpeedPerPunch] = useState(0);
   const [averageStrengthPerPunchNewton, setAverageStrengthPerPunchNewton] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
@@ -40,8 +37,7 @@ function CheckUserProgress({ navigation, route }) {
       if (!querySnapshot.empty) {
         const userTrainsData = querySnapshot.docs.map(doc => doc.data());
         const allPunches = userTrainsData.flatMap(doc => doc.punches); // Collect all punches
-        setPunches(allPunches);
-        setTrains(userTrainsData);
+
 
         // Calculate averages
         let totalSpeed = 0;
@@ -51,18 +47,22 @@ function CheckUserProgress({ navigation, route }) {
         let totalTrainings = userTrainsData.length;
         let totalPunchStrengths = allPunches.map(punch => punch.strength);
 
-        userTrainsData.forEach(train => {
-          totalSpeed += train.AverageSpeedPerPunch;
-          totalStrength += train.AverageStrengthPerPunchNewton;
-          totalDuration += train.DurationOfTrainning;
-          totalPunches += train.NumberOfPunches;
-        });
-        
+      userTrainsData.forEach(train => {
+        console.log(train.AverageStrengthPerPunchNewton);
+        totalSpeed += Number(train.AverageSpeedPerPunch);
+        totalStrength += Number(train.AverageStrengthPerPunchNewton); // Convert to number before adding
+        totalDuration += Number(train.DurationOfTrainning); 
+        totalPunches += Number(train.NumberOfPunches);
+      });
+
+
+
+
         setAverageSpeedPerPunch((totalSpeed / totalTrainings).toFixed(2));
         setAverageStrengthPerPunchNewton((totalStrength / totalTrainings).toFixed(2));
         setTotalDuration(totalDuration);
         setTotalPunches(totalPunches);
-        setAverageDurationPerTraining((totalDuration / totalTrainings).toFixed(2));
+        setAverageDurationPerTraining((totalDuration / totalTrainings).toFixed(0));
         setAveragePunchesPerTraining((totalPunches / totalTrainings).toFixed(2));
         setTotalTrainings(totalTrainings);
         setStrongestPunch(Math.max(...totalPunchStrengths));
@@ -77,7 +77,7 @@ function CheckUserProgress({ navigation, route }) {
   };
 
   useEffect(() => {
-    const getUserData = async () => {
+    const getGraph = async () => {
       let searchID = auth.currentUser.uid;
       if (route.params && route.params.idUtilizador) {
         searchID = route.params.idUtilizador;
@@ -93,37 +93,33 @@ function CheckUserProgress({ navigation, route }) {
         const querySnapshot = await getDocs(userTrainsQuery);
         // Your existing code to handle the query snapshot
 
-      
-
         if (!querySnapshot.empty) {
           const userTrainsData = querySnapshot.docs.map(doc => doc.data());
-          const strongestPunch = Math.max(...userTrainsData.map(train => Math.max(...train.punches.map(punch => punch.strength))));
-        
+          
           // Fill yData with 0s
           const yDataArray = Array(10).fill(0);
-        
+
           // Update yData with the strongest punch values from available trains
           for (let i = 0; i < Math.min(userTrainsData.length, 10); i++) {
             const train = userTrainsData[i];
             const maxStrength = Math.max(...train.punches.map(punch => punch.strength));
             yDataArray[i] = maxStrength;
           }
-        
+
           setYData(yDataArray);
           console.log(yDataArray);
         } else {
           // If there are no trains, set yData to all 0s
           setYData(Array(10).fill(0));
         }
-        
+
       } catch (error) {
         console.error('Error getting documents:', error);
       }
     };
-
+    getGraph();
     getUserData();
   }, [route.params]);
-
   return (
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
@@ -160,7 +156,7 @@ function CheckUserProgress({ navigation, route }) {
 <Text style={styles.statLeft}>
   <IconFA name="fist-raised" size={18} color="#D72E02" /> Soco Mais Fraco: <Text style={{ color: '#D72E02' }}>{weakestPunch}</Text>
 </Text>
-<Text style={styles.chartTitle}>Gráfico de Força Média por Treino</Text>
+<Text style={styles.chartTitle}>Gráfico de Força Máxima Ultimos 10 Treinos</Text>
 <LineChart
             data={{
               labels: xData.map(value => value.toString()),
