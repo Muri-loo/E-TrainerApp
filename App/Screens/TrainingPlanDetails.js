@@ -9,7 +9,7 @@ import IconFA from 'react-native-vector-icons/FontAwesome5';
 import { formatTime } from '../Navigation/funcoes';
 
 function TrainingPlanDetails({ navigation, route }) {
-  const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino, aluno, data, descricao, objetivos } = route.params;
+  const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino, aluno, data, descricao, objetivos} = route.params;
   const [exerciseList, setExerciseList] = useState([]);
   const [goals,setGoals]= useState([]);
   // Use a default image or placeholder if fotoPlanoTreino is null
@@ -121,7 +121,7 @@ function TrainingPlanDetails({ navigation, route }) {
 
       <View style={styles.fundoContainer}>
         <View style={styles.buttonsContainer}>
-          {!data && (
+          {!data &&  (
             <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
               <Text style={styles.buttonText}>Apagar Treino</Text>
             </TouchableOpacity>

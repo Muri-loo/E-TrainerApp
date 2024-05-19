@@ -1,31 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, FlatList, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../Config/firebase';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
+import { formatTime } from '../Navigation/funcoes';
 
 function TrainingPlans({ navigation }) {
   const [trainingPlans, setTrainingPlans] = useState([]);
 
   const getTrainingPlans = async () => {
-    const trainingPlansQueryResult = await getDocs(collection(db, 'PlanoTreino'));
-    const trainingPlanData = trainingPlansQueryResult.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      exercicios: doc.data().exercicios || [] // Default to empty array if exercicios is undefined
-    }));
-    setTrainingPlans(trainingPlanData);
+    try {
+      const trainingPlansQueryResult = await getDocs(collection(db, 'PlanoTreino'));
+      const trainingPlanData = trainingPlansQueryResult.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        exercicios: doc.data().exercicios || [] // Default to empty array if exercicios is undefined
+      }));
+      setTrainingPlans(trainingPlanData);
+    } catch (error) {
+      console.error("Error fetching training plans:", error);
+      // Handle the error, such as showing an error message to the user
+    }
   };
-
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       getTrainingPlans();
     });
     return unsubscribe;
   }, [navigation]);
+
+  const navigateToDetailPage = (item) => {
+    // Pass the selected training plan to the detail page
+    navigation.navigate('TrainingPlanDetails',  item );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -37,20 +47,22 @@ function TrainingPlans({ navigation }) {
           <FlatList
             data={trainingPlans}
             renderItem={({ item }) => (
-              <View style={styles.trainingPlanDisplay}>
-                <View style={styles.exerciseImage}>
-                    {item.fotoExercicio ? (
-                      <Image style={{flex: 1, borderBottomLeftRadius:30, borderTopLeftRadius:30}} source={{uri: item.fotoPlano}} />
+              <TouchableOpacity onPress={() => navigateToDetailPage(item)}>
+                <View style={styles.trainingPlanDisplay}>
+                  <View style={styles.exerciseImage}>
+                    {item.fotoPlanoTreino ? (
+                      <Image style={{ flex: 1, borderBottomLeftRadius: 30, borderTopLeftRadius: 30 }} source={{ uri: item.fotoPlanoTreino }} />
                     ) : null}
-                    </View>
-                <View style={styles.trainingPlanInfo}>
-                  <Text style={styles.nomePlano}>{item.nomePlano}</Text>
-                  <Text style={styles.descricaoPlano}>{item.descricaoPlano}</Text>
-                  <Text style={styles.exerciciosCount}>
-                    <IconFA name={"dumbbell"} size={15} color="white" /> {item.exercicios.length} exercises
-                  </Text>
+                  </View>
+                  <View style={styles.trainingPlanInfo}>
+                    <Text style={styles.nomePlano}>{item.nomePlano}</Text>
+                    <Text style={styles.time}><IconFA name={"clock"} size={15} color="white" /> {formatTime(item.tempo)} min</Text>  
+                    <Text style={styles.exerciciosCount}>
+                      <IconFA name={"dumbbell"} size={15} color="white" /> {item.exercicios.length} exercises
+                    </Text>
+                  </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
             keyExtractor={(item) => item.id}
             style={styles.planGrid}
@@ -86,6 +98,10 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 10,
   },
+  time:{
+    color:'white',
+
+  },
   gridContainer: {
     flex: 1,
   },
@@ -97,7 +113,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: '5%',
     height: 100,
-    padding: 10,
+  },
+  exerciseImage: {
+    backgroundColor: '#c2c2c2',
+    width: '35%',
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
+    marginRight: '5%',
   },
   trainingPlanInfo: {
     flex: 1,
@@ -107,6 +129,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+    marginBottom: '2%',
+
   },
   descricaoPlano: {
     fontSize: 14,
