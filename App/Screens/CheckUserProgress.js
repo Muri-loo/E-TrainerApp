@@ -26,8 +26,8 @@ function CheckUserProgress({ navigation, route }) {
 
   const getUserData = async () => {
     let searchID = auth.currentUser.uid;
-    if (route.params && route.params.idUtilizador) {
-      searchID = route.params.idUtilizador;
+    if (route.params && route.params) {
+      searchID = route.params;
     }
 
     try {
@@ -79,8 +79,8 @@ function CheckUserProgress({ navigation, route }) {
   useEffect(() => {
     const getGraph = async () => {
       let searchID = auth.currentUser.uid;
-      if (route.params && route.params.idUtilizador) {
-        searchID = route.params.idUtilizador;
+      if (route.params && route.params) {
+        searchID = route.params;
       }
 
       try {

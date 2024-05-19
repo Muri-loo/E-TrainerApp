@@ -74,7 +74,7 @@ function Profile({ navigation }) {
   };
 
   const handleSelectedStudent = (item) => {
-    navigation.navigate('CheckUserProgress',item);
+    navigation.navigate('CheckUserProgress',item.idAtleta);
     //console.log(item.nome);
   };
 
