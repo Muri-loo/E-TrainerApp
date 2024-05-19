@@ -2,16 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
-import { View, Text, StyleSheet, TouchableOpacity,Image, Alert,ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity,Image, Alert,ScrollView,Dimensions  } from 'react-native';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconMI from 'react-native-vector-icons/MaterialIcons';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
 import { formatTime } from '../Navigation/funcoes';
-
+import { LineChart } from 'react-native-chart-kit';
 import { auth, db } from '../../Config/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
 
 function CheckUserProgress({ navigation, route }) {
+  const xData = [1, 2, 3, 4, 5,6,7,8,9,10];
+  const [yData, setYData] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
   const [punches, setPunches] = useState([]);
   const [allTrainsData, setTrains] = useState([]);
   const [averageSpeedPerPunch, setAverageSpeedPerPunch] = useState(0);
@@ -54,7 +57,7 @@ function CheckUserProgress({ navigation, route }) {
           totalDuration += train.DurationOfTrainning;
           totalPunches += train.NumberOfPunches;
         });
-
+        
         setAverageSpeedPerPunch((totalSpeed / totalTrainings).toFixed(2));
         setAverageStrengthPerPunchNewton((totalStrength / totalTrainings).toFixed(2));
         setTotalDuration(totalDuration);
@@ -74,8 +77,52 @@ function CheckUserProgress({ navigation, route }) {
   };
 
   useEffect(() => {
+    const getUserData = async () => {
+      let searchID = auth.currentUser.uid;
+      if (route.params && route.params.idUtilizador) {
+        searchID = route.params.idUtilizador;
+      }
+
+      try {
+        const userTrainsQuery = query(
+          collection(db, 'FinishedTrain'),
+          where('idUtilizador', '==', searchID),
+          orderBy('timestamp', 'desc'), // Order by timestamp in descending order
+          limit(10) // Get only the last 10 trains
+        );
+        const querySnapshot = await getDocs(userTrainsQuery);
+        // Your existing code to handle the query snapshot
+
+      
+
+        if (!querySnapshot.empty) {
+          const userTrainsData = querySnapshot.docs.map(doc => doc.data());
+          const strongestPunch = Math.max(...userTrainsData.map(train => Math.max(...train.punches.map(punch => punch.strength))));
+        
+          // Fill yData with 0s
+          const yDataArray = Array(10).fill(0);
+        
+          // Update yData with the strongest punch values from available trains
+          for (let i = 0; i < Math.min(userTrainsData.length, 10); i++) {
+            const train = userTrainsData[i];
+            const maxStrength = Math.max(...train.punches.map(punch => punch.strength));
+            yDataArray[i] = maxStrength;
+          }
+        
+          setYData(yDataArray);
+          console.log(yDataArray);
+        } else {
+          // If there are no trains, set yData to all 0s
+          setYData(Array(10).fill(0));
+        }
+        
+      } catch (error) {
+        console.error('Error getting documents:', error);
+      }
+    };
+
     getUserData();
-  }, []);
+  }, [route.params]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -113,19 +160,48 @@ function CheckUserProgress({ navigation, route }) {
 <Text style={styles.statLeft}>
   <IconFA name="fist-raised" size={18} color="#D72E02" /> Soco Mais Fraco: <Text style={{ color: '#D72E02' }}>{weakestPunch}</Text>
 </Text>
-
-</View>
+<Text style={styles.chartTitle}>Gráfico de Força Média por Treino</Text>
+<LineChart
+            data={{
+              labels: xData.map(value => value.toString()),
+              datasets: [
+                {
+                  data: yData,
+                },
+              ],
+            }}
+            width={Dimensions.get('window').width * 0.9}
+            height={220}
+            yAxisLabel=""
+            yAxisSuffix=""
+            yAxisInterval={1}
+            chartConfig={{
+              backgroundColor: '#D72E02',
+              backgroundGradientFrom: '#D72E02',
+              backgroundGradientTo: '#D72E02',
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: {
+                borderRadius: 16,
+              },
+              propsForDots: {
+                r: '6',
+                strokeWidth: '2',
+                stroke: '#D72E02',
+              },
+            }}
+            bezier
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        </View>
       </ScrollView>
-      <View style={styles.imageContainer}>
-        <Image
-          style={styles.image}
-          source={require('../assets/fotofinal.png')}
-        />
-      </View>
       <Fundo navigation={navigation} />
     </SafeAreaView>
   );
-
 }
 
 const styles = StyleSheet.create({
@@ -154,13 +230,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'left', // Align text to the left
   },
-  imageContainer: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  image: {
-    width: 200, // Adjust width and height as needed
-    height: 200,
+  chartTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
   },
 });
 

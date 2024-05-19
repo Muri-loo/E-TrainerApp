@@ -6,7 +6,7 @@ import { View, Text, StyleSheet, TouchableOpacity,Image, Alert } from 'react-nat
 import IconFA from 'react-native-vector-icons/FontAwesome5';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import { db, auth } from '../../Config/firebase';
-import { addDoc, collection, getDoc,doc } from 'firebase/firestore';
+import { addDoc, collection, getDoc,doc,Timestamp } from 'firebase/firestore';
 
 
 function LiveTraining({ navigation, route }) {
@@ -112,6 +112,8 @@ function LiveTraining({ navigation, route }) {
           const id = auth.currentUser.uid;
   
           // Populate FinishedTraining object
+          const timestamp = Timestamp.now();
+
           const finishedTraining = {
             AverageSpeedPerPunch: (seconds / punches.length).toFixed(2),
             AverageStrengthPerPunchNewton: averageStrengthPerPunchNewton, // Assuming 1 kgf equals 9.81 newtons
@@ -119,10 +121,12 @@ function LiveTraining({ navigation, route }) {
             NumberOfPunches: punches.length,
             PlanTrainId: idPlanoTreino, // Get this from your application's context or state management
             StrongestPunch: strongestPunchStrength,
-            punches:punches,
-            idade:age,
+            punches: punches,
+            idade: age,
             idUtilizador: id,
+            timestamp: timestamp
           };
+          
   
           try {
             await addDoc(collection(db, 'FinishedTrain'), finishedTraining);
