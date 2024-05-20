@@ -142,7 +142,7 @@ function TrainingPlanDetails({ navigation, route }) {
             </TouchableOpacity>
           )}
           {((data || (!isMister))) && (  
-          <TouchableOpacity style={styles.button} onPress={data ? addTrain : () => navigation.navigate('LiveTraining', { lista: exerciseList, idPlanoTreino: idPlanoTreino, nivelFisico:DificultyLevel })}>
+          <TouchableOpacity style={styles.button} onPress={data ? addTrain : () => navigation.navigate('LiveTraining', { lista: exerciseList, idPlanoTreino: idPlanoTreino, DificultyLevel:DificultyLevel })}>
             <Text style={styles.buttonText}>{data ? 'Adicionar Treino' : 'Iniciar Treino'}</Text>
           </TouchableOpacity>
         )}

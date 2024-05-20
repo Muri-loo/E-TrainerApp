@@ -10,7 +10,7 @@ import { addDoc, collection, getDoc,doc,Timestamp } from 'firebase/firestore';
 
 
 function LiveTraining({ navigation, route }) {
-  const {lista,idPlanoTreino,nivelFisico} = route.params;
+  const {lista,idPlanoTreino,DificultyLevel} = route.params;
   const [seconds, setSeconds] = useState(0);
   const [isTrainingFinished, setIsTrainingFinished] = useState(false);
   const [isPaused, setIsPaused] = useState(false); 
@@ -110,7 +110,8 @@ function LiveTraining({ navigation, route }) {
           // Find the strongest punch
           const strongestPunchStrength = punches.reduce((max, punch) => (punch.strength > max ? punch.strength : max), punches[0].strength);
           const id = auth.currentUser.uid;
-          const nivelFisico = nivelFisico;
+          const nivelFisico = DificultyLevel;
+    
   
           // Populate FinishedTraining object
           const timestamp = Timestamp.now();
@@ -126,7 +127,7 @@ function LiveTraining({ navigation, route }) {
             idade: age,
             idUtilizador: id,
             timestamp: timestamp,
-            Dificuldade: nivelFisico,
+            DificultyLevel: nivelFisico,
           };
           
   

@@ -100,17 +100,20 @@ export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
     const Atleta = await getDoc(document(collection(db, 'Atleta'), idUtilizador));
     const nivelFisico = Atleta.data().nivelFisico;
-    console.log(nivelFisico);
-
-    const finishedTrains = await getDocs(query(collection(db, 'FinishedTrain'),where("idUtilizador","==",idUtilizador)));
+    if (!Atleta.exists()) {
+      return []; 
+    }
+    // const finishedTrainsQuery = query(
+    //   collection(db, 'FinishedTrain'),
+    //   where("idUtilizador", "==", idUtilizador),
+    //   where("DificultyLevel", "==", nivelFisico)
+    // );
 
     // Fetch user's goals
     const goalsSnapshot = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', idUtilizador)));
 
-
-
     if (goalsSnapshot.empty) {
-      return null; // No goals found for the user
+      return []; // No goals found for the user
     }
 
     // Extract goal IDs
@@ -120,7 +123,11 @@ export const algoritmoRecomendacao = async (idUtilizador) => {
     const uniquePlanoTreinoIds = new Set();
 
     // Fetch training plans that match any of the user's goals
-    const trainingPlansSnapshot = await getDocs(query(collection(db, 'PlanoTreino'), where('objetivos', 'array-contains-any', goalIds)));
+    const trainingPlansSnapshot = await getDocs(query(
+                                    collection(db, 'PlanoTreino'), 
+                                    where('objetivos', 'array-contains-any', goalIds),      
+                                    where('DificultyLevel', '==', nivelFisico)
+                                  ));
 
     trainingPlansSnapshot.docs.forEach(doc => {
       uniquePlanoTreinoIds.add(doc.data().idPlanoTreino);

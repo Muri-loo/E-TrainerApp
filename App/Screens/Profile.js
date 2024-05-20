@@ -151,8 +151,8 @@ function Profile({ navigation }) {
             <TextInput style={styles.input} value={object.telemovel} editable={editable}     
              onChangeText={(newValue) => setObject(prevObject => ({ ...prevObject, telemovel: prevObject }))}
             />
-            <Text style={{fontWeight:600,marginTop:10}}>Descrição: </Text>
-            <TextInput style={[styles.input,{marginTop:3}]} value={object.descricao} editable={editable}  />
+            <Text style={{fontWeight:600,marginTop:10}}>Nível Fisico: </Text>
+            <TextInput style={[styles.input,{marginTop:3}]} value={object.nivelFisico} editable={editable}  />
             <Text style={{fontWeight:600,marginTop:13}}>Metas: </Text>
             <TextInput 
               style={[styles.input, { marginTop: 3, marginBottom: 10 }]} 
