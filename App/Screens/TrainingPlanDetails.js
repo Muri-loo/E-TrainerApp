@@ -9,15 +9,18 @@ import IconFA from 'react-native-vector-icons/FontAwesome5';
 import { formatTime } from '../Navigation/funcoes';
 
 function TrainingPlanDetails({ navigation, route }) {
-  const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino, aluno, data, descricao, objetivos} = route.params;
+  const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino, aluno, data, descricao, objetivos,idCriador} = route.params;
   const [exerciseList, setExerciseList] = useState([]);
   const [goals,setGoals]= useState([]);
+  const [isMister, setMister] = useState(false);
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
 
   const tradutor = async () => {
     try {
-        const goalsNames = await Promise.all(objetivos.map(async (element) => {
+      const documento = await getDoc(doc(collection(db, 'Treinador'), auth.currentUser.uid));
+      if(!documento.empty) setMister(true);
+      const goalsNames = await Promise.all(objetivos.map(async (element) => {
             const documento = await getDoc(doc(collection(db, 'Goals'), element));
             return documento.data().goalName;
         }));
@@ -30,7 +33,7 @@ function TrainingPlanDetails({ navigation, route }) {
 
   const addTrain = async () => {
     try {
-      const userId = auth.currentUser.uid; // Updated this line
+      const userId = aluno.idAtleta; // Updated this line
       // Create a new document in 'PlanoTreino_Atleta'
       const newPlanDocRef = await addDoc(collection(db, 'PlanoTreino_Atleta'), {
         data: data,
@@ -48,6 +51,12 @@ function TrainingPlanDetails({ navigation, route }) {
 
   const deleteOnPress = async () => {
     try {
+      if(auth.currentUser.uid==idCriador){
+        const documentRef = d(db, 'PlanoTreino', idPlanoTreino);
+        await deleteDoc(documentRef);
+        navigation.goBack();
+        return;
+      }
       const documentRef = d(db, 'PlanoTreino_Atleta', deleteId);
       await deleteDoc(documentRef);
       navigation.navigate('HomeCalendar');
@@ -121,14 +130,21 @@ function TrainingPlanDetails({ navigation, route }) {
 
       <View style={styles.fundoContainer}>
         <View style={styles.buttonsContainer}>
-          {!data &&  (
+        {(deleteId ) &&  (
             <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
               <Text style={styles.buttonText}>Apagar Treino</Text>
             </TouchableOpacity>
           )}
+          {(auth.currentUser.uid === idCriador) && (
+            <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
+              <Text style={styles.buttonText}>Remover Plano Treino APP</Text>
+            </TouchableOpacity>
+          )}
+          {((data || (!isMister))) && (  
           <TouchableOpacity style={styles.button} onPress={data ? addTrain : () => navigation.navigate('LiveTraining', { lista: exerciseList, idPlanoTreino: idPlanoTreino })}>
             <Text style={styles.buttonText}>{data ? 'Adicionar Treino' : 'Iniciar Treino'}</Text>
           </TouchableOpacity>
+        )}
         </View>
         <Fundo navigation={navigation} />
       </View>

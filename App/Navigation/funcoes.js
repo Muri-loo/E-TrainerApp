@@ -98,6 +98,9 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
 
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
+    const Atleta = await getDoc(document(collection(db, 'Atleta'), idUtilizador));
+    const nivelFisico = Atleta.data().nivelFisico;
+    console.log(nivelFisico);
 
     const finishedTrains = await getDocs(query(collection(db, 'FinishedTrain'),where("idUtilizador","==",idUtilizador)));
 

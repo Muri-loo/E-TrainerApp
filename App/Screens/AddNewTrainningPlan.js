@@ -129,6 +129,7 @@ function AddNewTrainningPlan({ navigation, route }) {
             backgroundColor: 'transparent',
             width:'90%',
             alignSelf:'center',
+            marginBottom:'8%',
           }}
           inputContainerStyle={{ backgroundColor: 'transparent', width: '80%' }}
           value={pesquisa}

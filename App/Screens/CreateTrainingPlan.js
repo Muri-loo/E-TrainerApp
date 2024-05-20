@@ -5,7 +5,7 @@ import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
 import { pickImage, uploadFile, formatTime } from '../Navigation/funcoes';
 import { collection, addDoc, getDocs, setDoc, doc } from 'firebase/firestore';
-import { db } from '../../Config/firebase';
+import { db, auth } from '../../Config/firebase';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
 import { Picker } from '@react-native-picker/picker';
 
@@ -18,6 +18,12 @@ function CreateTrainingPlan({ navigation }) {
     fotoPlanoTreino: '',
     DificultyLevel: '',
   });
+  const [items, setItems] = useState([
+    { label: 'Iniciante', value: 'Iniciante' },
+    { label: 'Intermédio', value: 'Intermédio' },
+    { label: 'Avançado', value: 'Avançado' },
+    { label: 'Profissional', value: 'Profissional' }
+  ]); 
   const [exercises, setExercises] = useState([]);
   const [selectedExercises, setSelectedExercises] = useState([]);
   const [goals, setGoals] = useState([]);
@@ -37,7 +43,7 @@ function CreateTrainingPlan({ navigation }) {
 
   useEffect(() => {
     validateForm();
-  }, [trainingPlan, selectedExercises,selectedGoals]);
+  }, [trainingPlan, selectedExercises,selectedGoals,DificultyLevel]);
   
   useEffect(() => {
     let tempoTotal = 0;
@@ -99,7 +105,8 @@ function CreateTrainingPlan({ navigation }) {
     if (isFormValid) {
       try {
       
-     
+        const idCriador = auth.currentUser.uid;
+
     
         const trainingPlanToSave = {
           ...trainingPlan,
@@ -107,6 +114,7 @@ function CreateTrainingPlan({ navigation }) {
           objetivos: selectedGoals.map(g => g.id),
           fotoPlanoTreino: '',
           DificultyLevel: DificultyLevel,
+          idCriador: idCriador,
         };
         
         const docRef = await addDoc(collection(db, 'PlanoTreino'), trainingPlanToSave);
@@ -224,16 +232,15 @@ function CreateTrainingPlan({ navigation }) {
         <View style={styles.selectedContainer}>
         <View style={styles.selectedList}>
           <Text style={styles.label}>Dificuldade:</Text>
-            <Picker
-              selectedValue={DificultyLevel}
-              style={{ height: 50, width: 200, color: 'black' }}
-              onValueChange={(itemValue, itemIndex) => { setDificuldade(itemValue); }}
-            >
-              <Picker.Item label="Fácil" value="Fácil" />
-              <Picker.Item label="Intermédio" value="Intermédio" />
-              <Picker.Item label="Avançado" value="Avançado" />
-              <Picker.Item label="Profissional" value="Profissional" />
-            </Picker>
+          <Picker
+        selectedValue={DificultyLevel}
+        style={{ height: 50, width: 200, color: 'black' }}
+        onValueChange={(itemValue, itemIndex) => setDificuldade(itemValue)}
+      >
+        {items.map((item, index) => (
+          <Picker.Item key={index} label={item.label} value={item.value} />
+        ))}
+      </Picker>
             {errors.dificuldade && <Text style={styles.error}>{errors.dificuldade}</Text>}
           </View>
     

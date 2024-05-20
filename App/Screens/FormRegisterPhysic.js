@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, View, StyleSheet, TouchableOpacity, Button, Image } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
+import IconMI from 'react-native-vector-icons/MaterialIcons';
+import IconFA from 'react-native-vector-icons/FontAwesome5';
 
 const FormRegisterPhysic = ({ navigation, route }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([
-    { label: 'Baixo', value: 'Baixo' },
+    { label: 'Iniciante', value: 'Iniciante' },
     { label: 'Intermédio', value: 'Intermédio' },
-    { label: 'Alto', value: 'Alto' }
-  ]);
+    { label: 'Avançado', value: 'Avançado' },
+    { label: 'Profissional', value: 'Profissional' }
+  ]); 
 
   const [date, setDate] = useState(new Date());
   const [show, setShow] = useState(false);
@@ -36,8 +40,6 @@ const FormRegisterPhysic = ({ navigation, route }) => {
   const showDatepicker = () => {
     setShow(true);
   };
-
-  const genders = ['Masculino', 'Feminino'];
 
   const handleContinue = () => {
     // Check if all required fields are filled
@@ -96,6 +98,7 @@ const FormRegisterPhysic = ({ navigation, route }) => {
   for (let i = 35; i <= 210; i++) {
     weights.push(i);
   }
+  const genders = ['Masculino', 'Feminino'];
 
   return (
     <View style={styles.container}>
@@ -110,12 +113,20 @@ const FormRegisterPhysic = ({ navigation, route }) => {
       <Text style={styles.label}>Sexo:</Text>
       <ScrollView horizontal={true} contentContainerStyle={styles.scrollViewContainer}>
         {genders.map((gender, index) => (
-          <Text
-            style={profile.genero === gender ? [styles.numberText, styles.selectedText] : [styles.numberText]}
+          <TouchableOpacity
             key={index}
-            onPress={() => handleProfileChange('genero', gender)}>
-            {gender}
-          </Text>
+            style={[
+              styles.iconContainer,
+              profile.genero === gender && styles.selectedIconContainer
+            ]}
+            onPress={() => handleProfileChange('genero', gender)}
+          >
+            <IconMC
+              name={gender === 'Masculino' ? 'gender-male' : 'gender-female'}
+              size={30}
+              color={profile.genero === gender ? '#CC2C02' : '#fff'}
+            />
+          </TouchableOpacity>
         ))}
       </ScrollView>
 
@@ -208,7 +219,6 @@ const styles = StyleSheet.create({
     marginTop: 0,
   },
   scrollViewContainer: {
-    // Remove justifyContent if you don't want any space between the items
     flexDirection: 'row',
     maxHeight: 100,
   },
@@ -226,7 +236,18 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     color: '#CC2C02',
-    // Ensure other styles are consistent with numberText
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 10,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  selectedIconContainer: {
+    borderColor: '#CC2C02',
   },
   button: {
     backgroundColor: '#CC2C02', // Red background color for the button
