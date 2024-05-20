@@ -12,14 +12,14 @@ function TrainingPlanDetails({ navigation, route }) {
   const { fotoPlanoTreino, tempo, nomePlano, deleteId, DificultyLevel, idPlanoTreino, aluno, data, descricao, objetivos,idCriador} = route.params;
   const [exerciseList, setExerciseList] = useState([]);
   const [goals,setGoals]= useState([]);
-  const [isMister, setMister] = useState(false);
+  const [isMister, setMister] = useState('filodapta');
   // Use a default image or placeholder if fotoPlanoTreino is null
   const imageUri = fotoPlanoTreino || 'https://drive.google.com/uc?export=view&id=1uNBArFrHi5f8c0WOlCHcJwPzWa8bKihV';
 
   const tradutor = async () => {
     try {
       const documento = await getDoc(doc(collection(db, 'Treinador'), auth.currentUser.uid));
-      if(!documento.empty) setMister(true);
+      setMister(documento.exists());
       const goalsNames = await Promise.all(objetivos.map(async (element) => {
             const documento = await getDoc(doc(collection(db, 'Goals'), element));
             return documento.data().goalName;
@@ -132,8 +132,9 @@ function TrainingPlanDetails({ navigation, route }) {
         <View style={styles.buttonsContainer}>
         {(deleteId ) &&  (
             <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
-              <Text style={styles.buttonText}>Apagar Treino</Text>
+              <Text style={styles.buttonText}>Apagar Treino{isMister}</Text>
             </TouchableOpacity>
+  
           )}
           {(auth.currentUser.uid === idCriador) && (
             <TouchableOpacity style={styles.button} onPress={deleteOnPress}>
@@ -141,7 +142,7 @@ function TrainingPlanDetails({ navigation, route }) {
             </TouchableOpacity>
           )}
           {((data || (!isMister))) && (  
-          <TouchableOpacity style={styles.button} onPress={data ? addTrain : () => navigation.navigate('LiveTraining', { lista: exerciseList, idPlanoTreino: idPlanoTreino })}>
+          <TouchableOpacity style={styles.button} onPress={data ? addTrain : () => navigation.navigate('LiveTraining', { lista: exerciseList, idPlanoTreino: idPlanoTreino, nivelFisico:DificultyLevel })}>
             <Text style={styles.buttonText}>{data ? 'Adicionar Treino' : 'Iniciar Treino'}</Text>
           </TouchableOpacity>
         )}
