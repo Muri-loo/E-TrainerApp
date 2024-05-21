@@ -4,6 +4,7 @@ import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObjec
 import { db, app } from '../../Config/firebase'; // Adjust this path to your Firebase config
 import { collection, query, where, getDocs, updateDoc, getDoc,doc as document } from 'firebase/firestore';
 
+
 export const pickImage = async () => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -95,54 +96,106 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
   }
 };
 
+const GOALS = {
+  VELOCIDADE: "EgQX6VFYJWlb763UDyaT",
+  FORCA: "j4nQseXhp70QPnS4ceY0",
+  RESISTENCIA: "l9F1z4DMWc1F60WQX92k",
+};
+
+const getUserStats = async (idUtilizador) => {
+  try {
+    const atletaDoc = await getDoc(document(collection(db, 'Atleta'), idUtilizador));
+    
+    if (!atletaDoc.exists()) {
+      throw new Error("User does not exist");
+    }
+
+    const atleta = atletaDoc.data();
+    const nivelFisico = atleta.nivelFisico;
+
+    const [finishedTrainsQuery, finishedTrainsQueryAllUsers] = await Promise.all([
+      getDocs(query(collection(db, 'FinishedTrain'), where("idUtilizador", "==", idUtilizador))),
+      getDocs(query(collection(db, 'FinishedTrain'), where("DificultyLevel", "==", nivelFisico)))
+    ]);
+
+    const totalStrengthUser = finishedTrainsQuery.docs.reduce((acc, doc) => acc + Number(doc.data().AverageStrengthPerPunchNewton), 0);
+    const totalSpeedUser = finishedTrainsQuery.docs.reduce((acc, doc) => acc + Number(doc.data().AverageSpeedPerPunch), 0);
+    const totalStrengthAll = finishedTrainsQueryAllUsers.docs.reduce((acc, doc) => acc + Number(doc.data().AverageStrengthPerPunchNewton), 0);
+    const totalSpeedAll = finishedTrainsQueryAllUsers.docs.reduce((acc, doc) => acc + Number(doc.data().AverageSpeedPerPunch), 0);
+
+    const avgStrengthTargetUser = totalStrengthUser / Math.max(finishedTrainsQuery.docs.length, 1);
+    const avgSpeedTargetUser = totalSpeedUser / Math.max(finishedTrainsQuery.docs.length, 1);
+    const avgStrengthTargetAll = totalStrengthAll / Math.max(finishedTrainsQueryAllUsers.docs.length, 1);
+    const avgSpeedTargetAll = totalSpeedAll / Math.max(finishedTrainsQueryAllUsers.docs.length, 1);
+
+    return {
+      nivelFisico,
+      avgStrengthTargetUser,
+      avgSpeedTargetUser,
+      avgStrengthTargetAll,
+      avgSpeedTargetAll
+    };
+
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    throw error;
+  }
+};
 
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
-    const Atleta = await getDoc(document(collection(db, 'Atleta'), idUtilizador));
-    const nivelFisico = Atleta.data().nivelFisico;
-    if (!Atleta.exists()) {
-      return []; 
-    }
-    // const finishedTrainsQuery = query(
-    //   collection(db, 'FinishedTrain'),
-    //   where("idUtilizador", "==", idUtilizador),
-    //   where("DificultyLevel", "==", nivelFisico)
-    // );
+    const {
+      nivelFisico,
+      avgStrengthTargetUser,
+      avgSpeedTargetUser,
+      avgStrengthTargetAll,
+      avgSpeedTargetAll
+    } = await getUserStats(idUtilizador);
 
-    // Fetch user's goals
-    const goalsSnapshot = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', idUtilizador)));
+    console.log(`Average Strength for User: ${avgStrengthTargetUser}`);
+    console.log(`Average Speed for User: ${avgSpeedTargetUser}`);
+    console.log(`Average Strength for All: ${avgStrengthTargetAll}`);
+    console.log(`Average Speed for All: ${avgSpeedTargetAll}`);
+
+    const goalsSnapshot = await getDocs(query(
+      collection(db, 'Atleta_Goals'), 
+      where('idAtleta', '==', idUtilizador)
+    ));
 
     if (goalsSnapshot.empty) {
-      return []; // No goals found for the user
+      return [];
     }
 
-    // Extract goal IDs
     const goalIds = goalsSnapshot.docs.map(doc => doc.data().idGoal);
+    if (avgSpeedTargetUser < avgSpeedTargetAll) {
+      goalIds.push(GOALS.VELOCIDADE);
+    }
+    if (avgStrengthTargetUser < avgStrengthTargetAll) {
+      goalIds.push(GOALS.FORCA);
+    }
 
-    // Use a Set to avoid duplicate training plan IDs
     const uniquePlanoTreinoIds = new Set();
 
-    // Fetch training plans that match any of the user's goals
     const trainingPlansSnapshot = await getDocs(query(
-                                    collection(db, 'PlanoTreino'), 
-                                    where('objetivos', 'array-contains-any', goalIds),      
-                                    where('DificultyLevel', '==', nivelFisico)
-                                  ));
+      collection(db, 'PlanoTreino'), 
+      where('objetivos', 'array-contains-any', goalIds),
+      where('DificultyLevel', '==', nivelFisico)
+    ));
 
     trainingPlansSnapshot.docs.forEach(doc => {
       uniquePlanoTreinoIds.add(doc.data().idPlanoTreino);
     });
 
-    // Convert the Set to an array
-    const uniquePlanoTreinoIdsArray = Array.from(uniquePlanoTreinoIds);
-
-    return uniquePlanoTreinoIdsArray;
+    return Array.from(uniquePlanoTreinoIds);
 
   } catch (error) {
     console.error('Error fetching recommended training plans:', error);
     throw error;
   }
 };
+
+
+
 
 
 
