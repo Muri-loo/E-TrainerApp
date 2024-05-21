@@ -20,11 +20,7 @@ export const pickImage = async () => {
   return null;
 };
 
-const AGEGROUPS = {
-  Teen: { lowerBound: 13, upperBound: 19 },
-  Adult: { lowerBound: 20, upperBound: 59 },
-  Senior: { lowerBound: 60, upperBound: Infinity } // Assuming senior age starts from 60 and onwards
-};
+
 
 
 const typeConfig = {
@@ -101,33 +97,89 @@ const GOALS = {
   FORCA: "j4nQseXhp70QPnS4ceY0",
   RESISTENCIA: "l9F1z4DMWc1F60WQX92k",
 };
+const AGEGROUPS = {
+  Teen: { lowerBound: 13, upperBound: 19 },
+  Adult: { lowerBound: 20, upperBound: 59 },
+  Senior: { lowerBound: 60, upperBound: Infinity } // Assuming senior age starts from 60 and onwards
+};
 
+// Function to calculate age group based on date of birth
+const calculateAgeGroup = (dateOfBirthString) => {
+  // Split date of birth string into day, month, and year
+  const dataNascimentoParts = dateOfBirthString.split('/');
+  const day = parseInt(dataNascimentoParts[0]);
+  const month = parseInt(dataNascimentoParts[1]) - 1; // Months are zero-based in JavaScript Date object
+  const year = parseInt(dataNascimentoParts[2]);
+
+  // Create Date object from date of birth
+  const dataNascimento = new Date(year, month, day);
+  
+  // Get current date
+  const today = new Date();
+  
+  // Calculate age
+  let age = today.getFullYear() - dataNascimento.getFullYear();
+  const monthDiff = today.getMonth() - dataNascimento.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dataNascimento.getDate())) {
+    age--;
+  }
+
+  // Determine the age group
+  let ageGroup = null;
+  for (const groupName in AGEGROUPS) {
+    if (AGEGROUPS.hasOwnProperty(groupName)) {
+      const group = AGEGROUPS[groupName];
+      if (age >= group.lowerBound && age <= group.upperBound) {
+        ageGroup = groupName;
+        break;
+      }
+    }
+  }
+
+  // Return calculated age and age group
+  return { age, ageGroup };
+};
+
+// Function to fetch user stats and calculate recommended training plans
 const getUserStats = async (idUtilizador) => {
   try {
+    // Fetch user data from Firestore
     const atletaDoc = await getDoc(document(collection(db, 'Atleta'), idUtilizador));
     
+    // If user document doesn't exist, throw an error
     if (!atletaDoc.exists()) {
       throw new Error("User does not exist");
     }
 
+    // Extract user data from document
     const atleta = atletaDoc.data();
     const nivelFisico = atleta.nivelFisico;
 
+    // Extract date of birth, calculate age, and determine age group
+    const { age, ageGroup } = calculateAgeGroup(atleta.dataNascimento);
+
+    // Fetch finished training data for the user
     const [finishedTrainsQuery, finishedTrainsQueryAllUsers] = await Promise.all([
       getDocs(query(collection(db, 'FinishedTrain'), where("idUtilizador", "==", idUtilizador))),
-      getDocs(query(collection(db, 'FinishedTrain'), where("DificultyLevel", "==", nivelFisico)))
+      getDocs(query(collection(db, 'FinishedTrain'), where("DificultyLevel", "==", nivelFisico),
+                where("idade", ">", AGEGROUPS[ageGroup].lowerBound),
+                where("idade", "<", AGEGROUPS[ageGroup].upperBound)
+              ))
     ]);
 
+    // Calculate total strength and speed for the user and all users
     const totalStrengthUser = finishedTrainsQuery.docs.reduce((acc, doc) => acc + Number(doc.data().AverageStrengthPerPunchNewton), 0);
     const totalSpeedUser = finishedTrainsQuery.docs.reduce((acc, doc) => acc + Number(doc.data().AverageSpeedPerPunch), 0);
     const totalStrengthAll = finishedTrainsQueryAllUsers.docs.reduce((acc, doc) => acc + Number(doc.data().AverageStrengthPerPunchNewton), 0);
     const totalSpeedAll = finishedTrainsQueryAllUsers.docs.reduce((acc, doc) => acc + Number(doc.data().AverageSpeedPerPunch), 0);
 
+    // Calculate average strength and speed for the user and all users
     const avgStrengthTargetUser = totalStrengthUser / Math.max(finishedTrainsQuery.docs.length, 1);
     const avgSpeedTargetUser = totalSpeedUser / Math.max(finishedTrainsQuery.docs.length, 1);
     const avgStrengthTargetAll = totalStrengthAll / Math.max(finishedTrainsQueryAllUsers.docs.length, 1);
     const avgSpeedTargetAll = totalSpeedAll / Math.max(finishedTrainsQueryAllUsers.docs.length, 1);
 
+    // Return user stats
     return {
       nivelFisico,
       avgStrengthTargetUser,
@@ -137,13 +189,20 @@ const getUserStats = async (idUtilizador) => {
     };
 
   } catch (error) {
+    // Handle errors
     console.error('Error fetching user stats:', error);
     throw error;
   }
 };
 
+
+
+
+
+// Function to recommend training plans based on user's stats and goals
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
+    // Fetch user stats
     const {
       nivelFisico,
       avgStrengthTargetUser,
@@ -152,21 +211,27 @@ export const algoritmoRecomendacao = async (idUtilizador) => {
       avgSpeedTargetAll
     } = await getUserStats(idUtilizador);
 
+    // Log user stats
     console.log(`Average Strength for User: ${avgStrengthTargetUser}`);
     console.log(`Average Speed for User: ${avgSpeedTargetUser}`);
     console.log(`Average Strength for All: ${avgStrengthTargetAll}`);
     console.log(`Average Speed for All: ${avgSpeedTargetAll}`);
 
+    // Fetch user's goals from Firestore
     const goalsSnapshot = await getDocs(query(
       collection(db, 'Atleta_Goals'), 
       where('idAtleta', '==', idUtilizador)
     ));
 
+    // If user has no goals, return an empty array
     if (goalsSnapshot.empty) {
       return [];
     }
 
+    // Extract goal IDs from the snapshot
     const goalIds = goalsSnapshot.docs.map(doc => doc.data().idGoal);
+
+    // Adjust goal IDs based on user's stats compared to overall averages
     if (avgSpeedTargetUser < avgSpeedTargetAll) {
       goalIds.push(GOALS.VELOCIDADE);
     }
@@ -174,25 +239,31 @@ export const algoritmoRecomendacao = async (idUtilizador) => {
       goalIds.push(GOALS.FORCA);
     }
 
+    // Initialize set to store unique training plan IDs
     const uniquePlanoTreinoIds = new Set();
 
+    // Fetch training plans from Firestore based on user's goals and difficulty level
     const trainingPlansSnapshot = await getDocs(query(
       collection(db, 'PlanoTreino'), 
       where('objetivos', 'array-contains-any', goalIds),
       where('DificultyLevel', '==', nivelFisico)
     ));
 
+    // Store unique training plan IDs in the set
     trainingPlansSnapshot.docs.forEach(doc => {
       uniquePlanoTreinoIds.add(doc.data().idPlanoTreino);
     });
 
+    // Return array of unique training plan IDs
     return Array.from(uniquePlanoTreinoIds);
 
   } catch (error) {
+    // Handle errors
     console.error('Error fetching recommended training plans:', error);
     throw error;
   }
 };
+
 
 
 
