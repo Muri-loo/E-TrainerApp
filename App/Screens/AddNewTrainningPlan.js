@@ -140,8 +140,9 @@ function AddNewTrainningPlan({ navigation, route }) {
           }}
         />
         {loadingData ? (
-          // Loading indicator while data is being fetched
-          <ActivityIndicator size="large" color="#0000ff" />
+          <View style={{   flex: 1,justifyContent: 'center',    alignItems: 'center',}}>
+              <ActivityIndicator size="large" color="#D72E02" />
+            </View>
         ) : error ? (
           // Display an error message
           <Text>Error: {error}</Text>

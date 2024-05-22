@@ -125,8 +125,9 @@ const CalendarPage = ({ navigation, route }) => {
 
 
     {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
-        ) : !loadCalendar ? (
+      <View style={{   flex: 1,justifyContent: 'center',    alignItems: 'center',}}>
+              <ActivityIndicator size="large" color="#D72E02" />
+            </View>        ) : !loadCalendar ? (
           // Display this when loadCalendar is false
           <>
           <Text style={{fontSize:27, fontWeight:'bold', alignSelf:'center', marginTop:10}}>Clientes</Text>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Navbarlight from '../Navigation/navbarlight';
 import Fundo from '../Navigation/fundo';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, ScrollView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import IconMI from 'react-native-vector-icons/MaterialIcons';
 import IconFA from 'react-native-vector-icons/FontAwesome5';
@@ -23,23 +23,24 @@ function CheckUserProgress({ navigation, route }) {
   const [totalTrainings, setTotalTrainings] = useState(0);
   const [strongestPunch, setStrongestPunch] = useState(0);
   const [weakestPunch, setWeakestPunch] = useState(0);
+  const [metas, setMetas] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const getUserData = async () => {
+  const fetchData = async () => {
     let searchID = auth.currentUser.uid;
-    if (route.params && route.params) {
+    if (route.params) {
       searchID = route.params;
     }
 
     try {
-      const userTrainsQuery = query(collection(db, 'FinishedTrain'), where("idUtilizador", "==", searchID));
+      setLoading(true);
+      const userTrainsQuery = query(collection(db, 'FinishedTrain'), where('idUtilizador', '==', searchID));
       const querySnapshot = await getDocs(userTrainsQuery);
 
       if (!querySnapshot.empty) {
         const userTrainsData = querySnapshot.docs.map(doc => doc.data());
-        const allPunches = userTrainsData.flatMap(doc => doc.punches); // Collect all punches
+        const allPunches = userTrainsData.flatMap(doc => doc.punches);
 
-
-        // Calculate averages
         let totalSpeed = 0;
         let totalStrength = 0;
         let totalDuration = 0;
@@ -47,16 +48,12 @@ function CheckUserProgress({ navigation, route }) {
         let totalTrainings = userTrainsData.length;
         let totalPunchStrengths = allPunches.map(punch => punch.strength);
 
-      userTrainsData.forEach(train => {
-        console.log(train.AverageStrengthPerPunchNewton);
-        totalSpeed += Number(train.AverageSpeedPerPunch);
-        totalStrength += Number(train.AverageStrengthPerPunchNewton); // Convert to number before adding
-        totalDuration += Number(train.DurationOfTrainning); 
-        totalPunches += Number(train.NumberOfPunches);
-      });
-
-
-
+        userTrainsData.forEach(train => {
+          totalSpeed += Number(train.AverageSpeedPerPunch);
+          totalPunches += Number(train.NumberOfPunches);
+          totalStrength += Number(train.AverageStrengthPerPunchNewton);
+          totalDuration += Number(train.DurationOfTrainning);
+        });
 
         setAverageSpeedPerPunch((totalSpeed / totalTrainings).toFixed(2));
         setAverageStrengthPerPunchNewton((totalStrength / totalTrainings).toFixed(2));
@@ -67,97 +64,107 @@ function CheckUserProgress({ navigation, route }) {
         setTotalTrainings(totalTrainings);
         setStrongestPunch(Math.max(...totalPunchStrengths));
         setWeakestPunch(Math.min(...totalPunchStrengths));
+      }
 
+      const AthletsQueryResult = await getDocs(query(collection(db, 'Atleta_Goals'), where('idAtleta', '==', searchID)));
+      const metas = AthletsQueryResult.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      const metasNomes = [];
+
+      for (const doc of metas) {
+        const searchId = doc.idGoal;
+        const goalsQueryResult = await getDocs(query(collection(db, 'Goals'), where('idGoal', '==', searchId)));
+
+        if (!goalsQueryResult.empty) {
+          const goalDoc = goalsQueryResult.docs[0];
+          metasNomes.push(goalDoc.data().goalName);
+        }
+      }
+      setMetas(metasNomes);
+
+      const userTrainsGraphQuery = query(
+        collection(db, 'FinishedTrain'),
+        where('idUtilizador', '==', searchID),
+        orderBy('timestamp', 'desc'),
+        limit(10)
+      );
+      const queryGraphSnapshot = await getDocs(userTrainsGraphQuery);
+
+      if (!queryGraphSnapshot.empty) {
+        const userTrainsGraphData = queryGraphSnapshot.docs.map(doc => doc.data());
+        const yDataArray = Array(10).fill(0);
+
+        for (let i = 0; i < Math.min(userTrainsGraphData.length, 10); i++) {
+          const train = userTrainsGraphData[i];
+          const maxStrength = Math.max(...train.punches.map(punch => punch.strength));
+          yDataArray[i] = maxStrength;
+        }
+
+        setYData(yDataArray);
       } else {
-        console.log("No such documents!");
+        setYData(Array(10).fill(0));
       }
     } catch (error) {
-      console.error("Error getting documents:", error);
+      console.error('Error getting documents:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const getGraph = async () => {
-      let searchID = auth.currentUser.uid;
-      if (route.params && route.params) {
-        searchID = route.params;
-      }
-
-      try {
-        const userTrainsQuery = query(
-          collection(db, 'FinishedTrain'),
-          where('idUtilizador', '==', searchID),
-          orderBy('timestamp', 'desc'), // Order by timestamp in descending order
-          limit(10) // Get only the last 10 trains
-        );
-        const querySnapshot = await getDocs(userTrainsQuery);
-        // Your existing code to handle the query snapshot
-
-        if (!querySnapshot.empty) {
-          const userTrainsData = querySnapshot.docs.map(doc => doc.data());
-          
-          // Fill yData with 0s
-          const yDataArray = Array(10).fill(0);
-
-          // Update yData with the strongest punch values from available trains
-          for (let i = 0; i < Math.min(userTrainsData.length, 10); i++) {
-            const train = userTrainsData[i];
-            const maxStrength = Math.max(...train.punches.map(punch => punch.strength));
-            yDataArray[i] = maxStrength;
-          }
-
-          setYData(yDataArray);
-          console.log(yDataArray);
-        } else {
-          // If there are no trains, set yData to all 0s
-          setYData(Array(10).fill(0));
-        }
-
-      } catch (error) {
-        console.error('Error getting documents:', error);
-      }
-    };
-    getGraph();
-    getUserData();
+    fetchData();
   }, [route.params]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Navbarlight navigation={navigation} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#D72E02" />
+          <Text>Loading...</Text>
+        </View>
+        <Fundo navigation={navigation} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Navbarlight navigation={navigation} />
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-  
-<View style={styles.content}>
-<Text style={styles.title}>Estatísticas do Utilizador</Text>
-<Text style={styles.statLeft}>
-  <IconMC name="speedometer" size={18} color="#D72E02" /> Velocidade Média por Soco: <Text style={{ color: '#D72E02' }}>{averageSpeedPerPunch}</Text>
-</Text>
-<Text style={styles.statLeft}>
-  <IconMC name="dumbbell" size={18} color="#D72E02" /> Força Média por Soco (Newton): <Text style={{ color: '#D72E02' }}>{averageStrengthPerPunchNewton}</Text>
-</Text>
-<Text style={styles.statLeft}>
-  <IconMC name="clipboard-check" size={18} color="#D72E02" /> Total de Treinos Concluídos: <Text style={{ color: '#D72E02' }}>{totalTrainings}</Text>
-</Text>
-<Text style={styles.statLeft}>
-  <IconMI name="timer" size={18} color="#D72E02" /> Duração Total dos Treinos: <Text style={{ color: '#D72E02' }}>{formatTime(totalDuration) } min</Text>
-</Text> 
-
-<Text style={styles.statLeft}>
-  <IconMI name="timer" size={18} color="#D72E02" /> Duração Média por Treino: <Text style={{ color: '#D72E02' }}>{formatTime(averageDurationPerTraining)} min</Text>
-</Text>
-
-<Text style={styles.statLeft}>
-  <IconFA name="fist-raised" size={18} color="#D72E02" /> Número Total de Socos: <Text style={{ color: '#D72E02' }}>{totalPunches}</Text>
-</Text>
-<Text style={styles.statLeft}>
-  <IconFA name="fist-raised" size={18} color="#D72E02" /> Número Médio de Socos por Treino: <Text style={{ color: '#D72E02' }}>{averagePunchesPerTraining}</Text>
-</Text>
-<Text style={styles.statLeft}>
-  <IconFA name="fist-raised" size={18} color="#D72E02" /> Soco Mais Forte: <Text style={{ color: '#D72E02' }}>{strongestPunch}</Text>
-</Text>
-<Text style={styles.statLeft}>
-  <IconFA name="fist-raised" size={18} color="#D72E02" /> Soco Mais Fraco: <Text style={{ color: '#D72E02' }}>{weakestPunch}</Text>
-</Text>
-<Text style={styles.chartTitle}>Gráfico de Força Máxima Ultimos 10 Treinos</Text>
-<LineChart
+        <View style={styles.content}>
+          <Text style={styles.title}>Estatísticas do Utilizador</Text>
+          <Text style={styles.statLeft}>
+            <IconMC name="speedometer" size={18} color="#D72E02" /> Velocidade Média por Soco: <Text style={{ color: '#D72E02' }}>{averageSpeedPerPunch}</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconMC name="dumbbell" size={18} color="#D72E02" /> Força Média por Soco (Newton): <Text style={{ color: '#D72E02' }}>{averageStrengthPerPunchNewton}</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconMC name="clipboard-check" size={18} color="#D72E02" /> Total de Treinos Concluídos: <Text style={{ color: '#D72E02' }}>{totalTrainings}</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconMI name="timer" size={18} color="#D72E02" /> Duração Total dos Treinos: <Text style={{ color: '#D72E02' }}>{formatTime(totalDuration)} min</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconMI name="timer" size={18} color="#D72E02" /> Duração Média por Treino: <Text style={{ color: '#D72E02' }}>{formatTime(averageDurationPerTraining)} min</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconFA name="fist-raised" size={18} color="#D72E02" /> Número Total de Socos: <Text style={{ color: '#D72E02' }}>{totalPunches}</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconFA name="fist-raised" size={18} color="#D72E02" /> Número Médio de Socos por Treino: <Text style={{ color: '#D72E02' }}>{averagePunchesPerTraining}</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconFA name="fist-raised" size={18} color="#D72E02" /> Soco Mais Forte: <Text style={{ color: '#D72E02' }}>{strongestPunch}</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconFA name="fist-raised" size={18} color="#D72E02" /> Soco Mais Fraco: <Text style={{ color: '#D72E02' }}>{weakestPunch}</Text>
+          </Text>
+          <Text style={styles.statLeft}>
+            <IconMC name="flag" size={18} color="#D72E02" /> Metas: <Text style={{ color: '#D72E02' }}>{metas.join(', ')}</Text>
+          </Text>
+          <Text style={styles.chartTitle}>Gráfico de Força Máxima Últimos 10 Treinos</Text>
+          <LineChart
             data={{
               labels: xData.map(value => value.toString()),
               datasets: [
@@ -211,7 +218,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: 'flex-start', // Align text to the left
+    alignItems: 'flex-start',
     paddingHorizontal: 20,
     paddingTop: 20,
   },
@@ -224,13 +231,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
-    textAlign: 'left', // Align text to the left
+    textAlign: 'left',
   },
   chartTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

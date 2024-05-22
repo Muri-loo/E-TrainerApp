@@ -21,6 +21,16 @@ export const pickImage = async () => {
 };
 
 
+const GOALS = {
+  VELOCIDADE: "EgQX6VFYJWlb763UDyaT",
+  FORCA: "j4nQseXhp70QPnS4ceY0",
+  RESISTENCIA: "l9F1z4DMWc1F60WQX92k",
+};
+const AGEGROUPS = {
+  Teen: { lowerBound: 13, upperBound: 19 },
+  Adult: { lowerBound: 20, upperBound: 59 },
+  Senior: { lowerBound: 60, upperBound: Infinity } // Assuming senior age starts from 60 and onwards
+};
 
 
 const typeConfig = {
@@ -92,16 +102,6 @@ export const uploadFile = async (uriPhoto, objeto, tipo) => {
   }
 };
 
-const GOALS = {
-  VELOCIDADE: "EgQX6VFYJWlb763UDyaT",
-  FORCA: "j4nQseXhp70QPnS4ceY0",
-  RESISTENCIA: "l9F1z4DMWc1F60WQX92k",
-};
-const AGEGROUPS = {
-  Teen: { lowerBound: 13, upperBound: 19 },
-  Adult: { lowerBound: 20, upperBound: 59 },
-  Senior: { lowerBound: 60, upperBound: Infinity } // Assuming senior age starts from 60 and onwards
-};
 
 // Function to calculate age group based on date of birth
 const calculateAgeGroup = (dateOfBirthString) => {
@@ -197,8 +197,6 @@ const getUserStats = async (idUtilizador) => {
 
 
 
-
-
 // Function to recommend training plans based on user's stats and goals
 export const algoritmoRecomendacao = async (idUtilizador) => {
   try {
@@ -266,27 +264,9 @@ export const algoritmoRecomendacao = async (idUtilizador) => {
 
 
 
-
-
-
-
-
 export const formatTime = seconds => {
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = seconds % 60;
   return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 };
 
-// const handlerImage = async () => {
-//   const uri = await pickImage();
-//   if (uri) {
-//     try {
-//       await uploadFile(uri, object, userType);
-//       Alert.alert('Foto', 'Foto carregada com sucesso');
-//     } catch (error) {
-//       Alert.alert('Foto', error.message);
-//     }
-//   }
-// };
-
-//HANDLER EXEMPLE
